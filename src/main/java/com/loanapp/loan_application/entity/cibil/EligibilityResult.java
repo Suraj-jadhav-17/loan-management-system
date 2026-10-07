@@ -1,5 +1,6 @@
 package com.loanapp.loan_application.entity.cibil;
 
+import com.loanapp.loan_application.entity.Customer;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
