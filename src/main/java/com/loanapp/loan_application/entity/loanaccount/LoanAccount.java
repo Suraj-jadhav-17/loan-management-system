@@ -1,5 +1,6 @@
 package com.loanapp.loan_application.entity.loanaccount;
 
+import com.loanapp.loan_application.entity.loan.LoanDeal;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,7 +28,7 @@ public class LoanAccount {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "DealId", nullable = false)
-    private Long loanDeal;  //LoanDeal
+    private LoanDeal loanDeal;  //LoanDeal
 
     @Column(name = "LoanAccountNo", nullable = false, unique = true, length = 100)
     private String loanAccountNo;

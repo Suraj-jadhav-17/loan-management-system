@@ -1,0 +1,87 @@
+package com.loanapp.loan_application.serviceimpl.loan;
+
+import com.loanapp.loan_application.dto.loan.LoanDealRequestDto;
+import com.loanapp.loan_application.dto.loan.LoanDealResponseDto;
+import com.loanapp.loan_application.entity.Customer;
+import com.loanapp.loan_application.entity.loan.LoanDeal;
+import com.loanapp.loan_application.entity.loan.LoanType;
+import com.loanapp.loan_application.exception.InvalidInputException;
+import com.loanapp.loan_application.exception.ResourceNotFoundException;
+import com.loanapp.loan_application.repository.CustomerRepository;
+import com.loanapp.loan_application.repository.loan.LoanDealRepo;
+import com.loanapp.loan_application.repository.scorecard.ScoreCardRepo;
+import com.loanapp.loan_application.service.loan.LoanDealService;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class LoanDealServiceImpl  implements LoanDealService {
+
+    private final LoanDealRepo dealRepo;
+    private final CustomerRepository customerRepo;
+    private final ModelMapper mapper;
+
+    @Override
+    public LoanDealResponseDto createLoanDeal(LoanDealRequestDto request) {
+        if (request==null || request.getCustomerId()==null || request.getLoanType()==null){
+            throw new InvalidInputException("Invalid input: Customer or Loan Type Can't Be Empty");
+        }
+        if(request.getAmount()==null || request.getAmount()<=0){
+            throw new InvalidInputException("Invalid input: Amount Can't Be Empty Or Less Than 0");
+        }
+        Customer customer = customerRepo.findById(request.getCustomerId()).orElseThrow(()->new ResourceNotFoundException("Customer Not Found"));
+
+        LoanDeal deal = LoanDeal.builder()
+                .amount(request.getAmount())
+                .approvedAmount(request.getApprovedAmount())// we need to  fetch from scoreBoard
+                .bankAccountNumber(request.getBankAccountNumber())
+                .bankName(request.getBankName())
+                .customer(customer)
+                .emiAmount(getEmiAmount(request.getAmount(),request.getLoanType(), request.getTenureMonths()))
+                .emiDay(request.getEmiDay())
+                .ifscCode(request.getIfscCode())
+                .interestRate(request.getLoanType().equals(LoanType.CAR_LOAN)? 10.0
+                        : request.getLoanType().equals(LoanType.HOME_LOAN)?15.0: 0)
+                .loanType(request.getLoanType())
+                .tenureMonths(request.getTenureMonths())
+                .build();
+
+        LoanDeal savedDeal =dealRepo.save(deal);
+        return mapper.map(savedDeal, LoanDealResponseDto.class);
+
+    }
+
+    @Override
+    public LoanDealResponseDto getLoanDealById(Long id) {
+        LoanDeal deal = dealRepo.findById(id).orElseThrow(()->new ResourceNotFoundException("LoanDeal Not Found"));
+        return mapper.map(deal, LoanDealResponseDto.class);
+    }
+
+    @Override
+    public List<LoanDealResponseDto> getLoanDealByCustomerId(Long customerId) {
+        return dealRepo.getLoanDealByCustomer_customerId(customerId).stream().map(deal-> mapper.map(deal, LoanDealResponseDto.class)).toList();
+    }
+
+    @Override
+    public List<LoanDealResponseDto> getLoanDealByLoanType(LoanType loanType) {
+        return dealRepo.getLoanDealByLoanType(loanType).stream().map(deal-> mapper.map(deal, LoanDealResponseDto.class)).toList();
+    }
+    private Double getEmiAmount(Double amount, LoanType loanType, Integer tenureMonths) {
+        return switch (loanType){
+            case CAR_LOAN ->  emiFormula(amount, 10.0, tenureMonths);
+            case HOME_LOAN -> emiFormula(amount, 15.0, tenureMonths);
+            default -> throw new InvalidInputException("Invalid Input");
+        };
+
+    }
+    private Double emiFormula (Double amount, Double interestRate,Integer tenureMonths){  // Emi = P*r*(1+r)^n
+        double rate = interestRate/12/100;                                                //       -------------
+        double power = Math.pow(1+rate,tenureMonths);                                     //        (1+r)^n -1
+        return (amount *rate * power)/(power-1);
+    }
+}
