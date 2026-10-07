@@ -1,6 +1,6 @@
-package com.loanapp.loan_application.repository;
+package com.loanapp.loan_application.repository.registration;
 
-import com.loanapp.loan_application.entity.User;
+import com.loanapp.loan_application.entity.registration.User;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,6 +1,6 @@
-package com.loanapp.loan_application.repository;
+package com.loanapp.loan_application.repository.registration;
 
-import com.loanapp.loan_application.entity.Role;
+import com.loanapp.loan_application.entity.registration.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,4 +1,4 @@
-package com.loanapp.loan_application.entity;
+package com.loanapp.loan_application.entity.registration;
 
 import jakarta.persistence.*;
 import lombok.Data;

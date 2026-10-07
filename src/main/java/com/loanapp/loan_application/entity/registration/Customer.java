@@ -1,4 +1,4 @@
-package com.loanapp.loan_application.entity;
+package com.loanapp.loan_application.entity.registration;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -39,6 +39,9 @@ public class Customer {
 
     @Column(name = "MonthlyIncome", precision = 18, scale = 2)
     private BigDecimal monthlyIncome;
+
+    @Column(name = "MonthlyInvestment", precision = 18, scale = 2)
+    private BigDecimal monthlyInvestment;
 
     @Column(name = "IsEmailVerified", nullable = false)
     private Boolean isEmailVerified = false;

@@ -1,5 +1,6 @@
 package com.loanapp.loan_application.dto;
 
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
@@ -32,5 +33,10 @@ public class RegistrationRequest {
 
     @NotNull
     @Positive
+
     private BigDecimal monthlyIncome;
+    @Column(name = "MonthlyInvestment", precision = 18, scale = 2)
+    private BigDecimal monthlyInvestment;
+
+
 }
