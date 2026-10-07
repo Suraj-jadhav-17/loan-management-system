@@ -5,21 +5,23 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class CIBILReportResponseDto {
+public class ScoreCardResponseDto {
 
-    private Long id;
-
+    private Long scoreCardId;
     private Long customerId;
-
-    private String panNo;
-
+    private String currentStatus;
+    private String rejectionReason;
+    private LocalDateTime appliedDate;
     private Integer cibilScore;
+    private String riskCategory;
+    private BigDecimal eligibleLoanAmount;
 
-    private LocalDateTime checkDate;
+
 }

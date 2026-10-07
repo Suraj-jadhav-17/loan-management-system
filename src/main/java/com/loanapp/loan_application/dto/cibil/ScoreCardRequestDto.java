@@ -5,15 +5,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 @Builder
-public class EligibilityResultRequestDto {
+@NoArgsConstructor
+@AllArgsConstructor
+public class ScoreCardRequestDto {
 
     private Long customerId;
-
-    private BigDecimal totalMonthlyDebtPayment;
+    private Integer cibilScore;
 }

@@ -2,6 +2,12 @@ package com.loanapp.loan_application.repository.cibil;
 
 import com.loanapp.loan_application.entity.cibil.EligibilityResult;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public interface EligibilityResultRepo extends JpaRepository<EligibilityResult,Long> {
+import java.util.Optional;
+
+@Repository
+public interface EligibilityResultRepo extends JpaRepository<EligibilityResult, Long> {
+
+    Optional<EligibilityResult> findTopByCustomerCustomerIdOrderByIdDesc(Long customerId);
 }

@@ -5,18 +5,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class CIBILReportRequestDto {
+
     private Long customerId;
 
     private String panNo;
-
-    private Integer cibilScore;
-
-    private LocalDateTime checkDate;
 }
