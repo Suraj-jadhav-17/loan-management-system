@@ -1,5 +1,6 @@
 package com.loanapp.loan_application.entity.emischeduler;
 
+import com.loanapp.loan_application.entity.payment.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
@@ -28,7 +29,8 @@ public class EmiSchedules {
     private BigDecimal openingBalance;
     private BigDecimal closingBalance;
     private BigDecimal emi;
-    private String paymentStatus;
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus paymentStatus;
     private LocalDateTime paidDate;
     private String cancellationReason;
 }
