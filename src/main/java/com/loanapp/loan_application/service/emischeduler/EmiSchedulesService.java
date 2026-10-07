@@ -8,4 +8,6 @@ public interface EmiSchedulesService {
 
     List<EmiSchedulesDto> getByLoanId(Long loanAccountId);
     void generate(Long loanAccountId);
+    void checkDefault(Long loanAccountId);
+
 }
