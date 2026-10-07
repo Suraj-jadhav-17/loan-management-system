@@ -4,6 +4,7 @@ package com.loanapp.loan_application.serviceimpl.loanaccount;
 import com.loanapp.loan_application.dto.request.loanaccount.LoanAccountRequestDto;
 import com.loanapp.loan_application.dto.response.loanaccount.LoanAccountResponseDto;
 import com.loanapp.loan_application.entity.loanaccount.LoanAccount;
+import com.loanapp.loan_application.repository.emischedulerepository.EmiScheduleRepository;
 import com.loanapp.loan_application.repository.loanaccount.LoanAccountRepository;
 import com.loanapp.loan_application.service.loanaccount.LoanAccountService;
 
@@ -24,20 +25,15 @@ public class LoanAccountServiceImpl implements LoanAccountService {
 
     @Override
     public LoanAccountResponseDto createLoanAccount(LoanAccountRequestDto requestDto) {
-
         LoanAccount loanAccount = modelMapper.map(requestDto, LoanAccount.class);
         LoanAccount savedLoanAccount = loanAccountRepository.save(loanAccount);
-
         return modelMapper.map(savedLoanAccount, LoanAccountResponseDto.class);
     }
 
 
     @Override
     public LoanAccountResponseDto getLoanAccountById(Long loanAccountId) {
-
-        LoanAccount loanAccount = loanAccountRepository.findById(loanAccountId)
-                        .orElseThrow(() -> new RuntimeException("Loan account not found with id: " + loanAccountId));
-
+        LoanAccount loanAccount = loanAccountRepository.findById(loanAccountId).orElseThrow(() -> new RuntimeException("Loan account not found with id: " + loanAccountId));
         return modelMapper.map(loanAccount, LoanAccountResponseDto.class);
     }
 

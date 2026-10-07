@@ -2,8 +2,10 @@ package com.loanapp.loan_application.serviceimpl.emischeduler;
 
 import com.loanapp.loan_application.dto.emischeduler.EmiSchedulesDto;
 import com.loanapp.loan_application.entity.emischeduler.EmiSchedules;
-import com.loanapp.loan_application.entity.emischeduler.LoanAccounts;
 
+
+import com.loanapp.loan_application.entity.loanaccount.LoanAccount;
+import com.loanapp.loan_application.entity.payment.PaymentStatus;
 import com.loanapp.loan_application.repository.LoanAccountsRepository;
 import com.loanapp.loan_application.repository.emischedulerepository.EmiScheduleRepository;
 import com.loanapp.loan_application.service.emischeduler.EmiSchedulesService;
@@ -50,7 +52,7 @@ public class EmiSchedulesServiceImpl implements EmiSchedulesService {
         if (repo.existsByLoanAccountId(loanAccountId)) {
             return;
         }
-        LoanAccounts loan = loanRepo.findById(loanAccountId).orElseThrow();
+        LoanAccount loan = loanRepo.findById(loanAccountId).orElseThrow();
             BigDecimal balance = loan.getLoanAmount();
            BigDecimal rate = loan.getInterestRate();
            BigDecimal emi = loan.getEmiAmount();
@@ -59,12 +61,8 @@ public class EmiSchedulesServiceImpl implements EmiSchedulesService {
         LocalDate dueDate = loan.getDisbursementDate().toLocalDate();
         for (int i = 1; i <= tenure; i++) {
             BigDecimal openingBalance = balance;
-            BigDecimal monthlyRate = rate.divide(
-                    BigDecimal.valueOf(12 * 100), 10,
-                    RoundingMode.HALF_UP);
-            BigDecimal interest = openingBalance
-                    .multiply(monthlyRate)
-                    .setScale(2, RoundingMode.HALF_UP);
+            BigDecimal monthlyRate = rate.divide(BigDecimal.valueOf(12 * 100), 10, RoundingMode.HALF_UP);
+            BigDecimal interest = openingBalance.multiply(monthlyRate).setScale(2, RoundingMode.HALF_UP);
 
             BigDecimal principal = emi.subtract(interest);
             BigDecimal closingBalance = openingBalance.subtract(principal);
@@ -77,12 +75,17 @@ public class EmiSchedulesServiceImpl implements EmiSchedulesService {
             schedule.setPrincipalAmount(principal);
             schedule.setEmi(emi);
             schedule.setClosingBalance(closingBalance);
-            schedule.setPaymentStatus("PENDING");
+            schedule.setPaymentStatus(PaymentStatus.PENDING);
 
             repo.save(schedule);
 
             balance = closingBalance;
             dueDate = dueDate.plusMonths(1);
         }
+    }
+
+    @Override
+    public void checkDefault(Long loanAccountId) {
+
     }
 }

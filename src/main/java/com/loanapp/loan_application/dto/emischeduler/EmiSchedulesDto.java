@@ -1,5 +1,6 @@
 package com.loanapp.loan_application.dto.emischeduler;
 
+import com.loanapp.loan_application.entity.payment.PaymentStatus;
 import jakarta.persistence.Entity;
 import lombok.Data;
 
@@ -18,5 +19,5 @@ public class EmiSchedulesDto {
     private BigDecimal openingBalance;
     private BigDecimal closingBalance;
     private BigDecimal emi;
-    private String paymentStatus;
+    private PaymentStatus paymentStatus;
 }
