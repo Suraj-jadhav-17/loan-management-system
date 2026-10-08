@@ -2,6 +2,7 @@ package com.loanapp.loan_application.serviceimpl.penalty;
 
 import com.loanapp.loan_application.dto.penalty.PenaltyChargesDto;
 import com.loanapp.loan_application.entity.emischeduler.EmiSchedules;
+import com.loanapp.loan_application.entity.payment.PaymentStatus;
 import com.loanapp.loan_application.entity.penalty.PenaltyCharges;
 import com.loanapp.loan_application.repository.emischedulerepository.EmiScheduleRepository;
 import com.loanapp.loan_application.repository.penalty.PenaltyChargesRepository;
@@ -34,13 +35,16 @@ public class PenaltyChargesServiceImpl implements PenaltyChargesService {
         if (repo.existsByEmiScheduleId(dto.getEmiScheduleId())) {
             throw new RuntimeException("Penalty already exists for this EMI");
         }
+
         EmiSchedules emi = emiRepo.findById(dto.getEmiScheduleId()).orElseThrow(() ->
                 new RuntimeException("EMI not found"));
 
         long days = ChronoUnit.DAYS.between(emi.getDueDate(), LocalDate.now());
         if (days < 0) {days = 0;}
         BigDecimal lateCharge = BigDecimal.valueOf(days);
-        long months = ChronoUnit.MONTHS.between(emi.getDueDate().withDayOfMonth(1), LocalDate.now().withDayOfMonth(1));
+        long months = ChronoUnit.MONTHS.between(
+                emi.getDueDate().withDayOfMonth(1),
+                LocalDate.now().withDayOfMonth(1));
         if (months < 1) {months = 1;}
         BigDecimal bounceCharge = BigDecimal.valueOf(months * 500);
         BigDecimal total = lateCharge.add(bounceCharge);
@@ -48,10 +52,9 @@ public class PenaltyChargesServiceImpl implements PenaltyChargesService {
         penalty.setEmiScheduleId(dto.getEmiScheduleId());
         penalty.setLoanAccountId(dto.getLoanAccountId());
         penalty.setPenaltyAmount(total);
-        penalty.setReason("Bounce charge: " + bounceCharge
-                        + ", Late charge: " + lateCharge);
+        penalty.setReason("Bounce charge: Rs " + bounceCharge + ", Late charge: Rs " + lateCharge);
 
-        penalty.setStatus(dto.getStatus());
+        penalty.setStatus("ACTIVE");
         penalty.setCreatedAt(LocalDateTime.now());
         PenaltyCharges saved = repo.save(penalty);
         return convert(saved);
@@ -77,7 +80,7 @@ public class PenaltyChargesServiceImpl implements PenaltyChargesService {
     public void addOverdue() {
         List<EmiSchedules> list = emiRepo.findAll();
         for (EmiSchedules emi : list) {
-            if (emi.getDueDate().isBefore(LocalDate.now()) && !"PAID".equalsIgnoreCase(emi.getPaymentStatus())) {
+            if (emi.getDueDate().isBefore(LocalDate.now()) && emi.getPaymentStatus()!= PaymentStatus.PAID) {
                 long days = ChronoUnit.DAYS.between(emi.getDueDate(), LocalDate.now());
                 BigDecimal lateCharge = BigDecimal.valueOf(days);
                 long months = ChronoUnit.MONTHS.between(emi.getDueDate().withDayOfMonth(1), LocalDate.now().withDayOfMonth(1));
@@ -90,8 +93,8 @@ public class PenaltyChargesServiceImpl implements PenaltyChargesService {
                     penalty.setEmiScheduleId(emi.getEmiScheduleId());
                     penalty.setLoanAccountId(emi.getLoanAccountId());
                     penalty.setPenaltyAmount(total);
-                    penalty.setReason("Bounce charge: " + bounceCharge + ", Late charge: " + lateCharge);
-                    penalty.setStatus("PENDING");
+                    penalty.setReason("Bounce charge: Rs" + bounceCharge + ", Late charge: Rs" + lateCharge);
+                    penalty.setStatus("ACTIVE");
                     penalty.setCreatedAt(LocalDateTime.now());
                     repo.save(penalty);
 
