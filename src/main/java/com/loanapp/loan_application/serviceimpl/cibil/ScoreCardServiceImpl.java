@@ -3,7 +3,9 @@ package com.loanapp.loan_application.serviceimpl.cibil;
 import com.loanapp.loan_application.dto.cibil.ScoreCardRequestDto;
 import com.loanapp.loan_application.dto.cibil.ScoreCardResponseDto;
 import com.loanapp.loan_application.entity.cibil.CIBILReport;
+import com.loanapp.loan_application.entity.cibil.RiskCategory;
 import com.loanapp.loan_application.entity.cibil.ScoreCard;
+import com.loanapp.loan_application.entity.cibil.ScoreCardStatus;
 import com.loanapp.loan_application.entity.register.Customer;
 import com.loanapp.loan_application.entity.kycdocument.KycDocument;
 import com.loanapp.loan_application.repository.kycdocument.KycDocumentRepository;
@@ -48,53 +50,94 @@ public class ScoreCardServiceImpl implements ScoreCardService {
         log.info("Creating scorecard for customerId={}", request.getCustomerId());
 
         Customer customer = customerRepository.findById(request.getCustomerId())
-                        .orElseThrow(() -> new RuntimeException("Customer not found with id: " + request.getCustomerId()));
-
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Customer not found with id: "
+                                        + request.getCustomerId()
+                        )
+                );
 
         validateKycApproved(request.getCustomerId());
 
-
-        CIBILReport report = cibilReportRepo.findTopByCustomerCustomerIdOrderByCheckDateDesc(request.getCustomerId())
-                        .orElseThrow(() -> new RuntimeException("CIBIL report not found for customer: " + request.getCustomerId()));
+        CIBILReport report = cibilReportRepo
+                .findTopByCustomerCustomerIdOrderByCheckDateDesc(
+                        request.getCustomerId()
+                )
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "CIBIL report not found for customer: "
+                                        + request.getCustomerId()
+                        )
+                );
 
         validateCustomerData(customer);
 
-        int incomeScore = calculateIncomeScore(customer.getMonthlyIncome());
-        int employmentScore = calculateEmploymentScore(customer.getEmploymentType());
-        int ageScore = calculateAgeScore(customer.getAge());
-        BigDecimal foir = calculateFoir(customer.getMonthlyInvestment(), customer.getMonthlyIncome());
-        int foirScore = calculateFoirScore(foir);
-        int totalScore = incomeScore + employmentScore + ageScore + foirScore;
+        int incomeScore =
+                calculateIncomeScore(customer.getMonthlyIncome());
 
-        BigDecimal eligibleLoanAmount = calculateEligibleLoanAmount(report.getCibilScore());
+        int employmentScore =
+                calculateEmploymentScore(customer.getEmploymentType());
 
-        String riskCategory = calculateRiskCategory(report.getCibilScore(), totalScore);
+        int ageScore =
+                calculateAgeScore(customer.getAge());
 
-        ScoreCard scoreCard = ScoreCard.builder().customer(customer)
+        BigDecimal foir =
+                calculateFoir(
+                        customer.getMonthlyInvestment(),
+                        customer.getMonthlyIncome()
+                );
 
-                        .currentStatus("ELIGIBLE")
+        int foirScore =
+                calculateFoirScore(foir);
+
+        int totalScore =
+                incomeScore
+                        + employmentScore
+                        + ageScore
+                        + foirScore;
+
+        BigDecimal eligibleLoanAmount =
+                calculateEligibleLoanAmount(
+                        report.getCibilScore()
+                );
+
+        RiskCategory riskCategory =
+                calculateRiskCategory(
+                        report.getCibilScore(),
+                        totalScore
+                );
+
+        ScoreCard scoreCard =
+                ScoreCard.builder()
+                        .customer(customer)
+                        .currentStatus(ScoreCardStatus.ELIGIBLE)
                         .rejectionReason(null)
                         .appliedDate(LocalDateTime.now())
-                .cibilScore(report.getCibilScore())
-                .riskCategory(riskCategory)
-                        .eligibleLoanAmount(
-                                eligibleLoanAmount
-                        )
-
+                        .cibilScore(report.getCibilScore())
+                        .riskCategory(riskCategory)
+                        .eligibleLoanAmount(eligibleLoanAmount)
                         .foir(foir)
                         .incomeScore(incomeScore)
                         .employmentScore(employmentScore)
                         .ageScore(ageScore)
                         .foirScore(foirScore)
                         .totalScore(totalScore)
-                .build();
+                        .build();
 
-        ScoreCard savedScoreCard = scoreCardRepo.save(scoreCard);
+        ScoreCard savedScoreCard =
+                scoreCardRepo.save(scoreCard);
 
-        ScoreCardResponseDto response = modelMapper.map(
-                        savedScoreCard, ScoreCardResponseDto.class);
+        ScoreCardResponseDto response =
+                modelMapper.map(
+                        savedScoreCard,
+                        ScoreCardResponseDto.class
+                );
 
-        response.setCustomerId(savedScoreCard.getCustomer().getCustomerId());
+        response.setCustomerId(
+                savedScoreCard
+                        .getCustomer()
+                        .getCustomerId()
+        );
 
         return response;
     }
@@ -103,50 +146,87 @@ public class ScoreCardServiceImpl implements ScoreCardService {
     @Cacheable(value = "latestScoreCard", key = "#customerId")
     public ScoreCardResponseDto getLatestScoreCard(Long customerId) {
 
-        ScoreCard scoreCard = scoreCardRepo.findTopByCustomerCustomerIdOrderByScoreCardIdDesc(customerId)
-                        .orElseThrow(() -> new RuntimeException("Scorecard not found for customer: " + customerId));
+        ScoreCard scoreCard =
+                scoreCardRepo
+                        .findTopByCustomerCustomerIdOrderByScoreCardIdDesc(
+                                customerId
+                        )
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Scorecard not found for customer: "
+                                                + customerId
+                                )
+                        );
 
-        ScoreCardResponseDto response = modelMapper.map(scoreCard, ScoreCardResponseDto.class);
+        ScoreCardResponseDto response =
+                modelMapper.map(
+                        scoreCard,
+                        ScoreCardResponseDto.class
+                );
 
-        response.setCustomerId(scoreCard.getCustomer().getCustomerId());
+        response.setCustomerId(
+                scoreCard
+                        .getCustomer()
+                        .getCustomerId()
+        );
 
         return response;
     }
 
     @Override
-    public Page<ScoreCardResponseDto> getScoreCardHistory(Long customerId, Pageable pageable) {
+    public Page<ScoreCardResponseDto> getScoreCardHistory(
+            Long customerId,
+            Pageable pageable) {
 
-        return scoreCardRepo.findByCustomerCustomerIdOrderByScoreCardIdDesc(customerId, pageable)
+        return scoreCardRepo
+                .findByCustomerCustomerIdOrderByScoreCardIdDesc(
+                        customerId,
+                        pageable
+                )
                 .map(scoreCard -> {
 
                     ScoreCardResponseDto response =
-                            modelMapper.map(scoreCard, ScoreCardResponseDto.class);
+                            modelMapper.map(
+                                    scoreCard,
+                                    ScoreCardResponseDto.class
+                            );
 
-                    response.setCustomerId(scoreCard.getCustomer().getCustomerId());
+                    response.setCustomerId(
+                            scoreCard
+                                    .getCustomer()
+                                    .getCustomerId()
+                    );
 
                     return response;
                 });
     }
 
-
-
     private void validateKycApproved(Long customerId) {
 
         List<KycDocument> documents =
-                kycDocumentRepository.findByCustomerIdOrderByDocumentIdDesc(Math.toIntExact(customerId));
+                kycDocumentRepository
+                        .findByCustomerIdOrderByDocumentIdDesc(
+                                Math.toIntExact(customerId)
+                        );
 
-        Map<String, KycDocument> latestDocuments = new HashMap<>();
+        Map<String, KycDocument> latestDocuments =
+                new HashMap<>();
 
         for (KycDocument document : documents) {
 
-            latestDocuments.putIfAbsent(document.getDocumentType(), document);
+            latestDocuments.putIfAbsent(
+                    document.getDocumentType(),
+                    document
+            );
         }
 
+        boolean approved =
+                REQUIRED_KYC_DOCUMENT_TYPES
+                        .stream()
+                        .allMatch(type -> {
 
-
-        boolean approved = REQUIRED_KYC_DOCUMENT_TYPES.stream().allMatch(type -> {
-
-                            KycDocument document = latestDocuments.get(type);
+                            KycDocument document =
+                                    latestDocuments.get(type);
 
                             return document != null
                                     && "APPROVED".equalsIgnoreCase(
@@ -161,8 +241,6 @@ public class ScoreCardServiceImpl implements ScoreCardService {
             );
         }
     }
-
-
 
     private int calculateIncomeScore(
             BigDecimal income) {
@@ -197,12 +275,16 @@ public class ScoreCardServiceImpl implements ScoreCardService {
     private int calculateEmploymentScore(
             String employmentType) {
 
-        if (employmentType == null || employmentType.isBlank()) {
+        if (employmentType == null ||
+                employmentType.isBlank()) {
+
             return 0;
         }
 
-        String employment = employmentType.trim()
-                .toLowerCase();
+        String employment =
+                employmentType
+                        .trim()
+                        .toLowerCase();
 
         if (employment.equals("government")) {
             return 200;
@@ -223,7 +305,6 @@ public class ScoreCardServiceImpl implements ScoreCardService {
 
         return 0;
     }
-
 
     private int calculateAgeScore(Long age) {
 
@@ -246,8 +327,9 @@ public class ScoreCardServiceImpl implements ScoreCardService {
         return 0;
     }
 
-
-    private BigDecimal calculateFoir(BigDecimal totalMonthlyDebtPayment, BigDecimal monthlyIncome) {
+    private BigDecimal calculateFoir(
+            BigDecimal totalMonthlyDebtPayment,
+            BigDecimal monthlyIncome) {
 
         if (monthlyIncome == null ||
                 monthlyIncome.compareTo(
@@ -269,13 +351,19 @@ public class ScoreCardServiceImpl implements ScoreCardService {
         }
 
         return totalMonthlyDebtPayment
-                .divide(monthlyIncome, 4, RoundingMode.HALF_UP)
-                .multiply(BigDecimal.valueOf(100))
-                .setScale(2, RoundingMode.HALF_UP
+                .divide(
+                        monthlyIncome,
+                        4,
+                        RoundingMode.HALF_UP
+                )
+                .multiply(
+                        BigDecimal.valueOf(100)
+                )
+                .setScale(
+                        2,
+                        RoundingMode.HALF_UP
                 );
     }
-
-
 
     private int calculateFoirScore(
             BigDecimal foir) {
@@ -301,7 +389,6 @@ public class ScoreCardServiceImpl implements ScoreCardService {
         return 0;
     }
 
-
     private BigDecimal calculateEligibleLoanAmount(
             Integer cibilScore) {
 
@@ -309,7 +396,9 @@ public class ScoreCardServiceImpl implements ScoreCardService {
                 cibilScore < 300 ||
                 cibilScore > 900) {
 
-            throw new RuntimeException("CIBIL score must be between 300 and 900");
+            throw new RuntimeException(
+                    "CIBIL score must be between 300 and 900"
+            );
         }
 
         if (cibilScore >= 900) {
@@ -335,37 +424,40 @@ public class ScoreCardServiceImpl implements ScoreCardService {
         return BigDecimal.ZERO;
     }
 
-
-    private String calculateRiskCategory(Integer cibilScore, Integer totalScore) {
+    private RiskCategory calculateRiskCategory(
+            Integer cibilScore,
+            Integer totalScore) {
 
         if (cibilScore == null) {
-            return "HIGH";
+            return RiskCategory.HIGH;
         }
 
         if (cibilScore >= 800 && totalScore >= 700) {
-            return "LOW";
+            return RiskCategory.LOW;
         }
 
         if (cibilScore >= 750 && totalScore >= 600) {
-            return "LOW";
+            return RiskCategory.LOW;
         }
 
         if (cibilScore >= 700 && totalScore >= 500) {
-            return "MEDIUM";
+            return RiskCategory.MEDIUM;
         }
 
         if (cibilScore >= 650 && totalScore >= 400) {
-            return "MEDIUM";
+            return RiskCategory.MEDIUM;
         }
 
-        return "HIGH";
+        return RiskCategory.HIGH;
     }
 
-
-    private void validateCustomerData(Customer customer) {
+    private void validateCustomerData(
+            Customer customer) {
 
         if (customer.getAge() == null) {
-            throw new RuntimeException("Customer age is required");
+            throw new RuntimeException(
+                    "Customer age is required"
+            );
         }
 
         if (customer.getEmploymentType() == null ||
