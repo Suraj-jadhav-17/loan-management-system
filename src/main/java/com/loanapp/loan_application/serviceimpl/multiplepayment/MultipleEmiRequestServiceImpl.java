@@ -3,9 +3,12 @@ package com.loanapp.loan_application.serviceimpl.multiplepayment;
 import com.loanapp.loan_application.dto.multiplepayment.MultipleEmiRequestDto;
 import com.loanapp.loan_application.entity.emischeduler.EmiSchedules;
 import com.loanapp.loan_application.entity.multiplepayment.MultipleEmiRequest;
+import com.loanapp.loan_application.entity.payment.LoanPayments;
+import com.loanapp.loan_application.entity.payment.PaymentStatus;
 import com.loanapp.loan_application.entity.penalty.PenaltyCharges;
 import com.loanapp.loan_application.repository.emischedulerepository.EmiScheduleRepository;
 import com.loanapp.loan_application.repository.multiplepayment.MultipleEmiRequestRepository;
+import com.loanapp.loan_application.repository.payment.LoanPaymentsRepository;
 import com.loanapp.loan_application.repository.penalty.PenaltyChargesRepository;
 import com.loanapp.loan_application.service.multiplepayment.MultipleEmiRequestService;
 import com.loanapp.loan_application.service.payment.RazorpayService;
@@ -26,17 +29,20 @@ public class MultipleEmiRequestServiceImpl
     private final EmiScheduleRepository emiRepo;
     private final PenaltyChargesRepository penaltyRepo;
     private final RazorpayService razorpayService;
+    private final LoanPaymentsRepository paymentRepo;
 
     public MultipleEmiRequestServiceImpl(
             MultipleEmiRequestRepository repo,
             EmiScheduleRepository emiRepo,
             PenaltyChargesRepository penaltyRepo,
-            RazorpayService razorpayService) {
+            RazorpayService razorpayService, LoanPaymentsRepository paymentRepo) {
 
         this.repo = repo;
         this.emiRepo = emiRepo;
         this.penaltyRepo = penaltyRepo;
         this.razorpayService = razorpayService;
+        this.paymentRepo = paymentRepo;
+
     }
 
     @Override
@@ -46,12 +52,12 @@ public class MultipleEmiRequestServiceImpl
         for (String id : ids) {
             Long emiId = Long.valueOf(id.trim());
             EmiSchedules emi = emiRepo.findById(emiId).orElseThrow(() ->
-                            new RuntimeException("EMI not found: " + emiId));
+                    new RuntimeException("EMI not found: " + emiId));
             if (!emi.getLoanAccountId().equals(dto.getLoanAccountId())) {
                 throw new RuntimeException("EMI does not belong to this loan");
             }
 
-            if ("PAID".equalsIgnoreCase(emi.getPaymentStatus())) {
+            if (emi.getPaymentStatus() == PAID) {
                 throw new RuntimeException("EMI already paid: " + emiId);
             }
             total = total.add(emi.getEmi());
@@ -121,6 +127,7 @@ public class MultipleEmiRequestServiceImpl
         dto.setApprovedDate(request.getApprovedDate());
         return dto;
     }
+
     @Override
     public MultipleEmiRequestDto verifyPayment(Long requestId, String orderId, String paymentId, String signature) {
         MultipleEmiRequest request = repo.findById(requestId).orElseThrow(() ->
@@ -129,7 +136,8 @@ public class MultipleEmiRequestServiceImpl
             throw new RuntimeException("Request is not approved");
         }
         boolean verified = razorpayService.verifySignature(orderId, paymentId, signature);
-        if (!verified) {throw new RuntimeException(
+        if (!verified) {
+            throw new RuntimeException(
                     "Payment verification failed"
             );
         }
@@ -138,15 +146,27 @@ public class MultipleEmiRequestServiceImpl
         for (String id : ids) {
             Long emiId = Long.valueOf(id.trim());
             EmiSchedules emi = emiRepo.findById(emiId)
-                            .orElseThrow(() -> new RuntimeException(
-                                    "EMI not found: " + emiId));
-            if ("PAID".equalsIgnoreCase(emi.getPaymentStatus())) {
+                    .orElseThrow(() -> new RuntimeException(
+                            "EMI not found: " + emiId));
+            if (emi.getPaymentStatus() == PAID) {
                 continue;
             }
-            emi.setPaymentStatus(PAID);
+            emi.setPaymentStatus(PaymentStatus.PAID);
             emi.setPaidDate(LocalDateTime.now());
+
             emiRepo.save(emi);
         }
+
+
+        LoanPayments payment = new LoanPayments();
+
+        payment.setLoanAccountId(request.getLoanAccountId());
+        payment.setPaymentAmount(request.getTotalAmount());
+        payment.setPaymentStatus(PAID);
+        payment.setPaymentName("Multiple EMI Payment");
+
+        paymentRepo.save(payment);
+
         request.setPaymentStatus("PAID");
         MultipleEmiRequest saved = repo.save(request);
         return convert(saved);
@@ -154,3 +174,4 @@ public class MultipleEmiRequestServiceImpl
 
 
 }
+

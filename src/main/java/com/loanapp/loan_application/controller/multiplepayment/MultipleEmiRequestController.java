@@ -28,17 +28,17 @@ public class MultipleEmiRequestController {
 
     @PutMapping("/approve/{requestId}")
     public MultipleEmiRequestDto approve(@PathVariable Long requestId) {
+
         return service.approve(requestId);
     }
 
-    @PutMapping("/pay/{requestId}")
-    public MultipleEmiRequestDto pay(@PathVariable Long requestId) {
-        return service.pay(requestId);
-    }
+
     @PostMapping("/order/{requestId}")
     public String createOrder(@PathVariable Long requestId) {
+
         return service.createOrder(requestId);
     }
+
     @PostMapping("/verify/{requestId}")
     public MultipleEmiRequestDto verifyPayment(@PathVariable Long requestId, @RequestParam String orderId,
                                                @RequestParam String paymentId, @RequestParam String signature) {
