@@ -1,5 +1,6 @@
 package com.loanapp.loan_application.dto.request.loanaccount;
 
+import com.loanapp.loan_application.entity.foreclosure.ForeClosureType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,4 +26,32 @@ public class LoanAccountRequestDto {
     private BigDecimal emiAmount;
     private LocalDateTime disbursementDate;
     private BigDecimal totalPaidAmount;
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ForeClosureApprovalDto {
+
+        private Long foreClosureId;
+
+        private Long officerId;
+
+        private Boolean approved;
+
+        private String remarks;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ForeClosureRequestDto {
+
+        private Long loanAccountId;
+
+        private ForeClosureType foreClosureType;
+
+        private BigDecimal partialAmount;
+    }
 }
