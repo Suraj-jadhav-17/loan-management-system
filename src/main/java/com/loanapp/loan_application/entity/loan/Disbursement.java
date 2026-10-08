@@ -23,7 +23,7 @@ public class Disbursement {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "DealId", nullable = false)
-    private Long loanDeal;  //LoanDeal
+    private LoanDeal loanDeal;  //LoanDeal
 
     @Column(name = "DisburseAmount", nullable = false, precision = 18, scale = 2)
     private BigDecimal disburseAmount;
