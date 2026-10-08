@@ -2,16 +2,19 @@ package com.loanapp.loan_application.serviceimpl.loan;
 
 import com.loanapp.loan_application.dto.loan.LoanDealRequestDto;
 import com.loanapp.loan_application.dto.loan.LoanDealResponseDto;
-import com.loanapp.loan_application.entity.Customer;
+
+import com.loanapp.loan_application.entity.cibil.ScoreCard;
 import com.loanapp.loan_application.entity.loan.LoanDeal;
 import com.loanapp.loan_application.entity.loan.LoanType;
-import com.loanapp.loan_application.entity.scorecard.ScoreCard;
+import com.loanapp.loan_application.entity.register.Customer;
 import com.loanapp.loan_application.exception.InvalidInputException;
 import com.loanapp.loan_application.exception.ResourceNotFoundException;
-import com.loanapp.loan_application.repository.CustomerRepository;
+
+import com.loanapp.loan_application.repository.cibil.ScoreCardRepo;
 import com.loanapp.loan_application.repository.loan.LoanDealRepo;
 
-import com.loanapp.loan_application.repository.scorecard.ScoreCardRepo;
+import com.loanapp.loan_application.repository.register.CustomerRepository;
+
 import com.loanapp.loan_application.service.loan.LoanDealService;
 
 import lombok.RequiredArgsConstructor;
@@ -40,7 +43,7 @@ public class LoanDealServiceImpl  implements LoanDealService {
             throw new InvalidInputException("Invalid input: Amount Can't Be Empty Or Less Than 0");
         }
         Customer customer = customerRepo.findById(request.getCustomerId()).orElseThrow(()->new ResourceNotFoundException("Customer Not Found"));
-        ScoreCard card = cardRepo.getScoreCardByCustomer_CustomerId(customer.getCustomerId()).orElseThrow(()->new ResourceNotFoundException("Card Not Found"));
+        ScoreCard card = cardRepo.findTopByCustomerCustomerIdOrderByScoreCardIdDesc(customer.getCustomerId()).orElseThrow(()->new ResourceNotFoundException("Card Not Found"));
 
         LoanDeal deal = LoanDeal.builder()
                 .amount(request.getAmount())

@@ -1,8 +1,9 @@
 package com.loanapp.loan_application.dto.loan;
 
-import com.loanapp.loan_application.entity.User;
+
 import com.loanapp.loan_application.entity.loan.DealReviewStatus;
 import com.loanapp.loan_application.entity.loan.LoanDeal;
+import com.loanapp.loan_application.entity.register.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
