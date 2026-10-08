@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Entity
 @Data
 @AllArgsConstructor
@@ -23,19 +25,19 @@ public class LoanDeal {
 
     private LoanType loanType;
 
-    private  Double amount;
+    private BigDecimal amount;
 
-    private Double interestRate;
+    private BigDecimal interestRate;
 
-   private Integer tenureMonths;
+   private Long tenureMonths;
 
-   private Double emiAmount;
+   private BigDecimal emiAmount;
 
    private String bankName;
    private String bankAccountNumber;
    private String ifscCode;
-   private Integer emiDay;
-   private Double approvedAmount;
+   private Long emiDay;
+   private BigDecimal approvedAmount;
 
 
 

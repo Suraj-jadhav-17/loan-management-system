@@ -16,6 +16,8 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 @Service
@@ -31,7 +33,7 @@ public class LoanDealServiceImpl  implements LoanDealService {
         if (request==null || request.getCustomerId()==null || request.getLoanType()==null){
             throw new InvalidInputException("Invalid input: Customer or Loan Type Can't Be Empty");
         }
-        if(request.getAmount()==null || request.getAmount()<=0){
+        if(request.getAmount()==null || request.getAmount().compareTo(BigDecimal.ZERO) <= 0){
             throw new InvalidInputException("Invalid input: Amount Can't Be Empty Or Less Than 0");
         }
         Customer customer = customerRepo.findById(request.getCustomerId()).orElseThrow(()->new ResourceNotFoundException("Customer Not Found"));
@@ -45,8 +47,8 @@ public class LoanDealServiceImpl  implements LoanDealService {
                 .emiAmount(getEmiAmount(request.getAmount(),request.getLoanType(), request.getTenureMonths()))
                 .emiDay(request.getEmiDay())
                 .ifscCode(request.getIfscCode())
-                .interestRate(request.getLoanType().equals(LoanType.CAR_LOAN)? 10.0
-                        : request.getLoanType().equals(LoanType.HOME_LOAN)?15.0: 0)
+                .interestRate(request.getLoanType().equals(LoanType.CAR_LOAN)? new BigDecimal(10.0)
+                        : request.getLoanType().equals(LoanType.HOME_LOAN)?new BigDecimal(15.0): BigDecimal.ZERO)
                 .loanType(request.getLoanType())
                 .tenureMonths(request.getTenureMonths())
                 .build();
@@ -71,17 +73,21 @@ public class LoanDealServiceImpl  implements LoanDealService {
     public List<LoanDealResponseDto> getLoanDealByLoanType(LoanType loanType) {
         return dealRepo.getLoanDealByLoanType(loanType).stream().map(deal-> mapper.map(deal, LoanDealResponseDto.class)).toList();
     }
-    private Double getEmiAmount(Double amount, LoanType loanType, Integer tenureMonths) {
+    private BigDecimal getEmiAmount(BigDecimal amount, LoanType loanType, Long tenureMonths) {
         return switch (loanType){
-            case CAR_LOAN ->  emiFormula(amount, 10.0, tenureMonths);
-            case HOME_LOAN -> emiFormula(amount, 15.0, tenureMonths);
+            case CAR_LOAN ->  emiFormula(amount, new BigDecimal(10.0) ,tenureMonths);
+            case HOME_LOAN -> emiFormula(amount, new BigDecimal(15.0), tenureMonths);
             default -> throw new InvalidInputException("Invalid Input");
         };
 
     }
-    private Double emiFormula (Double amount, Double interestRate,Integer tenureMonths){  // Emi = P*r*(1+r)^n
-        double rate = interestRate/12/100;                                                //       -------------
-        double power = Math.pow(1+rate,tenureMonths);                                     //        (1+r)^n -1
-        return (amount *rate * power)/(power-1);
+    private BigDecimal emiFormula (BigDecimal amount, BigDecimal interestRate,Long tenureMonths){                 // Emi = P*r*(1+r)^n
+        BigDecimal rate = interestRate.divide(BigDecimal.valueOf(12),10,BigDecimal.ROUND_HALF_UP)           //======================
+                .divide(BigDecimal.valueOf(100),10,BigDecimal.ROUND_HALF_UP)   ;                           //        (1+r)^n -1
+       BigDecimal power =BigDecimal.valueOf(Math.pow(BigDecimal.ONE.add(rate).doubleValue(), tenureMonths));
+        BigDecimal numerator = amount.multiply(rate).multiply(power);
+
+        BigDecimal denominator = power.subtract(BigDecimal.ONE);
+        return numerator.divide(denominator, 2, RoundingMode.HALF_UP);
     }
 }

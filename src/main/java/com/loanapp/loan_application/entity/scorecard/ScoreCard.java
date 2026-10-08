@@ -1,8 +1,9 @@
 package com.loanapp.loan_application.entity.scorecard;
 
 
+import com.loanapp.loan_application.entity.Customer;
 import com.loanapp.loan_application.entity.cibil.CIBILReport;
-import com.loanapp.loan_application.entity.register.Customer;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
