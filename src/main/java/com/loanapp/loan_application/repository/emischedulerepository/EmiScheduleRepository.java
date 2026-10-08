@@ -11,6 +11,7 @@ public interface EmiScheduleRepository extends JpaRepository<EmiSchedules, Long>
 
     List<EmiSchedules> findByLoanAccountId(Long loanAccountId);
     boolean existsByLoanAccountId(Long loanAccountId);
+
     EmiSchedules findByLoanAccountIdAndPaymentStatus(Long loanAccountId, PaymentStatus paymentStatus);
 
 }
