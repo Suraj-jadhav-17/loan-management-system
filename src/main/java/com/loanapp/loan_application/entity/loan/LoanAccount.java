@@ -1,6 +1,6 @@
-package com.loanapp.loan_application.entity.loanaccount;
+package com.loanapp.loan_application.entity.loan;
 
-import com.loanapp.loan_application.entity.loan.LoanDeal;
+import com.loanapp.loan_application.entity.Customer;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,7 +24,7 @@ public class LoanAccount {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CustomerId", nullable = false)
-    private Long customer;  //Customer
+    private Customer customer;  //Customer
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "DealId", nullable = false)
@@ -46,7 +46,7 @@ public class LoanAccount {
     private BigDecimal interestRate;
 
     @Column(name = "TenureMonths")
-    private Integer tenureMonths;
+    private Long tenureMonths;
 
     @Column(name = "EmiAmount", precision = 18, scale = 2)
     private BigDecimal emiAmount;

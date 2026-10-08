@@ -3,8 +3,7 @@ package com.loanapp.loan_application.serviceimpl.loanaccount;
 
 import com.loanapp.loan_application.dto.request.loanaccount.LoanAccountRequestDto;
 import com.loanapp.loan_application.dto.response.loanaccount.LoanAccountResponseDto;
-import com.loanapp.loan_application.entity.loanaccount.LoanAccount;
-import com.loanapp.loan_application.repository.emischedulerepository.EmiScheduleRepository;
+import com.loanapp.loan_application.entity.loan.LoanAccount;
 import com.loanapp.loan_application.repository.loanaccount.LoanAccountRepository;
 import com.loanapp.loan_application.service.loanaccount.LoanAccountService;
 
