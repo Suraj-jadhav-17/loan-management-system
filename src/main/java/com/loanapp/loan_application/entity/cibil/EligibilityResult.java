@@ -1,6 +1,6 @@
 package com.loanapp.loan_application.entity.cibil;
 
-import com.loanapp.loan_application.entity.Customer;
+import com.loanapp.loan_application.entity.register.Customer;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,6 +34,15 @@ public class EligibilityResult {
 
     @Column(name = "LoanAmount", precision = 18, scale = 2)
     private BigDecimal loanAmount;
+
+    @Column(name = "Decision")
+    private String decision;
+
+    @Column(name = "RiskCategory")
+    private String riskCategory;
+
+    @Column(name = "BorrowingLimit")
+    private String borrowingLimit;
 
     @Column(name = "RejectionReason")
     private String rejectionReason;

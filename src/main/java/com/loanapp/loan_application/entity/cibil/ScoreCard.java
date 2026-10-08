@@ -1,6 +1,6 @@
 package com.loanapp.loan_application.entity.cibil;
 
-import com.loanapp.loan_application.entity.Customer;
+import com.loanapp.loan_application.entity.register.Customer;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,7 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "ScoreCards")
@@ -27,20 +26,26 @@ public class ScoreCard {
     @JoinColumn(name = "CustomerId", nullable = false)
     private Customer customer;
 
-    @Column(name = "CurrentStatus")
-    private String currentStatus;
-
-    @Column(name = "RejectionReason")
-    private String rejectionReason;
-
-    @Column(name = "AppliedDate")
-    private LocalDateTime appliedDate;
-
     @Column(name = "CibilScore")
     private Integer cibilScore;
 
-    @Column(name = "RiskCategory")
-    private String riskCategory;
+    @Column(name = "Foir", precision = 8, scale = 2)
+    private BigDecimal foir;
+
+    @Column(name = "IncomeScore")
+    private Integer incomeScore;
+
+    @Column(name = "EmploymentScore")
+    private Integer employmentScore;
+
+    @Column(name = "AgeScore")
+    private Integer ageScore;
+
+    @Column(name = "FoirScore")
+    private Integer foirScore;
+
+    @Column(name = "TotalScore")
+    private Integer totalScore;
 
     @Column(name = "EligibleLoanAmount", precision = 18, scale = 2)
     private BigDecimal eligibleLoanAmount;

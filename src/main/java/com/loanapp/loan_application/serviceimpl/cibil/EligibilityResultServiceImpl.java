@@ -2,336 +2,128 @@ package com.loanapp.loan_application.serviceimpl.cibil;
 
 import com.loanapp.loan_application.dto.cibil.EligibilityResultRequestDto;
 import com.loanapp.loan_application.dto.cibil.EligibilityResultResponseDto;
-import com.loanapp.loan_application.entity.Customer;
 import com.loanapp.loan_application.entity.cibil.CIBILReport;
 import com.loanapp.loan_application.entity.cibil.EligibilityResult;
-import com.loanapp.loan_application.repository.CustomerRepository;
+import com.loanapp.loan_application.entity.register.Customer;
 import com.loanapp.loan_application.repository.cibil.CIBILReportRepo;
 import com.loanapp.loan_application.repository.cibil.EligibilityResultRepo;
+import com.loanapp.loan_application.repository.register.CustomerRepository;
 import com.loanapp.loan_application.service.cibil.EligibilityResultService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 
 @Service
 @RequiredArgsConstructor
-public class EligibilityResultServiceImpl
-        implements EligibilityResultService {
+@Slf4j
+public class EligibilityResultServiceImpl implements EligibilityResultService {
 
     private final EligibilityResultRepo eligibilityResultRepo;
-
     private final CIBILReportRepo cibilReportRepo;
-
     private final CustomerRepository customerRepository;
 
     @Override
+    @CacheEvict(value = "latestEligibility", key = "#request.customerId")
     public EligibilityResultResponseDto checkEligibility(EligibilityResultRequestDto request) {
+
+        log.info("Checking eligibility for customerId={}", request.getCustomerId());
 
         Customer customer = customerRepository.findById(request.getCustomerId())
                 .orElseThrow(() -> new RuntimeException("Customer not found with id: " + request.getCustomerId()));
 
-        validateRequest(request, customer);
+        CIBILReport report = cibilReportRepo.findTopByCustomerCustomerIdOrderByCheckDateDesc(request.getCustomerId())
+                .orElseThrow(() -> new RuntimeException("CIBIL report not found for customer: " + request.getCustomerId()));
 
-        CIBILReport latestCibilReport = cibilReportRepo.findTopByCustomerCustomerIdOrderByCheckDateDesc(request.getCustomerId())
-                        .orElseThrow(() -> new RuntimeException("CIBIL report not found for customer: " + request.getCustomerId()));
+        Integer score = report.getCibilScore();
 
-        Integer cibilScore = latestCibilReport.getCibilScore();
+        Decision decision = getDecision(score);
 
-        if (cibilScore == null) {throw new RuntimeException("CIBIL score is not available");
-        }
+        EligibilityResult result = EligibilityResult.builder()
+                .customer(customer)
+                .cibilScore(score)
+                .isEligible(decision.isEligible())
+                .decision(decision.decision())
+                .riskCategory(decision.riskCategory())
+                .borrowingLimit(decision.borrowingLimit())
+                .loanAmount(decision.loanAmount())
+                .rejectionReason(decision.rejectionReason())
+                .build();
 
-
-
-        if (cibilScore < 300 || cibilScore > 900) {
-
-            throw new RuntimeException("CIBIL score must be between 300 and 900");
-        }
-
-
-
-        String riskCategory = getRiskCategory(cibilScore);
-
-
-
-        Boolean isEligible;
-
-        String rejectionReason = null;
-
-        BigDecimal loanAmount = null;
-
-
-
-        if (cibilScore < 650) {
-
-            isEligible = false;
-
-            rejectionReason = "CIBIL score is below 650. " + "Applicant is not eligible for loan.";}
-
-
-
-        else if (cibilScore <= 800) {
-
-            isEligible = null;
-
-            rejectionReason = "Manual officer review required.";}
-
-
-
-        else {
-
-            isEligible = true;
-        }
-
-
-
-        int incomeScore = calculateIncomeScore(customer.getMonthlyIncome()
-                );
-
-        int employmentScore = calculateEmploymentScore(customer.getEmploymentType());
-
-        BigDecimal totalMonthlyDebtPayment = request.getTotalMonthlyDebtPayment();
-
-        BigDecimal foir = calculateFoir(totalMonthlyDebtPayment, customer.getMonthlyIncome());
-
-        int foirScore = calculateFoirScore(foir);
-
-
-
-        int ageScore = 0;
-
-        int totalScore = incomeScore + employmentScore + ageScore + foirScore;
-
-
-
-        EligibilityResult result =
-                EligibilityResult.builder()
-                        .customer(customer)
-                        .cibilScore(cibilScore)
-                        .isEligible(isEligible)
-                        .loanAmount(loanAmount)
-                        .rejectionReason(rejectionReason)
-                        .build();
-
-        EligibilityResult savedResult = eligibilityResultRepo.save(result);
-
-        return mapToResponse(savedResult);
+        return mapToResponse(eligibilityResultRepo.save(result));
     }
 
     @Override
-    public EligibilityResultResponseDto getLatestEligibility(
-            Long customerId
-    ) {
+    @Cacheable(value = "latestEligibility", key = "#customerId")
+    public EligibilityResultResponseDto getLatestEligibility(Long customerId) {
 
         EligibilityResult result = eligibilityResultRepo.findTopByCustomerCustomerIdOrderByIdDesc(customerId)
-                        .orElseThrow(() -> new RuntimeException("Eligibility result not found for customer: " + customerId));
+                .orElseThrow(() -> new RuntimeException("Eligibility result not found for customer: " + customerId));
 
         return mapToResponse(result);
     }
 
+    @Override
+    public Page<EligibilityResultResponseDto> getEligibilityHistory(Long customerId, Pageable pageable) {
 
-
-    private String getRiskCategory(Integer cibilScore
-    ) {
-
-        if (cibilScore >= 900) {
-            return "Excellent";
-        }
-
-        if (cibilScore >= 800) {
-            return "Very Good";
-        }
-
-        if (cibilScore >= 750) {
-            return "Good";
-        }
-
-        if (cibilScore >= 700) {
-            return "Average";
-        }
-
-        if (cibilScore >= 650) {
-            return "Risky";
-        }
-
-        return "Reject";
+        return eligibilityResultRepo.findByCustomerCustomerIdOrderByIdDesc(customerId, pageable)
+                .map(this::mapToResponse);
     }
 
+    private Decision getDecision(Integer score) {
 
-
-    private int calculateIncomeScore(BigDecimal monthlyIncome) {
-
-        if (monthlyIncome == null) {
-            return 0;
+        if (score == null || score < 300 || score > 900) {
+            throw new RuntimeException("CIBIL score must be between 300 and 900");
         }
 
-        if (monthlyIncome.compareTo(
-                BigDecimal.valueOf(25000)
-        ) < 0) {
-
-            return 100;
+        if (score >= 900) {
+            return new Decision(true, "AUTO_APPROVE", "Excellent", "Above 1 Crore", null, null);
         }
 
-        if (monthlyIncome.compareTo(
-                BigDecimal.valueOf(50000)
-        ) <= 0) {
-
-            return 200;
+        if (score >= 800) {
+            return new Decision(true, "AUTO_APPROVE", "Very Good", "75 Lakh to 1 Crore", BigDecimal.valueOf(10_000_000), null);
         }
 
-        if (monthlyIncome.compareTo(
-                BigDecimal.valueOf(100000)
-        ) <= 0) {
-
-            return 300;
+        if (score >= 750) {
+            return new Decision(null, "MANUAL_REVIEW", "Good", "50 Lakh to 75 Lakh", BigDecimal.valueOf(7_500_000), "Manual officer review required.");
         }
 
-        return 400;
+        if (score >= 700) {
+            return new Decision(null, "MANUAL_REVIEW", "Average", "25 Lakh to 50 Lakh", BigDecimal.valueOf(5_000_000), "Manual officer review required.");
+        }
+
+        if (score >= 650) {
+            return new Decision(null, "MANUAL_REVIEW", "Risky", "10 Lakh to 25 Lakh", BigDecimal.valueOf(2_500_000), "Manual officer review required.");
+        }
+
+        return new Decision(false, "AUTO_REJECT", "Reject", "Less than ₹10 Lakh", BigDecimal.ZERO, "CIBIL score is below 650.");
     }
-
-
-
-    private int calculateEmploymentScore(String employmentType
-    ) {
-
-        if (employmentType == null || employmentType.trim().isEmpty()) {
-
-            return 0;
-        }
-
-        String employment = employmentType.trim().toLowerCase();
-
-        if (employment.equals("government")) {
-            return 200;
-        }
-
-        if (employment.equals("private")) {
-            return 150;
-        }
-
-        if (employment.equals("self-employed")
-                || employment.equals("self employed")
-                || employment.equals("business")) {
-
-            return 100;
-        }
-
-        return 0;
-    }
-
-
-
-    private BigDecimal calculateFoir(
-            BigDecimal totalMonthlyDebtPayment,
-            BigDecimal monthlyIncome
-    ) {
-
-        if (monthlyIncome == null ||
-                monthlyIncome.compareTo(BigDecimal.ZERO) <= 0) {
-
-            throw new RuntimeException(
-                    "Monthly income must be greater than zero"
-            );
-        }
-
-        if (totalMonthlyDebtPayment == null ||
-                totalMonthlyDebtPayment.compareTo(BigDecimal.ZERO) < 0) {
-
-            throw new RuntimeException(
-                    "Total monthly debt payment cannot be negative"
-            );
-        }
-
-        return totalMonthlyDebtPayment
-                .divide(
-                        monthlyIncome,
-                        4,
-                        java.math.RoundingMode.HALF_UP
-                )
-                .multiply(BigDecimal.valueOf(100));
-    }
-
-
-
-    private int calculateFoirScore(
-            BigDecimal foir
-    ) {
-
-        if (foir.compareTo(
-                BigDecimal.valueOf(30)
-        ) < 0) {
-
-            return 250;
-        }
-
-        if (foir.compareTo(
-                BigDecimal.valueOf(50)
-        ) <= 0) {
-
-            return 150;
-        }
-
-        if (foir.compareTo(
-                BigDecimal.valueOf(60)
-        ) <= 0) {
-
-            return 75;
-        }
-
-        return 0;
-    }
-
-
-
-    private void validateRequest(
-            EligibilityResultRequestDto request,
-            Customer customer
-    ) {
-
-        if (request.getCustomerId() == null) {
-
-            throw new RuntimeException(
-                    "Customer id is required"
-            );
-        }
-
-        if (request.getTotalMonthlyDebtPayment() == null) {
-
-            throw new RuntimeException(
-                    "Total monthly debt payment is required"
-            );
-        }
-
-        if (request.getTotalMonthlyDebtPayment()
-                .compareTo(BigDecimal.ZERO) < 0) {
-
-            throw new RuntimeException(
-                    "Total monthly debt payment cannot be negative"
-            );
-        }
-
-        if (customer.getMonthlyIncome() == null) {
-
-            throw new RuntimeException(
-                    "Monthly income is not available for customer"
-            );
-        }
-    }
-
-
 
     private EligibilityResultResponseDto mapToResponse(EligibilityResult result) {
-
         return EligibilityResultResponseDto.builder()
                 .id(result.getId())
-                .customerId(
-                        result.getCustomer()
-                                .getCustomerId()
-                )
+                .customerId(result.getCustomer().getCustomerId())
                 .cibilScore(result.getCibilScore())
                 .isEligible(result.getIsEligible())
+                .decision(result.getDecision())
+                .riskCategory(result.getRiskCategory())
+                .borrowingLimit(result.getBorrowingLimit())
                 .loanAmount(result.getLoanAmount())
                 .rejectionReason(result.getRejectionReason())
                 .build();
+    }
+
+    private record Decision(
+            Boolean isEligible,
+            String decision,
+            String riskCategory,
+            String borrowingLimit,
+            BigDecimal loanAmount,
+            String rejectionReason) {
     }
 }

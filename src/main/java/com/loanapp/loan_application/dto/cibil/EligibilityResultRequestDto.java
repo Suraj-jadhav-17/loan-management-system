@@ -1,11 +1,10 @@
 package com.loanapp.loan_application.dto.cibil;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.math.BigDecimal;
 
 @Data
 @AllArgsConstructor
@@ -13,7 +12,6 @@ import java.math.BigDecimal;
 @Builder
 public class EligibilityResultRequestDto {
 
+    @NotNull
     private Long customerId;
-
-    private BigDecimal totalMonthlyDebtPayment;
 }

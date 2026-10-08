@@ -1,6 +1,6 @@
 package com.loanapp.loan_application.entity.cibil;
 
-import com.loanapp.loan_application.entity.Customer;
+import com.loanapp.loan_application.entity.register.Customer;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,9 +29,9 @@ public class CIBILReport {
    @Column(name = "PanNo")
    private String panNo;
 
-   @Column(name = "CibilScore")
+   @Column(name = "CibilScore", nullable = false)
    private Integer cibilScore;
 
-   @Column(name = "CheckDate")
+   @Column(name = "CheckDate", nullable = false)
    private LocalDateTime checkDate;
 }
