@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -14,22 +15,17 @@ import java.math.BigDecimal;
 public class ScoreCardResponseDto {
 
     private Long scoreCardId;
-
     private Long customerId;
-
+    private String currentStatus;
+    private String rejectionReason;
+    private LocalDateTime appliedDate;
     private Integer cibilScore;
-
-    private BigDecimal foir;
-
-    private Integer incomeScore;
-
-    private Integer employmentScore;
-
-    private Integer ageScore;
-
-    private Integer foirScore;
-
-    private Integer totalScore;
-
+    private String riskCategory;
     private BigDecimal eligibleLoanAmount;
+    private BigDecimal foir;
+    private Integer incomeScore;
+    private Integer employmentScore;
+    private Integer ageScore;
+    private Integer foirScore;
+    private Integer totalScore;
 }
