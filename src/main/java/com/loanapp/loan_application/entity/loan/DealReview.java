@@ -17,9 +17,6 @@ import lombok.NoArgsConstructor;
 
 public class DealReview {
 
-
-
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reviewId;

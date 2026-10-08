@@ -32,5 +32,5 @@ public class LoanDealRequestDto {
     private String bankAccountNumber;
     private String ifscCode;
     private Long emiDay;
-    private BigDecimal approvedAmount;
+
 }
