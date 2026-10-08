@@ -1,6 +1,6 @@
 package com.loanapp.loan_application.entity.cibil;
 
-import com.loanapp.loan_application.entity.Customer;
+import com.loanapp.loan_application.entity.register.Customer;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
