@@ -180,7 +180,7 @@ public class EmiSchedulesServiceImpl implements EmiSchedulesService {
         // Partial foreclosure ke baad new outstanding principal
         BigDecimal balance = newOutstandingPrincipal;
 
-        // EMI remains same
+
         BigDecimal emi = loan.getEmiAmount();
 
         BigDecimal monthlyRate = loan.getInterestRate()
@@ -189,7 +189,7 @@ public class EmiSchedulesServiceImpl implements EmiSchedulesService {
                         RoundingMode.HALF_UP
                 );
 
-        // New remaining EMI schedule generation
+
         while (balance.compareTo(BigDecimal.ZERO) > 0) {
 
             BigDecimal openingBalance = balance;
@@ -202,7 +202,7 @@ public class EmiSchedulesServiceImpl implements EmiSchedulesService {
 
             BigDecimal currentEmi = emi;
 
-            // Last installment
+
             if (principal.compareTo(balance) > 0) {
                 principal = balance;
                 currentEmi = principal.add(interest);
