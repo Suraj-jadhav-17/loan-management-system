@@ -122,6 +122,27 @@ public class EmiSchedulesServiceImpl implements EmiSchedulesService {
 
     @Override
     public void checkDefault(Long loanAccountId) {
-        // Default logic baad mein add karenge
+
+        LoanAccount loan = loanRepo.findById(loanAccountId)
+                .orElseThrow(() ->
+                        new RuntimeException("Loan account not found"));
+
+        List<EmiSchedules> emis = repo.findByLoanAccountId(loanAccountId);
+        LocalDate today = LocalDate.now();
+        for (EmiSchedules emi : emis) {
+            if (emi.getPaymentStatus() == PaymentStatus.PAID) {
+                continue;
+            }
+            LocalDate threeMonthsAfterDueDate =
+                    emi.getDueDate().plusMonths(3);
+
+            if (!today.isBefore(threeMonthsAfterDueDate)) {
+                loan.setLoanStatus("CLOSED");
+                loanRepo.save(loan);
+                throw new RuntimeException(
+                        "Loan account is closed due to  unpaid EMI. " +
+                                "Please contact Loan Officer.");
+            }
+        }
     }
-}
+    }
