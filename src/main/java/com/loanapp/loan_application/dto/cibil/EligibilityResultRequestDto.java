@@ -1,5 +1,6 @@
 package com.loanapp.loan_application.dto.cibil;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,13 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class EligibilityResultRequestDto {
-    private Long  customerId;
 
-    private Integer cibilScore;
-
-    private Boolean isEligible;
-
-    private Double loanAmount;
-
-    private String rejectionReason;
+    @NotNull
+    private Long customerId;
 }
