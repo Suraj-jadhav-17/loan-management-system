@@ -29,8 +29,8 @@ public class EligibilityResult {
     @Column(name = "CibilScore")
     private Integer cibilScore;
 
-    @Column(name = "IsEligible")
-    private Boolean isEligible;
+    @Column(name = "EligibilityStatus")
+    private String eligibilityStatus;
 
     @Column(name = "LoanAmount", precision = 18, scale = 2)
     private BigDecimal loanAmount;
