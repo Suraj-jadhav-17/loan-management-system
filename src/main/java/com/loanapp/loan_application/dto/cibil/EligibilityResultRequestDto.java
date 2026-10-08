@@ -1,25 +1,17 @@
 package com.loanapp.loan_application.dto.cibil;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-public class CIBILReportResponseDto {
+public class EligibilityResultRequestDto {
 
-    private Long id;
-
+    @NotNull
     private Long customerId;
-
-    private String panNo;
-
-    private Integer cibilScore;
-
-    private LocalDateTime checkDate;
 }
