@@ -2,7 +2,6 @@ package com.loanapp.loan_application.serviceimpl.penalty;
 
 import com.loanapp.loan_application.dto.penalty.PenaltyChargesDto;
 import com.loanapp.loan_application.entity.emischeduler.EmiSchedules;
-import com.loanapp.loan_application.entity.payment.PaymentStatus;
 import com.loanapp.loan_application.entity.penalty.PenaltyCharges;
 import com.loanapp.loan_application.repository.emischedulerepository.EmiScheduleRepository;
 import com.loanapp.loan_application.repository.penalty.PenaltyChargesRepository;
