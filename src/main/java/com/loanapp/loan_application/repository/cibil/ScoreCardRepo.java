@@ -14,4 +14,6 @@ public interface ScoreCardRepo extends JpaRepository<ScoreCard, Long> {
     Optional<ScoreCard> findTopByCustomerCustomerIdOrderByScoreCardIdDesc(Long customerId);
 
     Page<ScoreCard> findByCustomerCustomerIdOrderByScoreCardIdDesc(Long customerId, Pageable pageable);
+
+    Optional<ScoreCard> getScoreCardByCustomer_CustomerId(Long customerId);
 }
