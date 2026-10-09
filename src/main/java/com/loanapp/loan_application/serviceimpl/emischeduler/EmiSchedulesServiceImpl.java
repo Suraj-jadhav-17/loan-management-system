@@ -122,6 +122,113 @@ public class EmiSchedulesServiceImpl implements EmiSchedulesService {
 
     @Override
     public void checkDefault(Long loanAccountId) {
-        // Default logic baad mein add karenge
+
+        LoanAccount loan = loanRepo.findById(loanAccountId)
+                .orElseThrow(() ->
+                        new RuntimeException("Loan account not found"));
+
+        List<EmiSchedules> emis = repo.findByLoanAccountId(loanAccountId);
+        LocalDate today = LocalDate.now();
+        for (EmiSchedules emi : emis) {
+            if (emi.getPaymentStatus() == PaymentStatus.PAID) {
+                continue;
+            }
+            LocalDate threeMonthsAfterDueDate =
+                    emi.getDueDate().plusMonths(3);
+
+            if (!today.isBefore(threeMonthsAfterDueDate)) {
+                loan.setLoanStatus("CLOSED");
+                loanRepo.save(loan);
+                throw new RuntimeException(
+                        "Loan account is closed due to  unpaid EMI. " +
+                                "Please contact Loan Officer.");
+            }
+        }
+    }
+
+    @Override
+    public void regenerateAfterPartialForeclosure(Long loanAccountId, BigDecimal newOutstandingPrincipal) {
+        LoanAccount loan = loanRepo.findById(loanAccountId).orElseThrow(() ->
+                        new RuntimeException("Loan account not found"));
+        List<EmiSchedules> schedules = repo.findByLoanAccountId(loanAccountId);
+
+        long nextInstallmentNo = schedules.stream()
+                .filter(e -> e.getPaymentStatus() == PaymentStatus.PAID)
+                .mapToLong(EmiSchedules::getInstallmentNo)
+                .max()
+                .orElse(0L) + 1;
+
+        // First unpaid EMI ki existing due date
+        LocalDate dueDate = schedules.stream()
+                .filter(e -> e.getPaymentStatus() != PaymentStatus.PAID)
+                .map(EmiSchedules::getDueDate)
+                .min(LocalDate::compareTo)
+                .orElse(loan.getDisbursementDate()
+                                .toLocalDate()
+                                .plusMonths(1));
+
+        schedules.stream()
+                .filter(e -> e.getPaymentStatus() != PaymentStatus.PAID)
+                .forEach(e -> {
+                    e.setPaymentStatus(PaymentStatus.CANCELLED);
+                    e.setCancellationReason(
+                            "Regenerated after partial foreclosure"
+                    );
+                    repo.save(e);
+                });
+
+        // Partial foreclosure ke baad new outstanding principal
+        BigDecimal balance = newOutstandingPrincipal;
+
+
+        BigDecimal emi = loan.getEmiAmount();
+
+        BigDecimal monthlyRate = loan.getInterestRate()
+                .divide(BigDecimal.valueOf(1200),
+                        10,
+                        RoundingMode.HALF_UP
+                );
+
+
+        while (balance.compareTo(BigDecimal.ZERO) > 0) {
+
+            BigDecimal openingBalance = balance;
+
+            BigDecimal interest = openingBalance
+                    .multiply(monthlyRate)
+                    .setScale(2, RoundingMode.HALF_UP);
+
+            BigDecimal principal = emi.subtract(interest);
+
+            BigDecimal currentEmi = emi;
+
+
+            if (principal.compareTo(balance) > 0) {
+                principal = balance;
+                currentEmi = principal.add(interest);
+            }
+
+            BigDecimal closingBalance =
+                    openingBalance.subtract(principal);
+
+            EmiSchedules schedule = new EmiSchedules();
+
+            schedule.setLoanAccountId(loanAccountId);
+            schedule.setInstallmentNo(nextInstallmentNo);
+            schedule.setDueDate(dueDate);
+            schedule.setOpeningBalance(openingBalance);
+            schedule.setInterestAmount(interest);
+            schedule.setPrincipalAmount(principal);
+            schedule.setEmi(currentEmi);
+            schedule.setClosingBalance(closingBalance);
+            schedule.setPaymentStatus(PaymentStatus.PENDING);
+            schedule.setCancellationReason(null);
+
+            repo.save(schedule);
+
+            balance = closingBalance;
+            nextInstallmentNo++;
+            dueDate = dueDate.plusMonths(1);
+        }
     }
 }
