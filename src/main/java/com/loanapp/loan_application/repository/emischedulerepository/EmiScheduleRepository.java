@@ -14,4 +14,13 @@ public interface EmiScheduleRepository extends JpaRepository<EmiSchedules, Long>
 
     EmiSchedules findByLoanAccountIdAndPaymentStatus(Long loanAccountId, PaymentStatus paymentStatus);
 
+//@Query("SELECT e FROM EmiSchedules e WHERE e.loanAccountId = :loanAccountId AND e.paymentStatus = :paymentStatus")
+//EmiSchedules findByLoanAccountIdAndPaymentStatus(
+//        @Param("loanAccountId") Long loanAccountId,
+//        @Param("paymentStatus") PaymentStatus paymentStatus);
+//        SELECT *
+//FROM EmiSchedules
+//WHERE loanAccountId = 1
+//AND paymentStatus = 'PENDING';
+
 }

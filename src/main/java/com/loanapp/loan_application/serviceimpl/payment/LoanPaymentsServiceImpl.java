@@ -2,11 +2,14 @@ package com.loanapp.loan_application.serviceimpl.payment;
 
 import com.loanapp.loan_application.dto.payment.LoanPaymentsDto;
 import com.loanapp.loan_application.entity.emischeduler.EmiSchedules;
+import com.loanapp.loan_application.entity.loan.LoanAccount;
 import com.loanapp.loan_application.entity.payment.LoanPayments;
 import com.loanapp.loan_application.entity.payment.PaymentStatus;
 import com.loanapp.loan_application.repository.emischedulerepository.EmiScheduleRepository;
+import com.loanapp.loan_application.repository.loanaccount.LoanAccountRepository;
 import com.loanapp.loan_application.repository.payment.LoanPaymentsRepository;
 import com.loanapp.loan_application.service.payment.LoanPaymentsService;
+import com.loanapp.loan_application.service.payment.RazorpayService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -17,16 +20,26 @@ import java.util.stream.Collectors;
 public class LoanPaymentsServiceImpl implements LoanPaymentsService {
     private final LoanPaymentsRepository repo;
     private final EmiScheduleRepository emiRepo;
+    private final LoanAccountRepository loanRepo;
     public LoanPaymentsServiceImpl(
             LoanPaymentsRepository repo,
-            EmiScheduleRepository emiRepo) {
-
+            EmiScheduleRepository emiRepo, RazorpayService razorpayService,  LoanAccountRepository loanRepo) {
+        this.loanRepo = loanRepo;
         this.repo = repo;
         this.emiRepo = emiRepo;
+
     }
 
     @Override
     public LoanPaymentsDto makePayment(LoanPaymentsDto dto) {
+        LoanAccount loan = loanRepo.findById(dto.getLoanAccountId())
+                .orElseThrow(() ->
+                        new RuntimeException("Loan account not found"));
+
+        if ("CLOSED".equalsIgnoreCase(loan.getLoanStatus())) {
+            throw new RuntimeException(
+                    "Loan account is closed. Please contact Loan Officer.");
+        }
 
         LoanPayments payment = new LoanPayments();
 
@@ -74,4 +87,7 @@ public class LoanPaymentsServiceImpl implements LoanPaymentsService {
                 })
                 .collect(Collectors.toList());
     }
+
+
+
 }
