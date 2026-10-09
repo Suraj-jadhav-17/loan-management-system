@@ -15,6 +15,7 @@ public class LoanPaymentsController {
     public LoanPaymentsController(LoanPaymentsService service) {
         this.service = service;
     }
+
     @PostMapping
     public LoanPaymentsDto makePayment(@RequestBody LoanPaymentsDto dto) {
         return service.makePayment(dto);
@@ -24,4 +25,5 @@ public class LoanPaymentsController {
     public List<LoanPaymentsDto> getPayments(@PathVariable Long loanAccountId) {
         return service.getPayments(loanAccountId);
     }
+
 }

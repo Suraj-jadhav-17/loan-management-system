@@ -1,6 +1,7 @@
 package com.loanapp.loan_application.controller.multiplepayment;
 
 import com.loanapp.loan_application.dto.multiplepayment.MultipleEmiRequestDto;
+import com.loanapp.loan_application.dto.payment.LoanPaymentsDto;
 import com.loanapp.loan_application.service.multiplepayment.MultipleEmiRequestService;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,20 +29,21 @@ public class MultipleEmiRequestController {
 
     @PutMapping("/approve/{requestId}")
     public MultipleEmiRequestDto approve(@PathVariable Long requestId) {
+
         return service.approve(requestId);
     }
 
-    @PutMapping("/pay/{requestId}")
-    public MultipleEmiRequestDto pay(@PathVariable Long requestId) {
-        return service.pay(requestId);
-    }
+
     @PostMapping("/order/{requestId}")
     public String createOrder(@PathVariable Long requestId) {
+
         return service.createOrder(requestId);
     }
+
     @PostMapping("/verify/{requestId}")
-    public MultipleEmiRequestDto verifyPayment(@PathVariable Long requestId, @RequestParam String orderId,
-                                               @RequestParam String paymentId, @RequestParam String signature) {
-        return service.verifyPayment(requestId, orderId, paymentId, signature);
+    public LoanPaymentsDto verifyPayment(@RequestParam String orderId, @RequestParam String paymentId,
+                                         @RequestParam String signature, @RequestBody LoanPaymentsDto dto) {
+
+        return service.verifyPayment(orderId, paymentId, signature, dto);
     }
 }

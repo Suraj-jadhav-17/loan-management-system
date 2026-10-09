@@ -13,11 +13,13 @@ public class PenaltyChargesController {
     private final PenaltyChargesService service;
 
     public PenaltyChargesController(PenaltyChargesService service) {
+
         this.service = service;
     }
 
     @PostMapping
     public PenaltyChargesDto add(@RequestBody PenaltyChargesDto dto) {
+
         return service.add(dto);
     }
 
