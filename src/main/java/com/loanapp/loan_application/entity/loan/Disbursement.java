@@ -34,9 +34,6 @@ public class Disbursement {
     @Column(name = "DisbursementDate")
     private LocalDateTime disbursementDate;
 
-
-
-
     @Column(name = "Status", length = 50)
-    private String status;
+    private DisbursementStatus status;
 }

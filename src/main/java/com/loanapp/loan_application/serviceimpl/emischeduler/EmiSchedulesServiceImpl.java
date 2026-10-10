@@ -6,7 +6,7 @@ import com.loanapp.loan_application.entity.emischeduler.EmiSchedules;
 
 import com.loanapp.loan_application.entity.loan.LoanAccount;
 import com.loanapp.loan_application.entity.payment.PaymentStatus;
-import com.loanapp.loan_application.repository.LoanAccountsRepository;
+import com.loanapp.loan_application.repository.loan.LoanAccountsRepository;
 import com.loanapp.loan_application.repository.emischedulerepository.EmiScheduleRepository;
 import com.loanapp.loan_application.service.emischeduler.EmiSchedulesService;
 import org.springframework.stereotype.Service;

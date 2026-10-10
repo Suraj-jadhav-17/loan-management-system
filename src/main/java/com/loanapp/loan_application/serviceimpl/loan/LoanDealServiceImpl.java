@@ -15,6 +15,7 @@ import com.loanapp.loan_application.repository.loan.LoanDealRepo;
 
 import com.loanapp.loan_application.repository.register.CustomerRepository;
 
+import com.loanapp.loan_application.service.loan.DealReviewService;
 import com.loanapp.loan_application.service.loan.LoanDealService;
 
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,7 @@ public class LoanDealServiceImpl  implements LoanDealService {
     private final CustomerRepository customerRepo;
     private final ScoreCardRepo cardRepo;
     private final ModelMapper mapper;
+    private final DealReviewService  dealReviewService;
 
     @Override
     public LoanDealResponseDto createLoanDeal(LoanDealRequestDto request) {
@@ -61,6 +63,7 @@ public class LoanDealServiceImpl  implements LoanDealService {
                 .build();
 
         LoanDeal savedDeal =dealRepo.save(deal);
+        dealReviewService.createReview(savedDeal.getId());
         return mapper.map(savedDeal, LoanDealResponseDto.class);
 
     }
