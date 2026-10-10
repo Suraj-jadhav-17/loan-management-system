@@ -25,7 +25,11 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/v1/register","/auth/v1/login").permitAll()
+                        .requestMatchers("/auth/v1/register").permitAll()
+                        .requestMatchers("/auth/v1/verified-otp").permitAll()
+
+                        .requestMatchers("/auth/v1/login").permitAll()
+
                         .requestMatchers("/oauth/**").permitAll()
                         .requestMatchers("/auth/v1/loan-office/**")
                         .hasRole("LoanOfficer")

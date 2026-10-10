@@ -14,4 +14,11 @@ public class LoanOfficerController {
     public ResponseEntity<?> loanOfficerDashboard() {
         return ResponseEntity.ok("Welcome to Loan Officer Dashboard");
     }
+
+//    @GetMapping("/listCustomer")
+//    public String getAllCustomer(){
+//
+//    }
+
+
 }
