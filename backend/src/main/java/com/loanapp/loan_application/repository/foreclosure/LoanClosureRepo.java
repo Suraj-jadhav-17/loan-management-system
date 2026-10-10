@@ -1,4 +1,4 @@
-package com.loanapp.loan_application.repository.loanaccount;
+package com.loanapp.loan_application.repository.foreclosure;
 
 
 import com.loanapp.loan_application.entity.foreclosure.LoanClosure;
