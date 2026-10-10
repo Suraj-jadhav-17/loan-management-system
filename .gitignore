@@ -34,3 +34,9 @@ build/
 .vscode/
 
 
+backend/target/
+backend/.mvn/wrapper/*.jar
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+**/*.class
