@@ -14,6 +14,7 @@ import com.loanapp.loan_application.entity.payment.PaymentStatus;
 import com.loanapp.loan_application.entity.register.User;
 import com.loanapp.loan_application.repository.emischedulerepository.EmiScheduleRepository;
 import com.loanapp.loan_application.repository.foreclosure.ForeClosureRequestRepo;
+import com.loanapp.loan_application.repository.loanaccount.LoanAccountRepository;
 import com.loanapp.loan_application.repository.payment.LoanPaymentsRepository;
 import com.loanapp.loan_application.repository.register.UserRepository;
 import com.loanapp.loan_application.service.foreclosure.ForeClosureService;
