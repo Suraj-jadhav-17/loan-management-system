@@ -36,6 +36,8 @@ public class SecurityConfig {
 
                         .requestMatchers("/auth/v1/customer/**")
                         .hasRole("Customer")
+
+                        .requestMatchers("/auth/v1/loan-officer/listCustomer").hasRole("LoanOfficer")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

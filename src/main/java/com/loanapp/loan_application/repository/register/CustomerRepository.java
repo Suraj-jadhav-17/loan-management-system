@@ -3,6 +3,8 @@ package com.loanapp.loan_application.repository.register;
 import com.loanapp.loan_application.entity.register.Customer;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
