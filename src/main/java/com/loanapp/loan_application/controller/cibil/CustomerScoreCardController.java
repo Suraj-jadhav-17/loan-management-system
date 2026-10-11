@@ -33,7 +33,6 @@ public class CustomerScoreCardController {
 
         ScoreCardRequestDto request = new ScoreCardRequestDto();
         request.setCustomerId(getCustomerId(authentication));
-
         return ResponseEntity.status(HttpStatus.CREATED).body(scoreCardService.createScoreCard(request));
     }
 
