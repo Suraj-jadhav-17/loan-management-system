@@ -54,6 +54,8 @@ public class Customer {
     @Column(name = "CreatedAt", nullable = false)
     private LocalDateTime createdAt;
 
+    private String otp;
+
     @PrePersist
     public void onCreate() {
         createdAt = LocalDateTime.now();
