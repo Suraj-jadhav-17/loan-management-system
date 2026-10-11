@@ -1,56 +1,59 @@
+```gitignore
+# ==========================================
+# Java / Maven / Spring Boot
+# ==========================================
+
 HELP.md
-target/
+**/target/
+**/build/
+**/out/
+**/*.class
+
+# Maven Wrapper
 .mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-.application.properties
+# ==========================================
+# Angular / Node.js
+# ==========================================
 
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
+**/node_modules/
+**/dist/
+**/.angular/cache/
+**/coverage/
+**/out-tsc/
+**/npm-debug.log*
+**/yarn-error.log*
+**/pnpm-debug.log*
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
+# Angular / TypeScript generated output
+**/tmp/
+**/bazel-out/
+**/*.tsbuildinfo
 
+# ==========================================
+# IDEs / Editors
+# ==========================================
 
-
-# Compiled output
-/dist
-/tmp
-/out-tsc
-/bazel-out
-
-# Node
-/node_modules
-npm-debug.log
-yarn-error.log
-
-# IDEs and editors
+# IntelliJ IDEA
 .idea/
-.project
+**/*.iml
+**/*.iws
+**/*.ipr
+
+# Eclipse / Spring Tool Suite
 .classpath
-.c9/
-*.launch
+.project
 .settings/
-*.sublime-workspace
+.factorypath
+.apt_generated/
+.springBeans
+.sts4-cache/
+
+# NetBeans
+/nbproject/private/
+**/nbbuild/
+**/nbdist/
+**/.nb-gradle/
 
 # Visual Studio Code
 .vscode/*
@@ -59,20 +62,39 @@ yarn-error.log
 !.vscode/launch.json
 !.vscode/extensions.json
 !.vscode/mcp.json
-.history/*
+.history/
 
-# Miscellaneous
-/.angular/cache
-.sass-cache/
-/connect.lock
-/coverage
-/libpeerconnection.log
-testem.log
-/typings
-__screenshots__/
+# ==========================================
+# Environment variables / secrets
+# ==========================================
 
-# System files
+.env
+.env.*
+!.env.example
+
+# ==========================================
+# Logs / temporary files
+# ==========================================
+
+**/*.log
+**/tmp/
+**/temp/
+**/connect.lock
+**/libpeerconnection.log
+**/testem.log
+**/__screenshots__/
+
+# ==========================================
+# Operating system files
+# ==========================================
+
 .DS_Store
 Thumbs.db
+desktop.ini
 
+# ==========================================
+# Miscellaneous
+# ==========================================
 
+.sass-cache/
+```
