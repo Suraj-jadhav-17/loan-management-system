@@ -14,12 +14,20 @@ import java.math.BigDecimal;
 public class EligibilityResultResponseDto {
 
     private Long id;
+
     private Long customerId;
+
     private Integer cibilScore;
-    private Boolean isEligible;
+
+    private String eligibilityStatus;
+
     private String decision;
+
     private String riskCategory;
+
     private String borrowingLimit;
+
     private BigDecimal loanAmount;
+
     private String rejectionReason;
 }
