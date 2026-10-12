@@ -4,7 +4,7 @@ package com.loanapp.loan_application.controller.foreclosure;
 import com.loanapp.loan_application.dto.foreclosure.LoanClosureResponseDto;
 import com.loanapp.loan_application.entity.loan.LoanAccount;
 import com.loanapp.loan_application.entity.register.User;
-import com.loanapp.loan_application.repository.loanaccount.LoanAccountRepository;
+import com.loanapp.loan_application.repository.loan.LoanAccountRepository;
 import com.loanapp.loan_application.repository.register.UserRepository;
 import com.loanapp.loan_application.service.foreclosure.LoanClosureService;
 import lombok.RequiredArgsConstructor;
@@ -31,8 +31,7 @@ public class CustomerLoanClosureController {
         if (user.getCustomer() == null ||
                 user.getCustomer().getCustomerId() == null ||
                 loan.getCustomerId() == null ||
-                !loan.getCustomerId().equals(
-                        user.getCustomer().getCustomerId())) {
+                !loan.getCustomerId().equals(user.getCustomer().getCustomerId())) {
             throw new RuntimeException("You are not allowed to access this loan closure");
         }
 
