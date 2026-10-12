@@ -1,6 +1,5 @@
 package com.loanapp.loan_application.dto.emischeduler;
 
-import com.loanapp.loan_application.entity.payment.PaymentStatus;
 import jakarta.persistence.Entity;
 import lombok.Data;
 

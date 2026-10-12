@@ -45,10 +45,12 @@ public class RegistrationRequest {
 
     @NotNull
     @Positive
-
     private BigDecimal monthlyIncome;
+
     @Column(name = "MonthlyInvestment", precision = 18, scale = 2)
     private BigDecimal monthlyInvestment;
+
+    private String otp;
 
 
 }

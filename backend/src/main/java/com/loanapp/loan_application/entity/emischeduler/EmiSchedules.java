@@ -1,9 +1,7 @@
 package com.loanapp.loan_application.entity.emischeduler;
 
-import com.loanapp.loan_application.entity.payment.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.Getter;
 
 
 import java.math.BigDecimal;

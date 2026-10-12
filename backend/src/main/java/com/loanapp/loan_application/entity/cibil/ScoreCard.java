@@ -27,8 +27,9 @@ public class ScoreCard {
     @JoinColumn(name = "CustomerId", nullable = false)
     private Customer customer;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "CurrentStatus", length = 100)
-    private String currentStatus;
+    private ScoreCardStatus currentStatus;
 
     @Column(name = "RejectionReason", length = 1000)
     private String rejectionReason;
@@ -39,14 +40,12 @@ public class ScoreCard {
     @Column(name = "CibilScore")
     private Integer cibilScore;
 
-
+    @Enumerated(EnumType.STRING)
     @Column(name = "RiskCategory", length = 50)
-    private String riskCategory;
+    private RiskCategory riskCategory;
 
     @Column(name = "EligibleLoanAmount", precision = 18, scale = 2)
     private BigDecimal eligibleLoanAmount;
-
-
 
     @Column(name = "Foir", precision = 8, scale = 2)
     private BigDecimal foir;

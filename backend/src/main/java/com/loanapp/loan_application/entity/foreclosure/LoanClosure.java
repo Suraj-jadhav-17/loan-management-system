@@ -1,6 +1,5 @@
 package com.loanapp.loan_application.entity.foreclosure;
 
-
 import com.loanapp.loan_application.entity.loan.LoanAccount;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
