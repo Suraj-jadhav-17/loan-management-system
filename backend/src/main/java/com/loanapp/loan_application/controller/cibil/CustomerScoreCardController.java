@@ -1,3 +1,4 @@
+
 package com.loanapp.loan_application.controller.cibil;
 
 import com.loanapp.loan_application.dto.cibil.ScoreCardRequestDto;
@@ -33,16 +34,19 @@ public class CustomerScoreCardController {
 
         ScoreCardRequestDto request = new ScoreCardRequestDto();
         request.setCustomerId(getCustomerId(authentication));
+
         return ResponseEntity.status(HttpStatus.CREATED).body(scoreCardService.createScoreCard(request));
     }
 
     @GetMapping("/latest")
     public ResponseEntity<ScoreCardResponseDto> getLatestScoreCard(Authentication authentication) {
+
         return ResponseEntity.ok(scoreCardService.getLatestScoreCard(getCustomerId(authentication)));
     }
 
     @GetMapping("/history")
     public ResponseEntity<Page<ScoreCardResponseDto>> getScoreCardHistory(Authentication authentication, Pageable pageable) {
+
         return ResponseEntity.ok(scoreCardService.getScoreCardHistory(getCustomerId(authentication), pageable));
     }
 }

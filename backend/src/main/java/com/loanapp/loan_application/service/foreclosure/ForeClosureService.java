@@ -4,6 +4,9 @@ import com.loanapp.loan_application.dto.emischeduler.ForeClosurePaymentDto;
 import com.loanapp.loan_application.dto.foreclosure.ForeClosureApprovalDto;
 import com.loanapp.loan_application.dto.foreclosure.ForeClosureCreateRequestDto;
 import com.loanapp.loan_application.dto.foreclosure.ForeClosureResponseDto;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 public interface ForeClosureService {
 
@@ -16,4 +19,7 @@ public interface ForeClosureService {
     ForeClosureResponseDto makePayment(ForeClosurePaymentDto request);
 
     ForeClosureResponseDto getRequest(Long foreClosureId);
+
+    @Transactional(readOnly = true)
+    List<ForeClosureResponseDto> getPendingRequests();
 }

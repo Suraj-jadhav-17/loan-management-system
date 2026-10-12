@@ -35,7 +35,7 @@ backend/.mvn/wrapper/maven-wrapper.jar
 # ==========================================
 
 # IntelliJ IDEA
-.idea/
+backend/.idea/
 **/*.iml
 **/*.iws
 **/*.ipr
@@ -98,3 +98,4 @@ desktop.ini
 
 .sass-cache/
 ```
+.idea/
