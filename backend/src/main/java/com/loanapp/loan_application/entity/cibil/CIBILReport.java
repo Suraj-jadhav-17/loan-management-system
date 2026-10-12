@@ -1,5 +1,7 @@
 package com.loanapp.loan_application.entity.cibil;
 
+
+
 import com.loanapp.loan_application.entity.register.Customer;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -14,24 +16,20 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "CibilReports")
 public class CIBILReport {
-
    @Id
    @GeneratedValue(strategy = GenerationType.IDENTITY)
-   @Column(name = "CibilReportId")
-   private Long id;
-
-   @ManyToOne(fetch = FetchType.LAZY)
-   @JoinColumn(name = "CustomerId", nullable = false)
+    private Long id;
+   @OneToOne(fetch = FetchType.LAZY)
    private Customer customer;
 
-   @Column(name = "PanNo")
    private String panNo;
 
-   @Column(name = "CibilScore", nullable = false)
    private Integer cibilScore;
 
-   @Column(name = "CheckDate", nullable = false)
+
    private LocalDateTime checkDate;
+
+
+
 }

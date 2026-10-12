@@ -54,9 +54,4 @@ public class RazorpayServiceImpl implements RazorpayService {
             );
         }
     }
-
-    @Override
-    public LoanPaymentsDto verifyPayment(String orderId, String paymentId, String signature, LoanPaymentsDto dto) {
-        return null;
-    }
 }
