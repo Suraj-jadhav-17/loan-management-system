@@ -70,7 +70,7 @@ public class EmiSchedulesServiceImpl implements EmiSchedulesService {
         BigDecimal balance = loan.getLoanAmount();
         BigDecimal rate = loan.getInterestRate();
         BigDecimal emi = loan.getEmiAmount();
-        int tenure = loan.getTenureMonths();
+        Long tenure = loan.getTenureMonths();
 
         LocalDate dueDate = loan.getDisbursementDate()
                 .toLocalDate()
