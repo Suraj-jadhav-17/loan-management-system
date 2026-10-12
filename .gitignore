@@ -15,7 +15,7 @@ target/
 .application.properties
 
 ### IntelliJ IDEA ###
-.idea
+backend/.idea
 *.iws
 *.iml
 *.ipr
@@ -34,3 +34,8 @@ build/
 .vscode/
 
 
+
+# Local configuration and generated files
+**/src/main/resources/application.properties
+**/target/
+**/.idea/
