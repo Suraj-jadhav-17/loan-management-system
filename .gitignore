@@ -10,7 +10,7 @@ HELP.md
 **/*.class
 
 # Maven Wrapper
-.mvn/wrapper/maven-wrapper.jar
+backend/.mvn/wrapper/maven-wrapper.jar
 
 # ==========================================
 # Angular / Node.js
