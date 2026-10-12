@@ -4,7 +4,6 @@ import com.loanapp.loan_application.dto.payment.LoanPaymentsDto;
 import com.loanapp.loan_application.entity.emischeduler.EmiSchedules;
 import com.loanapp.loan_application.entity.loan.LoanAccount;
 import com.loanapp.loan_application.entity.payment.LoanPayments;
-import com.loanapp.loan_application.entity.payment.PaymentStatus;
 import com.loanapp.loan_application.repository.emischedulerepository.EmiScheduleRepository;
 import com.loanapp.loan_application.repository.loanaccount.LoanAccountRepository;
 import com.loanapp.loan_application.repository.payment.LoanPaymentsRepository;
