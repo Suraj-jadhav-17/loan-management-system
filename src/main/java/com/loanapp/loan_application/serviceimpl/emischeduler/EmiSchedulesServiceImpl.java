@@ -7,6 +7,7 @@ import com.loanapp.loan_application.entity.payment.PaymentStatus;
 import com.loanapp.loan_application.repository.emischedulerepository.EmiScheduleRepository;
 import com.loanapp.loan_application.repository.loanaccount.LoanAccountRepository;
 import com.loanapp.loan_application.service.emischeduler.EmiSchedulesService;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -146,70 +147,97 @@ public class EmiSchedulesServiceImpl implements EmiSchedulesService {
         }
     }
 
-    @Override
-    public void regenerateAfterPartialForeclosure(Long loanAccountId, BigDecimal newOutstandingPrincipal) {
-        LoanAccount loan = loanRepo.findById(loanAccountId).orElseThrow(() ->
-                        new RuntimeException("Loan account not found"));
-        List<EmiSchedules> schedules = repo.findByLoanAccountId(loanAccountId);
 
+    @Override
+    @Transactional
+    public void regenerateAfterPartialForeclosure(Long loanAccountId, BigDecimal newOutstandingPrincipal) {
+        LoanAccount loan = loanRepo.findById(loanAccountId)
+                .orElseThrow(() ->
+                        new RuntimeException("Loan account not found"));
+
+        if (newOutstandingPrincipal == null
+                || newOutstandingPrincipal.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException(
+                    "Outstanding principal must be greater than zero");
+        }
+
+        List<EmiSchedules> schedules = repo.findByLoanAccountId(loanAccountId);
         long nextInstallmentNo = schedules.stream()
                 .filter(e -> e.getPaymentStatus() == PaymentStatus.PAID)
                 .mapToLong(EmiSchedules::getInstallmentNo)
                 .max()
                 .orElse(0L) + 1;
 
-        // First unpaid EMI ki existing due date
-        LocalDate dueDate = schedules.stream()
-                .filter(e -> e.getPaymentStatus() != PaymentStatus.PAID)
+        List<EmiSchedules> unpaidSchedules =
+                repo.findByLoanAccountIdAndPaymentStatus(
+                        loanAccountId,
+                        PaymentStatus.PENDING);
+
+        LocalDate dueDate = unpaidSchedules.stream()
                 .map(EmiSchedules::getDueDate)
                 .min(LocalDate::compareTo)
                 .orElse(loan.getDisbursementDate()
-                                .toLocalDate()
-                                .plusMonths(1));
+                        .toLocalDate()
+                        .plusMonths(1));
 
-        schedules.stream()
-                .filter(e -> e.getPaymentStatus() != PaymentStatus.PAID)
-                .forEach(e -> {
-                    e.setPaymentStatus(PaymentStatus.CANCELLED);
-                    e.setCancellationReason(
-                            "Regenerated after partial foreclosure"
-                    );
-                    repo.save(e);
-                });
+        unpaidSchedules.forEach(e -> {
+            e.setPaymentStatus(PaymentStatus.CANCELLED);
+            e.setCancellationReason(
+                    "Regenerated after partial foreclosure");
+            repo.save(e);
+        });
 
-        // Partial foreclosure ke baad new outstanding principal
         BigDecimal balance = newOutstandingPrincipal;
-
-
         BigDecimal emi = loan.getEmiAmount();
+        BigDecimal rate = loan.getInterestRate();
 
-        BigDecimal monthlyRate = loan.getInterestRate()
-                .divide(BigDecimal.valueOf(1200),
-                        10,
-                        RoundingMode.HALF_UP
-                );
+        if (emi == null || rate == null
+                || emi.compareTo(BigDecimal.ZERO) <= 0
+                || rate.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException(
+                    "Invalid EMI amount or interest rate");
+        }
 
+        BigDecimal monthlyRate = rate.divide(
+                BigDecimal.valueOf(1200),
+                10,
+                RoundingMode.HALF_UP);
+
+        BigDecimal firstInterest = balance.multiply(monthlyRate)
+                .setScale(2, RoundingMode.HALF_UP);
+
+        if (emi.compareTo(firstInterest) <= 0) {
+            throw new IllegalArgumentException(
+                    "EMI must be greater than monthly interest");
+        }
+
+        int count = 0;
 
         while (balance.compareTo(BigDecimal.ZERO) > 0) {
 
+            if (++count > 1200) {
+                throw new IllegalStateException(
+                        "Unable to generate EMI schedule. Check loan details.");
+            }
+
             BigDecimal openingBalance = balance;
 
-            BigDecimal interest = openingBalance
-                    .multiply(monthlyRate)
+            BigDecimal interest = openingBalance.multiply(monthlyRate)
                     .setScale(2, RoundingMode.HALF_UP);
 
-            BigDecimal principal = emi.subtract(interest);
+            BigDecimal principal = emi.subtract(interest)
+                    .setScale(2, RoundingMode.HALF_UP);
 
             BigDecimal currentEmi = emi;
 
-
-            if (principal.compareTo(balance) > 0) {
+            if (principal.compareTo(balance) >= 0) {
                 principal = balance;
-                currentEmi = principal.add(interest);
+                currentEmi = principal.add(interest)
+                        .setScale(2, RoundingMode.HALF_UP);
             }
 
-            BigDecimal closingBalance =
-                    openingBalance.subtract(principal);
+            BigDecimal closingBalance = openingBalance.subtract(principal)
+                    .setScale(2, RoundingMode.HALF_UP);
 
             EmiSchedules schedule = new EmiSchedules();
 
