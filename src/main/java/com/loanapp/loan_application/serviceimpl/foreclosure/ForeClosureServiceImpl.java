@@ -17,6 +17,7 @@ import com.loanapp.loan_application.repository.foreclosure.ForeClosureRequestRep
 import com.loanapp.loan_application.repository.loanaccount.LoanAccountRepository;
 import com.loanapp.loan_application.repository.payment.LoanPaymentsRepository;
 import com.loanapp.loan_application.repository.register.UserRepository;
+import com.loanapp.loan_application.service.emischeduler.EmiSchedulesService;
 import com.loanapp.loan_application.service.foreclosure.ForeClosureService;
 import com.loanapp.loan_application.service.foreclosure.LoanClosureService;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +40,7 @@ public class ForeClosureServiceImpl implements ForeClosureService {
     private final LoanPaymentsRepository loanPaymentsRepository;
     private final UserRepository userRepository;
     private final LoanClosureService loanClosureService;
+    private final EmiSchedulesService emiSchedulesService;
     private final ModelMapper modelMapper;
 
     @Override
@@ -217,6 +219,10 @@ public class ForeClosureServiceImpl implements ForeClosureService {
             BigDecimal partialAmount) {
 
         BigDecimal oldPrincipal = loanAccount.getOutstandingPrincipal();
+        if (oldPrincipal == null || partialAmount == null ||
+                partialAmount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new RuntimeException("Invalid partial foreclosure amount");
+        }
         BigDecimal newPrincipal = oldPrincipal.subtract(partialAmount);
 
         if (newPrincipal.compareTo(BigDecimal.ZERO) <= 0) {
@@ -235,6 +241,9 @@ public class ForeClosureServiceImpl implements ForeClosureService {
         loanAccount.setLoanStatus("ACTIVE");
 
         loanAccountRepository.save(loanAccount);
+
+        emiSchedulesService.regenerateAfterPartialForeclosure(
+                loanAccount.getLoanAccountId(), newPrincipal);
     }
 
     private void cancelPendingEmis(Long loanAccountId, String reason) {
@@ -284,7 +293,8 @@ public class ForeClosureServiceImpl implements ForeClosureService {
 
         if (!"ADMIN".equalsIgnoreCase(role)
                 && !"LOAN_OFFICER".equalsIgnoreCase(role)
-                && !"LOAN OFFICER".equalsIgnoreCase(role)) {
+                && !"LOAN OFFICER".equalsIgnoreCase(role)
+                && !"LOANOFFICER".equalsIgnoreCase(role)) {
             throw new RuntimeException("Only Admin or Loan Officer can approve foreclosure");
         }
     }
@@ -298,6 +308,16 @@ public class ForeClosureServiceImpl implements ForeClosureService {
     @Transactional(readOnly = true)
     public ForeClosureResponseDto getRequest(Long foreClosureId) {
         return mapToResponse(getForeclosureEntity(foreClosureId));
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ForeClosureResponseDto> getPendingRequests() {
+        return foreClosureRequestRepo.findByStatus(ForeClosureStatus.PENDING)
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
     }
 
     private ForeClosureRequest getForeclosureEntity(Long foreClosureId) {
