@@ -10,7 +10,7 @@
 //import com.loanapp.loan_application.entity.loanaccount.LoanAccount;
 //import com.loanapp.loan_application.repository.emischedulerepository.EmiScheduleRepository;
 //import com.loanapp.loan_application.repository.loanaccount.ForeClosureRequestRepo;
-//import com.loanapp.loan_application.repository.loanaccount.LoanAccountRepository;
+//import com.loanapp.loan_application.repository.loan.LoanAccountRepository;
 //import com.loanapp.loan_application.service.loanaccount.ForeClosureService;
 //import com.loanapp.loan_application.service.loanaccount.LoanClosureService;
 //import lombok.RequiredArgsConstructor;

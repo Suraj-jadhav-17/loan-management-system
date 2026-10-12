@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "LoanAccounts")
 public class LoanAccount {
 
     @Id
@@ -27,37 +26,37 @@ public class LoanAccount {
     @JoinColumn(name = "CustomerId", nullable = false)
     private Customer customer;  //Customer
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "DealId", nullable = false)
     private LoanDeal loanDeal;  //LoanDeal
 
-    @Column(name = "LoanAccountNo", nullable = false, unique = true, length = 100)
+    @Column( nullable = false, unique = true, length = 100)
     private String loanAccountNo;
 
-    @Column(name = "LoanAmount", nullable = false, precision = 18, scale = 2)
+
     private BigDecimal loanAmount;
 
-    @Column(name = "OutstandingPrincipal", precision = 18, scale = 2)
+
     private BigDecimal outstandingPrincipal;
 
-    @Column(name = "LoanStatus", length = 50)
-    private String loanStatus;
 
-    @Column(name = "InterestRate", precision = 8, scale = 4)
+    private LoanStatus loanStatus;
+
+
     private BigDecimal interestRate;
 
-    @Column(name = "TenureMonths")
+
     private Long tenureMonths;
 
-    @Column(name = "EmiAmount", precision = 18, scale = 2)
+
     private BigDecimal emiAmount;
 
-    @Column(name = "DisbursementDate")
+
     private LocalDateTime disbursementDate;
 
-    @Column(name = "TotalPaidAmount", precision = 18, scale = 2)
+
     private BigDecimal totalPaidAmount;
 
-    @Column(name = "CreatedAt", nullable = false)
+
     private LocalDateTime createdAt;
 }

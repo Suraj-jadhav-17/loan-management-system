@@ -1,6 +1,7 @@
 package com.loanapp.loan_application.serviceimpl.loan;
 
 import com.loanapp.loan_application.entity.loan.DealReview;
+import com.loanapp.loan_application.entity.loan.Disbursement;
 import com.loanapp.loan_application.entity.loan.LoanDeal;
 import com.loanapp.loan_application.entity.loan.SanctionLetter;
 import com.loanapp.loan_application.entity.register.Customer;
@@ -8,6 +9,7 @@ import com.loanapp.loan_application.exception.ResourceNotFoundException;
 import com.loanapp.loan_application.repository.loan.DealReviewRepository;
 import com.loanapp.loan_application.repository.loan.LoanDealRepo;
 import com.loanapp.loan_application.repository.loan.SanctionLetterRepo;
+import com.loanapp.loan_application.service.loan.DisbursementService;
 import com.loanapp.loan_application.service.loan.SanctionLetterService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,14 +28,14 @@ public class SanctionLetterServiceImpl implements SanctionLetterService {
     }
     private final SanctionLetterRepo letterRepo;
     private final LoanDealRepo dealRepo;
-
+    private final DisbursementService disbursementService;
     private final SanctionPDFGenerator pdfGenerator;
 
 
     @Override
     public SanctionLetter createSanctionLetter(Long loanDealId) {
         LoanDeal deal = dealRepo.findById(loanDealId).orElseThrow(()->new ResourceNotFoundException("Deal not found"));
-
+        disbursementService.createDisbursement(loanDealId);
         return letterRepo.save( SanctionLetter.builder()
                 .applicationNo(generateApplicationNumber())
                 .createdAt(LocalDateTime.now())

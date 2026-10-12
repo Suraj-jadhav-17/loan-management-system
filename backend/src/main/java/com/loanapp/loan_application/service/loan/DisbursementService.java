@@ -8,6 +8,6 @@ import org.springframework.data.domain.Page;
 public interface DisbursementService {
     Disbursement createDisbursement(long LoanId);
     DisbursementResponse disburse(DisbursementRequest request);
-    Page<DisbursementResponse> getPendingDisburse(int size, int page);
+    Page<DisbursementResponse> getAllDisburse(int size, int page);
 
 }
