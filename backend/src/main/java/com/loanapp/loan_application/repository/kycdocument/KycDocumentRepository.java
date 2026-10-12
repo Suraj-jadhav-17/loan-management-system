@@ -20,5 +20,5 @@ public interface KycDocumentRepository
             Integer customerId);
 
     @Query("select distinct k.customerId from KycDocument k")
-    List<Integer> findDistinctCustomerIds();
+    List<Long> findDistinctCustomerIds();
 }

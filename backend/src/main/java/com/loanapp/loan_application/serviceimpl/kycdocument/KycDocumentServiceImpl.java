@@ -2,11 +2,14 @@ package com.loanapp.loan_application.serviceimpl.kycdocument;
 
 import com.loanapp.loan_application.dto.kycdocument.*;
 import com.loanapp.loan_application.entity.kycdocument.KycDocument;
-import com.loanapp.loan_application.entity.Customer;
+
+import com.loanapp.loan_application.entity.register.Customer;
 import com.loanapp.loan_application.repository.kycdocument.KycDocumentRepository;
-import com.loanapp.loan_application.repository.CustomerRepository;
+
+import com.loanapp.loan_application.repository.register.CustomerRepository;
 import com.loanapp.loan_application.service.kycdocument.KycDocumentService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -268,14 +271,14 @@ public class KycDocumentServiceImpl implements KycDocumentService {
     @Override
     public List<KycCustomerSummaryResponseDto> getOfficerCustomers() {
 
-        List<Integer> customerIds =
+        List<Long> customerIds =
                 kycDocumentRepository
                         .findDistinctCustomerIds();
 
         List<KycCustomerSummaryResponseDto> response =
                 new ArrayList<>();
 
-        for (Integer customerId : customerIds) {
+        for ( Long customerId : customerIds) {
 
             Optional<Customer> customer =
                     customerRepository.findById(customerId);
@@ -423,6 +426,11 @@ public class KycDocumentServiceImpl implements KycDocumentService {
                 rejectedDocumentNames,
                 request.getRejectionReason()
         );
+    }
+
+    @Override
+    public ResponseEntity<?> getDocumentFile(Integer documentId) {
+        return null;
     }
 
     private void validateDocumentType(

@@ -1,19 +1,20 @@
-package com.loanapp.loan_application.service.foreclosure;
-
-
-import com.loanapp.loan_application.dto.emischeduler.ForeClosurePaymentDto;
-import com.loanapp.loan_application.dto.foreclosure.ForeClosureResponseDto;
-import com.loanapp.loan_application.dto.request.loanaccount.LoanAccountRequestDto;
-
-public interface ForeClosureService {
-
-    ForeClosureResponseDto createRequest(LoanAccountRequestDto.ForeClosureRequestDto request);
-
-    ForeClosureResponseDto approveRequest(LoanAccountRequestDto.ForeClosureApprovalDto request);
-
-    ForeClosureResponseDto rejectRequest(LoanAccountRequestDto.ForeClosureApprovalDto request);
-
-    ForeClosureResponseDto makePayment(ForeClosurePaymentDto request);
-
-    ForeClosureResponseDto getRequest(Long foreClosureId);
-}
+//package com.loanapp.loan_application.service.foreclosure;
+//
+//
+//import com.loanapp.loan_application.dto.emischeduler.ForeClosurePaymentDto;
+//import com.loanapp.loan_application.dto.foreclosure.ForeClosureResponseDto;
+//import com.loanapp.loan_application.dto.loan.LoanAccountRequest;
+//
+//
+//public interface ForeClosureService {
+//
+//    ForeClosureResponseDto createRequest(LoanAccountRequest.ForeClosureRequestDto request);
+//
+//    ForeClosureResponseDto approveRequest(LoanAccountRequest.ForeClosureApprovalDto request);
+//
+//    ForeClosureResponseDto rejectRequest(LoanAccountRequest.ForeClosureApprovalDto request);
+//
+//    ForeClosureResponseDto makePayment(ForeClosurePaymentDto request);
+//
+//    ForeClosureResponseDto getRequest(Long foreClosureId);
+//}
