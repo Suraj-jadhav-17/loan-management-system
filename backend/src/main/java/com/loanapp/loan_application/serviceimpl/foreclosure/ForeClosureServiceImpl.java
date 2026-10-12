@@ -1,16 +1,21 @@
-//package com.loanapp.loan_application.serviceimpl.loanaccount;
+//package com.loanapp.loan_application.serviceimpl.foreclosure;
 //
 //
 //import com.loanapp.loan_application.dto.emischeduler.ForeClosurePaymentDto;
 //import com.loanapp.loan_application.dto.foreclosure.ForeClosureResponseDto;
-//import com.loanapp.loan_application.dto.request.loanaccount.LoanAccountRequestDto;
+//
+//import com.loanapp.loan_application.dto.loan.LoanAccountRequest;
 //import com.loanapp.loan_application.entity.foreclosure.ForeClosureRequest;
 //import com.loanapp.loan_application.entity.foreclosure.ForeClosureStatus;
 //import com.loanapp.loan_application.entity.foreclosure.ForeClosureType;
-//import com.loanapp.loan_application.entity.loanaccount.LoanAccount;
+//
+//import com.loanapp.loan_application.entity.loan.LoanAccount;
 //import com.loanapp.loan_application.repository.emischedulerepository.EmiScheduleRepository;
+//import com.loanapp.loan_application.repository.foreclosure.ForeClosureRequestRepo;
 //import com.loanapp.loan_application.repository.loanaccount.ForeClosureRequestRepo;
 //import com.loanapp.loan_application.repository.loan.LoanAccountRepository;
+//import com.loanapp.loan_application.service.foreclosure.ForeClosureService;
+//import com.loanapp.loan_application.service.foreclosure.LoanClosureService;
 //import com.loanapp.loan_application.service.loanaccount.ForeClosureService;
 //import com.loanapp.loan_application.service.loanaccount.LoanClosureService;
 //import lombok.RequiredArgsConstructor;
@@ -38,7 +43,7 @@
 //
 //
 //    @Override
-//    public ForeClosureResponseDto createRequest(LoanAccountRequestDto.ForeClosureRequestDto request) {
+//    public ForeClosureResponseDto createRequest(LoanAccountRequest.ForeClosureRequestDto request) {
 //
 //        if (request == null ||
 //                request.getLoanAccountId() == null) {

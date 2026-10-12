@@ -7,6 +7,7 @@ import com.loanapp.loan_application.entity.emischeduler.EmiSchedules;
 import com.loanapp.loan_application.entity.loan.LoanAccount;
 import com.loanapp.loan_application.entity.payment.PaymentStatus;
 import com.loanapp.loan_application.repository.emischedulerepository.EmiScheduleRepository;
+import com.loanapp.loan_application.repository.loan.LoanAccountRepository;
 import com.loanapp.loan_application.service.emischeduler.EmiSchedulesService;
 import org.springframework.stereotype.Service;
 
@@ -19,9 +20,9 @@ import java.util.stream.Collectors;
 @Service
 public class EmiSchedulesServiceImpl implements EmiSchedulesService {
     private final EmiScheduleRepository repo;
-    private final LoanAccountsRepository loanRepo;
+    private final LoanAccountRepository loanRepo;
 
-    public EmiSchedulesServiceImpl(EmiScheduleRepository repo, LoanAccountsRepository loanRepo) {
+    public EmiSchedulesServiceImpl(EmiScheduleRepository repo, LoanAccountRepository loanRepo) {
         this.repo = repo;
         this.loanRepo = loanRepo;
     }
@@ -55,7 +56,7 @@ public class EmiSchedulesServiceImpl implements EmiSchedulesService {
             BigDecimal balance = loan.getLoanAmount();
            BigDecimal rate = loan.getInterestRate();
            BigDecimal emi = loan.getEmiAmount();
-           int tenure = loan.getTenureMonths();
+           Long tenure = loan.getTenureMonths();
 
         LocalDate dueDate = loan.getDisbursementDate().toLocalDate();
         for (int i = 1; i <= tenure; i++) {
