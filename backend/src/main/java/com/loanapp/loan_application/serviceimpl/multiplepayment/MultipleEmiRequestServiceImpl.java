@@ -4,7 +4,6 @@ import com.loanapp.loan_application.dto.multiplepayment.MultipleEmiRequestDto;
 import com.loanapp.loan_application.entity.emischeduler.EmiSchedules;
 import com.loanapp.loan_application.entity.multiplepayment.MultipleEmiRequest;
 import com.loanapp.loan_application.entity.payment.LoanPayments;
-import com.loanapp.loan_application.entity.payment.PaymentStatus;
 import com.loanapp.loan_application.entity.penalty.PenaltyCharges;
 import com.loanapp.loan_application.repository.emischedulerepository.EmiScheduleRepository;
 import com.loanapp.loan_application.repository.multiplepayment.MultipleEmiRequestRepository;
