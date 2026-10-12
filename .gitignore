@@ -1,36 +1,100 @@
+```gitignore
+# ==========================================
+# Java / Maven / Spring Boot
+# ==========================================
+
 HELP.md
-target/
-.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+**/target/
+**/build/
+**/out/
+**/*.class
 
-### STS ###
-.apt_generated
+# Maven Wrapper
+backend/.mvn/wrapper/maven-wrapper.jar
+
+# ==========================================
+# Angular / Node.js
+# ==========================================
+
+**/node_modules/
+**/dist/
+**/.angular/cache/
+**/coverage/
+**/out-tsc/
+**/npm-debug.log*
+**/yarn-error.log*
+**/pnpm-debug.log*
+
+# Angular / TypeScript generated output
+**/tmp/
+**/bazel-out/
+**/*.tsbuildinfo
+
+# ==========================================
+# IDEs / Editors
+# ==========================================
+
+# IntelliJ IDEA
+.idea/
+**/*.iml
+**/*.iws
+**/*.ipr
+
+# Eclipse / Spring Tool Suite
 .classpath
-.factorypath
 .project
-.settings
+.settings/
+.factorypath
+.apt_generated/
 .springBeans
-.sts4-cache
-.application.properties
+.sts4-cache/
 
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-
-### NetBeans ###
+# NetBeans
 /nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
+**/nbbuild/
+**/nbdist/
+**/.nb-gradle/
 
-### VS Code ###
-.vscode/
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/mcp.json
+.history/
 
+# ==========================================
+# Environment variables / secrets
+# ==========================================
 
+.env
+.env.*
+!.env.example
+
+# ==========================================
+# Logs / temporary files
+# ==========================================
+
+**/*.log
+**/tmp/
+**/temp/
+**/connect.lock
+**/libpeerconnection.log
+**/testem.log
+**/__screenshots__/
+
+# ==========================================
+# Operating system files
+# ==========================================
+
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ==========================================
+# Miscellaneous
+# ==========================================
+
+.sass-cache/
+```
