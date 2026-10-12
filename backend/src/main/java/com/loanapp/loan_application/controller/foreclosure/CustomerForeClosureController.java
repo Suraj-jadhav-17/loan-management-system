@@ -7,7 +7,7 @@ import com.loanapp.loan_application.entity.foreclosure.ForeClosureRequest;
 import com.loanapp.loan_application.entity.loan.LoanAccount;
 import com.loanapp.loan_application.entity.register.User;
 import com.loanapp.loan_application.repository.foreclosure.ForeClosureRequestRepo;
-import com.loanapp.loan_application.repository.loanaccount.LoanAccountRepository;
+import com.loanapp.loan_application.repository.loan.LoanAccountRepository;
 import com.loanapp.loan_application.repository.register.UserRepository;
 import com.loanapp.loan_application.service.foreclosure.ForeClosureService;
 import lombok.RequiredArgsConstructor;
@@ -25,8 +25,7 @@ public class CustomerForeClosureController {
     private final UserRepository userRepository;
 
     @PostMapping("/requests")
-    public ForeClosureResponseDto createRequest(@RequestBody ForeClosureCreateRequestDto request,
-            Authentication authentication) {
+    public ForeClosureResponseDto createRequest(@RequestBody ForeClosureCreateRequestDto request, Authentication authentication) {
         User user = getUser(authentication);
         LoanAccount loan = getLoan(request.getLoanAccountId());
         verifyOwnership(user, loan);

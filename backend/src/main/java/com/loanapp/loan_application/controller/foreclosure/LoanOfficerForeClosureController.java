@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/auth/v1/loan-office")
+@RequestMapping("/auth/v1/loan-office/foreclosure")
 @RequiredArgsConstructor
 public class LoanOfficerForeClosureController {
 
@@ -33,8 +33,7 @@ public class LoanOfficerForeClosureController {
     }
 
     @PostMapping("/requests/{foreClosureId}/approve")
-    public ForeClosureResponseDto approve(@PathVariable Long foreClosureId, @RequestBody(required = false) ForeClosureApprovalDto body,
-            Authentication authentication) {
+    public ForeClosureResponseDto approve(@PathVariable Long foreClosureId, @RequestBody(required = false) ForeClosureApprovalDto body, Authentication authentication) {
         ForeClosureApprovalDto request = buildApproval(foreClosureId, body, authentication);
         return foreClosureService.approveRequest(request);
     }
@@ -57,7 +56,8 @@ public class LoanOfficerForeClosureController {
         return loanClosureService.getClosure(loanAccountId);
     }
 
-    private ForeClosureApprovalDto buildApproval(Long id, ForeClosureApprovalDto body, Authentication authentication) {
+    private ForeClosureApprovalDto buildApproval(
+            Long id, ForeClosureApprovalDto body, Authentication authentication) {
         User officer = getUser(authentication);
         return ForeClosureApprovalDto.builder()
                 .foreClosureId(id)

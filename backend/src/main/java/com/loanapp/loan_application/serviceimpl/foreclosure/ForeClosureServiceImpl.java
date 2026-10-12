@@ -9,12 +9,13 @@ import com.loanapp.loan_application.entity.foreclosure.ForeClosureRequest;
 import com.loanapp.loan_application.entity.foreclosure.ForeClosureStatus;
 import com.loanapp.loan_application.entity.foreclosure.ForeClosureType;
 import com.loanapp.loan_application.entity.loan.LoanAccount;
+import com.loanapp.loan_application.entity.loan.LoanStatus;
 import com.loanapp.loan_application.entity.payment.LoanPayments;
 import com.loanapp.loan_application.entity.payment.PaymentStatus;
 import com.loanapp.loan_application.entity.register.User;
 import com.loanapp.loan_application.repository.emischedulerepository.EmiScheduleRepository;
 import com.loanapp.loan_application.repository.foreclosure.ForeClosureRequestRepo;
-import com.loanapp.loan_application.repository.loanaccount.LoanAccountRepository;
+import com.loanapp.loan_application.repository.loan.LoanAccountRepository;
 import com.loanapp.loan_application.repository.payment.LoanPaymentsRepository;
 import com.loanapp.loan_application.repository.register.UserRepository;
 import com.loanapp.loan_application.service.emischeduler.EmiSchedulesService;
@@ -55,7 +56,7 @@ public class ForeClosureServiceImpl implements ForeClosureService {
         LoanAccount loanAccount = loanAccountRepository.findById(request.getLoanAccountId())
                 .orElseThrow(() -> new RuntimeException("Loan account not found"));
 
-        if (!"ACTIVE".equalsIgnoreCase(loanAccount.getLoanStatus())) {
+        if (!"ACTIVE".equalsIgnoreCase(String.valueOf(loanAccount.getLoanStatus()))) {
             throw new RuntimeException("Foreclosure is allowed only for active loan");
         }
 
@@ -205,7 +206,7 @@ public class ForeClosureServiceImpl implements ForeClosureService {
                 loanAccount.getLoanAccountId(),
                 "Loan fully foreclosed");
 
-        loanAccount.setLoanStatus("CLOSED");
+        loanAccount.setLoanStatus(LoanStatus.valueOf("CLOSED"));
 
         loanAccountRepository.save(loanAccount);
 
@@ -238,7 +239,7 @@ public class ForeClosureServiceImpl implements ForeClosureService {
         }
 
         loanAccount.setTotalPaidAmount(totalPaid.add(partialAmount));
-        loanAccount.setLoanStatus("ACTIVE");
+        loanAccount.setLoanStatus(LoanStatus.valueOf("ACTIVE"));
 
         loanAccountRepository.save(loanAccount);
 

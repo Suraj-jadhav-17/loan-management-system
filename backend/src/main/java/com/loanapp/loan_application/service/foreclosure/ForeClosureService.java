@@ -1,20 +1,26 @@
-//package com.loanapp.loan_application.service.foreclosure;
-//
-//
-//import com.loanapp.loan_application.dto.emischeduler.ForeClosurePaymentDto;
-//import com.loanapp.loan_application.dto.foreclosure.ForeClosureResponseDto;
-//import com.loanapp.loan_application.dto.loan.LoanAccountRequest;
-//
-//
-//public interface ForeClosureService {
-//
-//    ForeClosureResponseDto createRequest(LoanAccountRequest.ForeClosureRequestDto request);
-//
-//    ForeClosureResponseDto approveRequest(LoanAccountRequest.ForeClosureApprovalDto request);
-//
-//    ForeClosureResponseDto rejectRequest(LoanAccountRequest.ForeClosureApprovalDto request);
-//
-//    ForeClosureResponseDto makePayment(ForeClosurePaymentDto request);
-//
-//    ForeClosureResponseDto getRequest(Long foreClosureId);
-//}
+package com.loanapp.loan_application.service.foreclosure;
+
+import com.loanapp.loan_application.dto.emischeduler.ForeClosurePaymentDto;
+import com.loanapp.loan_application.dto.foreclosure.ForeClosureApprovalDto;
+import com.loanapp.loan_application.dto.foreclosure.ForeClosureCreateRequestDto;
+import com.loanapp.loan_application.dto.foreclosure.ForeClosureResponseDto;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+public interface ForeClosureService {
+
+ForeClosureResponseDto createRequest(ForeClosureCreateRequestDto request);
+
+ForeClosureResponseDto approveRequest(ForeClosureApprovalDto request);
+
+ForeClosureResponseDto rejectRequest(ForeClosureApprovalDto request);
+
+ForeClosureResponseDto makePayment(ForeClosurePaymentDto request);
+
+ForeClosureResponseDto getRequest(Long foreClosureId);
+
+@Transactional(readOnly = true)
+List<ForeClosureResponseDto> getPendingRequests();
+
+}
