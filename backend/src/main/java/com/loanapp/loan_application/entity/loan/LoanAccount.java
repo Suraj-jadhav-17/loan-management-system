@@ -39,7 +39,7 @@ public class LoanAccount {
 
     private BigDecimal outstandingPrincipal;
 
-
+    @Enumerated(EnumType.STRING)
     private LoanStatus loanStatus;
 
 

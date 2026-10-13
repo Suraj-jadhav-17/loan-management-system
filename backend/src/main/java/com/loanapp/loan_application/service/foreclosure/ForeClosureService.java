@@ -10,16 +10,17 @@ import java.util.List;
 
 public interface ForeClosureService {
 
-    ForeClosureResponseDto createRequest(ForeClosureCreateRequestDto request);
+ForeClosureResponseDto createRequest(ForeClosureCreateRequestDto request);
 
-    ForeClosureResponseDto approveRequest(ForeClosureApprovalDto request);
+ForeClosureResponseDto approveRequest(ForeClosureApprovalDto request);
 
-    ForeClosureResponseDto rejectRequest(ForeClosureApprovalDto request);
+ForeClosureResponseDto rejectRequest(ForeClosureApprovalDto request);
 
-    ForeClosureResponseDto makePayment(ForeClosurePaymentDto request);
+ForeClosureResponseDto makePayment(ForeClosurePaymentDto request);
 
-    ForeClosureResponseDto getRequest(Long foreClosureId);
+ForeClosureResponseDto getRequest(Long foreClosureId);
 
-    @Transactional(readOnly = true)
-    List<ForeClosureResponseDto> getPendingRequests();
+@Transactional(readOnly = true)
+List<ForeClosureResponseDto> getPendingRequests();
+
 }

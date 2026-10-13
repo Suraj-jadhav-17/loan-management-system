@@ -15,12 +15,10 @@ import com.loanapp.loan_application.entity.payment.PaymentStatus;
 import com.loanapp.loan_application.entity.register.User;
 import com.loanapp.loan_application.repository.emischedulerepository.EmiScheduleRepository;
 import com.loanapp.loan_application.repository.foreclosure.ForeClosureRequestRepo;
-
 import com.loanapp.loan_application.repository.loan.LoanAccountRepository;
 import com.loanapp.loan_application.repository.payment.LoanPaymentsRepository;
 import com.loanapp.loan_application.repository.register.UserRepository;
 import com.loanapp.loan_application.service.emischeduler.EmiSchedulesService;
-
 import com.loanapp.loan_application.service.foreclosure.ForeClosureService;
 import com.loanapp.loan_application.service.foreclosure.LoanClosureService;
 import lombok.RequiredArgsConstructor;
@@ -58,7 +56,7 @@ public class ForeClosureServiceImpl implements ForeClosureService {
         LoanAccount loanAccount = loanAccountRepository.findById(request.getLoanAccountId())
                 .orElseThrow(() -> new RuntimeException("Loan account not found"));
 
-        if (!LoanStatus.ACTIVE.equals(loanAccount.getLoanStatus())) {
+        if (!"ACTIVE".equalsIgnoreCase(String.valueOf(loanAccount.getLoanStatus()))) {
             throw new RuntimeException("Foreclosure is allowed only for active loan");
         }
 
@@ -208,7 +206,7 @@ public class ForeClosureServiceImpl implements ForeClosureService {
                 loanAccount.getLoanAccountId(),
                 "Loan fully foreclosed");
 
-        loanAccount.setLoanStatus(LoanStatus.CLOSED);
+        loanAccount.setLoanStatus(LoanStatus.valueOf("CLOSED"));
 
         loanAccountRepository.save(loanAccount);
 
@@ -241,7 +239,7 @@ public class ForeClosureServiceImpl implements ForeClosureService {
         }
 
         loanAccount.setTotalPaidAmount(totalPaid.add(partialAmount));
-        loanAccount.setLoanStatus(LoanStatus.ACTIVE);
+        loanAccount.setLoanStatus(LoanStatus.valueOf("ACTIVE"));
 
         loanAccountRepository.save(loanAccount);
 

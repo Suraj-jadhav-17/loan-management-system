@@ -1,3 +1,4 @@
+
 package com.loanapp.loan_application.controller.cibil;
 
 import com.loanapp.loan_application.dto.cibil.EligibilityResultRequestDto;
@@ -23,7 +24,8 @@ public class CustomerEligibilityController {
 
     private Long getCustomerId(Authentication authentication) {
 
-        Customer customer = customerRepository.findByEmail(authentication.getName()).orElseThrow(() -> new RuntimeException("Customer not found"));
+        Customer customer = customerRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new RuntimeException("Customer not found"));
         return customer.getCustomerId();
     }
 
@@ -31,17 +33,20 @@ public class CustomerEligibilityController {
     public ResponseEntity<EligibilityResultResponseDto> checkEligibility(Authentication authentication) {
 
         EligibilityResultRequestDto request = new EligibilityResultRequestDto();
+
         request.setCustomerId(getCustomerId(authentication));
         return ResponseEntity.status(HttpStatus.CREATED).body(eligibilityResultService.checkEligibility(request));
     }
 
     @GetMapping("/latest")
     public ResponseEntity<EligibilityResultResponseDto> getLatestEligibility(Authentication authentication) {
+
         return ResponseEntity.ok(eligibilityResultService.getLatestEligibility(getCustomerId(authentication)));
     }
 
     @GetMapping("/history")
     public ResponseEntity<Page<EligibilityResultResponseDto>> getEligibilityHistory(Authentication authentication, Pageable pageable) {
+
         return ResponseEntity.ok(eligibilityResultService.getEligibilityHistory(getCustomerId(authentication), pageable));
     }
 }

@@ -12,7 +12,6 @@ import com.loanapp.loan_application.entity.payment.PaymentStatus;
 import com.loanapp.loan_application.repository.emischedulerepository.EmiScheduleRepository;
 import com.loanapp.loan_application.repository.foreclosure.ForeClosureRequestRepo;
 import com.loanapp.loan_application.repository.foreclosure.LoanClosureRepo;
-
 import com.loanapp.loan_application.repository.loan.LoanAccountRepository;
 import com.loanapp.loan_application.service.foreclosure.LoanClosureService;
 import lombok.RequiredArgsConstructor;
@@ -58,7 +57,7 @@ public class LoanClosureServiceImpl implements LoanClosureService {
                 ? BigDecimal.ZERO : loan.getTotalPaidAmount();
 
         loan.setOutstandingPrincipal(BigDecimal.ZERO);
-        loan.setLoanStatus(LoanStatus.CLOSED);
+        loan.setLoanStatus(LoanStatus.valueOf("CLOSED"));
         loanAccountRepository.save(loan);
 
         LoanClosure closure = LoanClosure.builder()
@@ -83,7 +82,7 @@ public class LoanClosureServiceImpl implements LoanClosureService {
             throw new RuntimeException("Loan closure record already exists");
         }
 
-        if (!LoanStatus.CLOSED.equals(loan.getLoanStatus()) ||
+        if (!"CLOSED".equalsIgnoreCase(String.valueOf(loan.getLoanStatus())) ||
                 loan.getOutstandingPrincipal() == null ||
                 loan.getOutstandingPrincipal().compareTo(BigDecimal.ZERO) != 0) {
             throw new RuntimeException("Loan must be fully settled before closure");
