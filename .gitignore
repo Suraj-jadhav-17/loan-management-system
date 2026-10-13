@@ -10,7 +10,7 @@ HELP.md
 **/*.class
 
 # Maven Wrapper
-.mvn/wrapper/maven-wrapper.jar
+backend/.mvn/wrapper/maven-wrapper.jar
 
 # ==========================================
 # Angular / Node.js
@@ -35,7 +35,7 @@ HELP.md
 # ==========================================
 
 # IntelliJ IDEA
-.idea/
+backend/.idea/
 **/*.iml
 **/*.iws
 **/*.ipr
@@ -98,3 +98,4 @@ desktop.ini
 
 .sass-cache/
 ```
+.idea/

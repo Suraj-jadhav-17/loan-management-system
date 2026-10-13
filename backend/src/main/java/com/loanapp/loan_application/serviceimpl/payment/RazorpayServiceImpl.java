@@ -29,7 +29,7 @@ public class RazorpayServiceImpl implements RazorpayService {
             JSONObject orderRequest = new JSONObject();
             long amountInPaise = amount
                     .multiply(BigDecimal.valueOf(100))
-                            .longValue();
+                    .longValue();
 
             orderRequest.put("amount", amountInPaise);
             orderRequest.put("currency", "INR");
@@ -53,5 +53,36 @@ public class RazorpayServiceImpl implements RazorpayService {
                     "Payment verification failed", e
             );
         }
+    }
+
+
+    @Override
+    public boolean verifyForeclosurePayment(String orderId, String paymentId, String signature, BigDecimal expectedAmount) {
+        try {
+            if (orderId == null || paymentId == null || signature == null
+                    || expectedAmount == null
+                    || expectedAmount.compareTo(BigDecimal.ZERO) <= 0) {
+                return false;
+            }
+            if (!verifySignature(orderId, paymentId, signature)) {
+                return false;
+            }
+
+            RazorpayClient client = new RazorpayClient(keyId, keySecret);
+            com.razorpay.Payment payment = client.payments.fetch(paymentId);
+            long expectedPaise = expectedAmount.multiply(BigDecimal.valueOf(100)).longValueExact();
+
+            return orderId.equals(payment.get("order_id"))
+                    && expectedPaise == ((Number) payment.get("amount")).longValue()
+                    && "captured".equalsIgnoreCase(String.valueOf(payment.get("status")));
+        } catch (Exception e) {
+            throw new RuntimeException("Foreclosure payment verification failed", e);
+        }
+    }
+
+
+    @Override
+    public LoanPaymentsDto verifyPayment(String orderId, String paymentId, String signature, LoanPaymentsDto dto) {
+        return null;
     }
 }

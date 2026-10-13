@@ -94,7 +94,7 @@ public class LoanDealServiceImpl  implements LoanDealService {
     private BigDecimal emiFormula (BigDecimal amount, BigDecimal interestRate,Long tenureMonths){                 // Emi = P*r*(1+r)^n
         BigDecimal rate = interestRate.divide(BigDecimal.valueOf(12),10,BigDecimal.ROUND_HALF_UP)           //======================
                 .divide(BigDecimal.valueOf(100),10,BigDecimal.ROUND_HALF_UP)   ;                           //        (1+r)^n -1
-       BigDecimal power =BigDecimal.valueOf(Math.pow(BigDecimal.ONE.add(rate).doubleValue(), tenureMonths));
+        BigDecimal power =BigDecimal.valueOf(Math.pow(BigDecimal.ONE.add(rate).doubleValue(), tenureMonths));
         BigDecimal numerator = amount.multiply(rate).multiply(power);
 
         BigDecimal denominator = power.subtract(BigDecimal.ONE);

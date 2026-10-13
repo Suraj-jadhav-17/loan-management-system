@@ -1,8 +1,6 @@
 package com.loanapp.loan_application.entity.loan;
 
 
-
-
 import com.loanapp.loan_application.entity.register.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -17,6 +15,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 
 public class DealReview {
+
+
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

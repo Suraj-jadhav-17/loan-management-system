@@ -1,6 +1,5 @@
 package com.loanapp.loan_application.service.foreclosure;
 
-
 import com.loanapp.loan_application.dto.foreclosure.LoanClosureResponseDto;
 
 public interface LoanClosureService {

@@ -40,10 +40,16 @@ public class MultipleEmiRequestController {
         return service.createOrder(requestId);
     }
 
-    @PostMapping("/verify/{requestId}")
-    public LoanPaymentsDto verifyPayment(@RequestParam String orderId, @RequestParam String paymentId,
-                                         @RequestParam String signature, @RequestBody LoanPaymentsDto dto) {
 
-        return service.verifyPayment(orderId, paymentId, signature, dto);
+    @PostMapping("/verify/{requestId}")
+    public MultipleEmiRequestDto verifyPayment(
+            @PathVariable Long requestId,
+            @RequestParam String orderId,
+            @RequestParam String paymentId,
+            @RequestParam String signature) {
+
+        return service.verifyPayment(
+                requestId, orderId, paymentId, signature);
     }
+
 }

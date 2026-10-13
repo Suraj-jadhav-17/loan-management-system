@@ -10,6 +10,5 @@ public interface MultipleEmiRequestService {
     List<MultipleEmiRequestDto> getByLoan(Long loanAccountId);
     MultipleEmiRequestDto approve(Long requestId);
     String createOrder(Long requestId);
-    MultipleEmiRequestDto verifyPayment(Long requestId, String orderId, String paymentId, String signature
-    );
+    MultipleEmiRequestDto verifyPayment(Long requestId, String orderId, String paymentId, String signature );
 }

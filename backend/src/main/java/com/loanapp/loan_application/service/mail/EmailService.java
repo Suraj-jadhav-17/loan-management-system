@@ -38,4 +38,12 @@ public class EmailService {
         javaMailSender.send(mailMessage);
 
     }
+
+    public void sendNotificationEmail(String email, String subject, String message) {
+        SimpleMailMessage mail = new SimpleMailMessage();
+        mail.setTo(email);
+        mail.setSubject(subject);
+        mail.setText(message);
+        javaMailSender.send(mail);
+    }
 }

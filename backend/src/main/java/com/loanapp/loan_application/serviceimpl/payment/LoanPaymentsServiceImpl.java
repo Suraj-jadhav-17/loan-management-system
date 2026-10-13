@@ -3,10 +3,12 @@ package com.loanapp.loan_application.serviceimpl.payment;
 import com.loanapp.loan_application.dto.payment.LoanPaymentsDto;
 import com.loanapp.loan_application.entity.emischeduler.EmiSchedules;
 import com.loanapp.loan_application.entity.loan.LoanAccount;
+import com.loanapp.loan_application.entity.loan.LoanStatus;
 import com.loanapp.loan_application.entity.payment.LoanPayments;
 import com.loanapp.loan_application.entity.payment.PaymentStatus;
 import com.loanapp.loan_application.repository.emischedulerepository.EmiScheduleRepository;
-import com.loanapp.loan_application.repository.loanaccount.LoanAccountRepository;
+
+import com.loanapp.loan_application.repository.loan.LoanAccountRepository;
 import com.loanapp.loan_application.repository.payment.LoanPaymentsRepository;
 import com.loanapp.loan_application.service.payment.LoanPaymentsService;
 import com.loanapp.loan_application.service.payment.RazorpayService;
@@ -36,7 +38,7 @@ public class LoanPaymentsServiceImpl implements LoanPaymentsService {
                 .orElseThrow(() ->
                         new RuntimeException("Loan account not found"));
 
-        if ("CLOSED".equalsIgnoreCase(loan.getLoanStatus())) {
+        if (LoanStatus.CLOSED.equals(loan.getLoanStatus())) {
             throw new RuntimeException(
                     "Loan account is closed. Please contact Loan Officer.");
         }

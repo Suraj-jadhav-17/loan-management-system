@@ -6,6 +6,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface DisbursementRepo extends JpaRepository<Disbursement,Long> {
-    Disbursement getDisbursementByLoanId(Long loanId);
+    Disbursement getDisbursementByLoanDeal_Id(Long loanId);
     Page<Disbursement> getDisbursementByStatus(String status, Pageable pageable);
 }
