@@ -1,5 +1,4 @@
-package com.loanapp.loan_application.controller.Auth;
-
+package com.loanapp.loan_application.controller.auth;
 
 import com.loanapp.loan_application.dto.register.LoginDto;
 import com.loanapp.loan_application.dto.register.RegistrationRequest;
@@ -33,25 +32,14 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<User>> register(
-            @Valid @RequestBody RegistrationRequest registrationRequest,
-            HttpSession session,
-            HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<User>> register(@Valid @RequestBody RegistrationRequest registrationRequest, HttpSession session, HttpServletRequest request) {
 
         User savedUser = authService.register(registrationRequest);
 
         session.setAttribute("registrationDone", true);
         session.setAttribute("email", registrationRequest.getEmail());
 
-        ApiResponse<User> response = new ApiResponse<>(
-                "200",
-                true,
-                "Registration successful",
-                savedUser,
-                LocalDateTime.now(),
-                request.getRequestURI(),
-                null
-        );
+        ApiResponse<User> response = new ApiResponse<>("200", true, "Registration successful", savedUser, LocalDateTime.now(), request.getRequestURI(), null);
 
         return ResponseEntity.ok(response);
     }
@@ -60,12 +48,10 @@ public class AuthController {
     @PostMapping("/verified-otp")
     public ResponseEntity<?> verifiedEmailOtp(@RequestBody VerifyOtpRequest request, HttpSession session) {
         String customerEmail = (String) session.getAttribute("email");
-        Boolean registrationDone =
-                (Boolean) session.getAttribute("registrationDone");
+        Boolean registrationDone = (Boolean) session.getAttribute("registrationDone");
 
         if (registrationDone == null || !registrationDone) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("Please complete registration first.");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Please complete registration first.");
         }
 
         if (customerEmail == null) {
@@ -77,35 +63,20 @@ public class AuthController {
         }
         session.removeAttribute("email");
 
-        return ResponseEntity.ok(
-                "Email verified successfully"
-        );
+        return ResponseEntity.ok("Email verified successfully");
 
     }
 
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<LoginResponse>> login(
-            @Valid @RequestBody LoginDto loginDto,
-            HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginDto loginDto, HttpServletRequest request, HttpSession session) {
 
         LoginResponse loginUser = authService.login(loginDto);
-
-        ApiResponse<LoginResponse> response = new ApiResponse<>(
-                "200",
-                true,
-                "User Login Successfully",
-                loginUser,
-                LocalDateTime.now(),
-                request.getRequestURI(),
-                null
-        );
+        session.setAttribute("email", loginDto.getEmail());
+        ApiResponse<LoginResponse> response = new ApiResponse<>("200", true, "User Login Successfully", loginUser, LocalDateTime.now(), request.getRequestURI(), null);
 
         return ResponseEntity.ok(response);
     }
-
-
-
 
 
 }

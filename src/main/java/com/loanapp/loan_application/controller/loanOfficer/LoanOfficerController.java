@@ -1,4 +1,4 @@
-package com.loanapp.loan_application.controller.loan_Officer;
+package com.loanapp.loan_application.controller.loanOfficer;
 
 import com.loanapp.loan_application.response.CustomerResponse;
 import com.loanapp.loan_application.service.loanOfficer.LoanOfficerService;
@@ -15,7 +15,7 @@ import java.awt.print.Pageable;
 @RequestMapping("/auth/v1/loan-officer")
 @Validated
 public class LoanOfficerController {
-private final LoanOfficerService loanOfficerService;
+    private final LoanOfficerService loanOfficerService;
 
     public LoanOfficerController(LoanOfficerService loanOfficerService) {
         this.loanOfficerService = loanOfficerService;
@@ -45,6 +45,6 @@ private final LoanOfficerService loanOfficerService;
                 loanOfficerService.getAllLoans(
                         page, limit, sortBy, direction));
     }
-    }
+}
 
 

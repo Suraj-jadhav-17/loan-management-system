@@ -1,5 +1,6 @@
 package com.loanapp.loan_application.dto.supportticket;
 
+
 public class SupportTicketRequestDto {
 
     private Integer customerId;
