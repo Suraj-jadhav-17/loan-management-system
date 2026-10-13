@@ -1,4 +1,5 @@
-package com.loanapp.loan_application.configuration;
+
+        package com.loanapp.loan_application.configuration;
 
 import com.loanapp.loan_application.service.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
@@ -22,27 +23,40 @@ public class SecurityConfig {
 
         http
                 .csrf(csrf -> csrf.disable())
+
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/v1/register").permitAll()
-                        .requestMatchers("/auth/v1/verified-otp").permitAll()
 
-                        .requestMatchers("/auth/v1/login").permitAll()
+                        .requestMatchers(
+                                "/auth/v1/register",
+                                "/auth/v1/verified-otp",
+                                "/auth/v1/login",
+                                "/oauth/**"
+                        ).permitAll()
 
-                        .requestMatchers("/oauth/**").permitAll()
                         .requestMatchers("/auth/v1/loan-office/**")
                         .hasRole("LoanOfficer")
 
                         .requestMatchers("/auth/v1/customer/**")
                         .hasRole("Customer")
+
+                        .requestMatchers("/auth/v1/loan-officer/listCustomer")
+                        .hasRole("LoanOfficer")
+
+                        .requestMatchers("/auth/v1/loan-officer/profile")
+                        .hasRole("LoanOfficer")
+
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
+                .addFilterBefore(
+                        jwtAuthenticationFilter,
+                        UsernamePasswordAuthenticationFilter.class
+                );
 
         return http.build();
     }
 }
-
 
