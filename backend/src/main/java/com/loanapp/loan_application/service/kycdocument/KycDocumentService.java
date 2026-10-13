@@ -7,31 +7,31 @@ import java.util.List;
 
 public interface KycDocumentService {
 
-    List<String> getAvailableDocumentTypes(Integer customerId);
+    List<String> getAvailableDocumentTypes(Long customerId);
 
     KycDocumentResponseDto uploadDocument(
-            Integer customerId,
+            Long customerId,
             KycDocumentRequestDto request);
 
     List<KycDocumentResponseDto> getCustomerDocuments(
-            Integer customerId);
+           Long customerId);
 
     KycStatusResponseDto getKycStatus(
-            Integer customerId);
+           Long customerId);
 
     void deleteDocument(Integer documentId);
 
     List<KycCustomerSummaryResponseDto> getOfficerCustomers();
 
     List<KycDocumentResponseDto> getCustomerDocumentsForOfficer(
-            Integer customerId);
+            Long customerId);
 
     void approveDocuments(
-            Integer customerId,
+           Long customerId,
             KycDocumentReviewRequestDto request);
 
     void rejectDocuments(
-            Integer customerId,
+            Long customerId,
             KycDocumentReviewRequestDto request);
 
     ResponseEntity<?> getDocumentFile(Integer documentId);

@@ -3,7 +3,7 @@ package com.loanapp.loan_application.dto.kycdocument;
 public class KycDocumentResponseDto {
 
     private Integer documentId;
-    private Integer customerId;
+    private Long customerId;
     private String documentType;
     private String filePath;
     private String fileUrl;
@@ -20,11 +20,11 @@ public class KycDocumentResponseDto {
         this.documentId = documentId;
     }
 
-    public Integer getCustomerId() {
+    public Long getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(Integer customerId) {
+    public void setCustomerId(Long customerId) {
         this.customerId = customerId;
     }
 

@@ -2,7 +2,7 @@ package com.loanapp.loan_application.dto.kycdocument;
 
 public class KycCustomerSummaryResponseDto {
 
-    private Integer customerId;
+    private Long customerId;
     private String customerName;
     private String email;
     private String mobile;
@@ -11,11 +11,11 @@ public class KycCustomerSummaryResponseDto {
     public KycCustomerSummaryResponseDto() {
     }
 
-    public Integer getCustomerId() {
+    public Long getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(Integer customerId) {
+    public void setCustomerId(Long customerId) {
         this.customerId = customerId;
     }
 

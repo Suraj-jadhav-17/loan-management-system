@@ -124,7 +124,7 @@ public class ScoreCardServiceImpl implements ScoreCardService {
     private void validateKycApproved(Long customerId) {
 
         List<KycDocument> documents = kycDocumentRepository.findByCustomerIdOrderByDocumentIdDesc(
-                                Math.toIntExact(customerId));
+                                customerId);
 
         Map<String, KycDocument> latestDocuments = new HashMap<>();
 

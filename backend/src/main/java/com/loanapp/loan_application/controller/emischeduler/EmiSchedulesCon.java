@@ -15,11 +15,11 @@ public class EmiSchedulesCon {
     public EmiSchedulesCon(EmiSchedulesService emiSchedulesService) {
         this.emiSchedulesService = emiSchedulesService;
     }
-    @GetMapping("/{loanAccountId]")
+    @GetMapping("/{loanAccountId}")
     public List<EmiSchedulesDto>getByLoanId(@PathVariable Long loanAccountId) {
         return emiSchedulesService.getByLoanId(loanAccountId);
     }
-       @PostMapping("/generate/{loanAccountId]")
+       @PostMapping("/generate/{loanAccountId}")
        public String generate(@PathVariable Long loanAccountId){
            emiSchedulesService.generate(loanAccountId);
            return"Emi Schedule generated";

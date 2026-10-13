@@ -41,7 +41,7 @@ public class LoanAccountServiceImpl implements LoanAccountService {
                 .loanAccountNo("LON"+ UUID.randomUUID().toString())
                 .createdAt(LocalDateTime.now())
                 .customer(customer)
-                .disbursementDate(disRepo.getDisbursementByLoanId(deal.getId()).getDisbursementDate())
+                .disbursementDate(disRepo.getDisbursementByLoanDeal_Id(deal.getId()).getDisbursementDate())
                 .emiAmount(deal.getEmiAmount())
                 .interestRate(deal.getInterestRate())
                 .loanAmount(deal.getAmount())

@@ -174,9 +174,7 @@ public class CIBILReportServiceImpl
 
         List<KycDocument> documents =
                 kycDocumentRepository
-                        .findByCustomerIdOrderByDocumentIdDesc(
-                                Math.toIntExact(customerId)
-                        );
+                        .findByCustomerIdOrderByDocumentIdDesc(customerId);
 
         Map<String, KycDocument> latestDocuments =
                 new HashMap<>();

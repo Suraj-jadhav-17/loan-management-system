@@ -3,9 +3,11 @@ package com.loanapp.loan_application.serviceimpl.emischeduler;
 import com.loanapp.loan_application.dto.emischeduler.EmiSchedulesDto;
 import com.loanapp.loan_application.entity.emischeduler.EmiSchedules;
 import com.loanapp.loan_application.entity.loan.LoanAccount;
+import com.loanapp.loan_application.entity.loan.LoanStatus;
 import com.loanapp.loan_application.entity.payment.PaymentStatus;
 import com.loanapp.loan_application.repository.emischedulerepository.EmiScheduleRepository;
-import com.loanapp.loan_application.repository.loanaccount.LoanAccountRepository;
+
+import com.loanapp.loan_application.repository.loan.LoanAccountRepository;
 import com.loanapp.loan_application.service.emischeduler.EmiSchedulesService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -138,7 +140,7 @@ public class EmiSchedulesServiceImpl implements EmiSchedulesService {
                     emi.getDueDate().plusMonths(3);
 
             if (!today.isBefore(threeMonthsAfterDueDate)) {
-                loan.setLoanStatus("CLOSED");
+                loan.setLoanStatus(LoanStatus.CLOSED);
                 loanRepo.save(loan);
                 throw new RuntimeException(
                         "Loan account is closed due to  unpaid EMI. " +

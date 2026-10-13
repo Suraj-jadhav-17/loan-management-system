@@ -2,7 +2,7 @@ package com.loanapp.loan_application.dto.kycdocument;
 
 public class KycStatusResponseDto {
 
-    private Integer customerId;
+    private Long customerId;
     private String status;
     private int totalDocuments;
     private int approvedDocuments;
@@ -13,11 +13,11 @@ public class KycStatusResponseDto {
     public KycStatusResponseDto() {
     }
 
-    public Integer getCustomerId() {
+    public Long getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(Integer customerId) {
+    public void setCustomerId(Long customerId) {
         this.customerId = customerId;
     }
 

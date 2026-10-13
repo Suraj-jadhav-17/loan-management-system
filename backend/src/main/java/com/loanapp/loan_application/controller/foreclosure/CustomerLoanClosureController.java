@@ -30,8 +30,8 @@ public class CustomerLoanClosureController {
 
         if (user.getCustomer() == null ||
                 user.getCustomer().getCustomerId() == null ||
-                loan.getCustomerId() == null ||
-                !loan.getCustomerId().equals(user.getCustomer().getCustomerId())) {
+                loan.getCustomer() == null ||
+                !loan.getCustomer().equals(user.getCustomer().getCustomerId())) {
             throw new RuntimeException("You are not allowed to access this loan closure");
         }
 
