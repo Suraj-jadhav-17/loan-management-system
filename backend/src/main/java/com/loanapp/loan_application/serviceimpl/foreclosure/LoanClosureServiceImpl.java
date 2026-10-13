@@ -18,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,7 +26,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional
 public class LoanClosureServiceImpl implements LoanClosureService {
-
     private final LoanClosureRepo loanClosureRepo;
     private final LoanAccountRepository loanAccountRepository;
     private final EmiScheduleRepository emiScheduleRepository;
@@ -48,13 +46,10 @@ public class LoanClosureServiceImpl implements LoanClosureService {
             throw new RuntimeException("All EMIs must be paid before normal closure");
         }
 
-        if (loan.getOutstandingPrincipal() == null ||
-                loan.getOutstandingPrincipal().compareTo(BigDecimal.ZERO) > 0) {
-            throw new RuntimeException("Outstanding principal must be zero before closure");
+        if (loan.getOutstandingPrincipal() == null
+                || loan.getOutstandingPrincipal().compareTo(BigDecimal.ZERO) != 0) {
+            throw new RuntimeException("Outstanding principal must be exactly zero before closure");
         }
-
-        BigDecimal totalPaid = loan.getTotalPaidAmount() == null
-                ? BigDecimal.ZERO : loan.getTotalPaidAmount();
 
         loan.setOutstandingPrincipal(BigDecimal.ZERO);
         loan.setLoanStatus(LoanStatus.valueOf("CLOSED"));
@@ -63,7 +58,7 @@ public class LoanClosureServiceImpl implements LoanClosureService {
         LoanClosure closure = LoanClosure.builder()
                 .loanAccount(loan)
                 .closureType(LoanClosureType.NORMAL)
-                .finalSettlementAmount(totalPaid)
+                .finalSettlementAmount(BigDecimal.ZERO)
                 .closureDate(LocalDateTime.now())
                 .closureStatus(LoanClosureStatus.CLOSED)
                 .closedBy(closedBy)
@@ -82,9 +77,9 @@ public class LoanClosureServiceImpl implements LoanClosureService {
             throw new RuntimeException("Loan closure record already exists");
         }
 
-        if (!"CLOSED".equalsIgnoreCase(String.valueOf(loan.getLoanStatus())) ||
-                loan.getOutstandingPrincipal() == null ||
-                loan.getOutstandingPrincipal().compareTo(BigDecimal.ZERO) != 0) {
+        if (!"CLOSED".equalsIgnoreCase(String.valueOf(loan.getLoanStatus()))
+                || loan.getOutstandingPrincipal() == null
+                || loan.getOutstandingPrincipal().compareTo(BigDecimal.ZERO) != 0) {
             throw new RuntimeException("Loan must be fully settled before closure");
         }
 

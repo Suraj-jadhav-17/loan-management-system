@@ -1,4 +1,3 @@
-
 package com.loanapp.loan_application.controller.foreclosure;
 
 import com.loanapp.loan_application.dto.foreclosure.LoanClosureResponseDto;
@@ -15,23 +14,26 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth/v1/customer/loan-closure")
 @RequiredArgsConstructor
 public class CustomerLoanClosureController {
-
     private final LoanClosureService loanClosureService;
     private final LoanAccountRepository loanAccountRepository;
     private final UserRepository userRepository;
 
     @GetMapping("/{loanAccountId}")
-    public LoanClosureResponseDto getClosure(@PathVariable Long loanAccountId, Authentication authentication) {
+    public LoanClosureResponseDto getClosure(
+            @PathVariable Long loanAccountId,
+            Authentication authentication) {
         User user = userRepository.findByEmail(authentication.getName())
                 .orElseThrow(() -> new RuntimeException("Authenticated user not found"));
 
         LoanAccount loan = loanAccountRepository.findById(loanAccountId)
                 .orElseThrow(() -> new RuntimeException("Loan account not found"));
 
-        if (user.getCustomer() == null ||
-                user.getCustomer().getCustomerId() == null ||
-                loan.getCustomer() == null ||
-                !loan.getCustomer().equals(user.getCustomer().getCustomerId())) {
+        if (user.getCustomer() == null
+                || user.getCustomer().getCustomerId() == null
+                || loan.getCustomer() == null
+                || loan.getCustomer().getCustomerId() == null
+                || !loan.getCustomer().getCustomerId()
+                .equals(user.getCustomer().getCustomerId())) {
             throw new RuntimeException("You are not allowed to access this loan closure");
         }
 

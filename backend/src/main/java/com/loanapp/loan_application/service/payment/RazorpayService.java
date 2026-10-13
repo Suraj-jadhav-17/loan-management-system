@@ -9,5 +9,7 @@ public interface RazorpayService {
     String createOrder(BigDecimal amount, Long loanAccountId, Long emiScheduleId);
     boolean verifySignature(String orderId, String paymentId, String signature);
 
+    boolean verifyForeclosurePayment(String orderId, String paymentId, String signature, BigDecimal expectedAmount);
+
     LoanPaymentsDto verifyPayment(String orderId, String paymentId, String signature, LoanPaymentsDto dto);
 }
