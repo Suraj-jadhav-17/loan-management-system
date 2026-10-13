@@ -39,27 +39,19 @@ public class CustomerController {
         if (email == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new ApiResponse<>(
-                            "401",
-                            false,
+                    "401",
+                    false,
                             "User session not found. Please login again.",
-                            null,
-                            LocalDateTime.now(),
-                            request.getRequestURI(),
-                            null
-                    ));
+                    null,
+                            LocalDateTime.now(), request.getRequestURI(), null));
         }
         UserProfileResponse user = userService.findByProfile(email);
 
 
-
-        return ResponseEntity.ok(new ApiResponse<>("200",
-                true,
-                "Success",
-                user,
-                LocalDateTime.now(),
-                request.getRequestURI(),
-                null));
+        return ResponseEntity.ok(new ApiResponse<>("200", true, "Success", user, LocalDateTime.now(), request.getRequestURI(), null));
 
 
     }
+
+    @GetMapping
 }
