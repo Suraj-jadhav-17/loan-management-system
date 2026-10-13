@@ -8,13 +8,14 @@ import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfTable;
 import com.lowagie.text.pdf.PdfWriter;
+import org.springframework.stereotype.Component;
 
 import java.awt.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-
+@Component
 public class SanctionPDFGenerator {
 
         public byte[] generatePdf (SanctionLetter letter, String name, String phone, LoanType loanType) throws IOException {
