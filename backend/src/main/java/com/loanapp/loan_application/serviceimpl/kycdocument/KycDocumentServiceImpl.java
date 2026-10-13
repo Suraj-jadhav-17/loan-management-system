@@ -49,7 +49,7 @@ public class KycDocumentServiceImpl implements KycDocumentService {
     }
 
     @Override
-    public List<String> getAvailableDocumentTypes(Integer customerId) {
+    public List<String> getAvailableDocumentTypes(Long customerId) {
 
         List<KycDocument> documents =
                 kycDocumentRepository
@@ -81,7 +81,7 @@ public class KycDocumentServiceImpl implements KycDocumentService {
 
     @Override
     public KycDocumentResponseDto uploadDocument(
-            Integer customerId,
+            Long customerId,
             KycDocumentRequestDto request) {
 
         validateDocumentType(request.getDocumentType());
@@ -170,7 +170,7 @@ public class KycDocumentServiceImpl implements KycDocumentService {
 
     @Override
     public List<KycDocumentResponseDto> getCustomerDocuments(
-            Integer customerId) {
+           Long customerId) {
 
         return kycDocumentRepository
                 .findByCustomerIdOrderByDocumentIdDesc(customerId)
@@ -181,7 +181,7 @@ public class KycDocumentServiceImpl implements KycDocumentService {
 
     @Override
     public KycStatusResponseDto getKycStatus(
-            Integer customerId) {
+            Long customerId) {
 
         List<KycDocument> documents =
                 kycDocumentRepository
@@ -314,14 +314,14 @@ public class KycDocumentServiceImpl implements KycDocumentService {
 
     @Override
     public List<KycDocumentResponseDto>
-    getCustomerDocumentsForOfficer(Integer customerId) {
+    getCustomerDocumentsForOfficer(Long customerId) {
 
         return getCustomerDocuments(customerId);
     }
 
     @Override
     public void approveDocuments(
-            Integer customerId,
+            Long customerId,
             KycDocumentReviewRequestDto request) {
 
         validateDocumentIds(request);
@@ -372,7 +372,7 @@ public class KycDocumentServiceImpl implements KycDocumentService {
 
     @Override
     public void rejectDocuments(
-            Integer customerId,
+            Long customerId,
             KycDocumentReviewRequestDto request) {
 
         validateDocumentIds(request);
@@ -459,7 +459,7 @@ public class KycDocumentServiceImpl implements KycDocumentService {
     }
 
     private void validateCustomerDocuments(
-            Integer customerId,
+           Long customerId,
             List<Integer> documentIds,
             List<KycDocument> documents) {
 
@@ -513,7 +513,7 @@ public class KycDocumentServiceImpl implements KycDocumentService {
     }
 
     private void sendVerificationSuccessEmail(
-            Integer customerId) {
+            Long customerId) {
 
         /*
          * Connect JavaMailSender here.
@@ -521,7 +521,7 @@ public class KycDocumentServiceImpl implements KycDocumentService {
     }
 
     private void sendRejectionEmail(
-            Integer customerId,
+            Long customerId,
             List<String> documents,
             String reason) {
 

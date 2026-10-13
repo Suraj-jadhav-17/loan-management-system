@@ -41,7 +41,7 @@ public class MultipleEmiRequestController {
     }
 
     @PostMapping("/verify/{requestId}")
-    public LoanPaymentsDto verifyPayment(@RequestParam String orderId, @RequestParam String paymentId,
+    public LoanPaymentsDto verifyPayment(@RequestParam Long orderId, @RequestParam String paymentId,
                                          @RequestParam String signature, @RequestBody LoanPaymentsDto dto) {
 
         return service.verifyPayment(orderId, paymentId, signature, dto);

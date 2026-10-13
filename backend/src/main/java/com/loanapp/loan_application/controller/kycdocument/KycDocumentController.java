@@ -24,7 +24,7 @@ public class KycDocumentController {
             "/customer/{customerId}/available-document-types")
     public ResponseEntity<List<String>>
     getAvailableDocumentTypes(
-            @PathVariable Integer customerId) {
+            @PathVariable Long customerId) {
 
         return ResponseEntity.ok(
                 kycDocumentService
@@ -37,7 +37,7 @@ public class KycDocumentController {
             consumes = "multipart/form-data")
     public ResponseEntity<KycDocumentResponseDto>
     uploadDocument(
-            @PathVariable Integer customerId,
+            @PathVariable Long customerId,
             @ModelAttribute KycDocumentRequestDto request) {
 
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -52,7 +52,7 @@ public class KycDocumentController {
     @GetMapping("/customer/{customerId}/documents")
     public ResponseEntity<List<KycDocumentResponseDto>>
     getCustomerDocuments(
-            @PathVariable Integer customerId) {
+            @PathVariable Long customerId) {
 
         return ResponseEntity.ok(
                 kycDocumentService
@@ -63,7 +63,7 @@ public class KycDocumentController {
     @GetMapping("/customer/{customerId}/status")
     public ResponseEntity<KycStatusResponseDto>
     getKycStatus(
-            @PathVariable Integer customerId) {
+            @PathVariable Long customerId) {
 
         return ResponseEntity.ok(
                 kycDocumentService
@@ -93,7 +93,7 @@ public class KycDocumentController {
     @GetMapping("/officer/customer/{customerId}/documents")
     public ResponseEntity<List<KycDocumentResponseDto>>
     getCustomerDocumentsForOfficer(
-            @PathVariable Integer customerId) {
+            @PathVariable Long customerId) {
 
         return ResponseEntity.ok(
                 kycDocumentService
@@ -105,7 +105,7 @@ public class KycDocumentController {
             "/officer/customer/{customerId}/documents/approve")
     public ResponseEntity<String>
     approveDocuments(
-            @PathVariable Integer customerId,
+            @PathVariable Long customerId,
             @RequestBody KycDocumentReviewRequestDto request) {
 
         kycDocumentService
@@ -120,7 +120,7 @@ public class KycDocumentController {
             "/officer/customer/{customerId}/documents/reject")
     public ResponseEntity<String>
     rejectDocuments(
-            @PathVariable Integer customerId,
+            @PathVariable Long customerId,
             @RequestBody KycDocumentReviewRequestDto request) {
 
         kycDocumentService

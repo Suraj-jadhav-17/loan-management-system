@@ -29,7 +29,7 @@ public class RazorpayServiceImpl implements RazorpayService {
             JSONObject orderRequest = new JSONObject();
             long amountInPaise = amount
                     .multiply(BigDecimal.valueOf(100))
-                            .longValue();
+                    .longValue();
 
             orderRequest.put("amount", amountInPaise);
             orderRequest.put("currency", "INR");
@@ -53,5 +53,10 @@ public class RazorpayServiceImpl implements RazorpayService {
                     "Payment verification failed", e
             );
         }
+    }
+
+    @Override
+    public LoanPaymentsDto verifyPayment(String orderId, String paymentId, String signature, LoanPaymentsDto dto) {
+        return null;
     }
 }

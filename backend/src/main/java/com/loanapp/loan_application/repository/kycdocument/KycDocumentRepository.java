@@ -13,7 +13,7 @@ public interface KycDocumentRepository
         extends JpaRepository<KycDocument, Integer> {
 
     List<KycDocument> findByCustomerIdOrderByDocumentIdDesc(
-            Integer customerId);
+            Long customerId);
 
     Optional<KycDocument> findByDocumentIdAndCustomerId(
             Integer documentId,

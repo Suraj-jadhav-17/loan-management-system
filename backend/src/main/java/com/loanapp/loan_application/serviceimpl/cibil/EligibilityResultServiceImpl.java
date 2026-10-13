@@ -132,8 +132,7 @@ public class EligibilityResultServiceImpl implements EligibilityResultService {
 
     private void validateKycApproved(Long customerId) {
 
-        List<KycDocument> documents = kycDocumentRepository.findByCustomerIdOrderByDocumentIdDesc(
-                                Math.toIntExact(customerId));
+        List<KycDocument> documents = kycDocumentRepository.findByCustomerIdOrderByDocumentIdDesc(customerId);
 
         Map<String, KycDocument> latestDocuments = new HashMap<>();
 

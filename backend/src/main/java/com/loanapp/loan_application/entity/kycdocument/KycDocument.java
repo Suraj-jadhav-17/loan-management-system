@@ -13,7 +13,7 @@ public class KycDocument implements Serializable {
     private Integer documentId;
 
     @Column(name = "CustomerId", nullable = false)
-    private Integer customerId;
+    private Long customerId;
 
     @Column(name = "DocumentType", nullable = false, length = 100)
     private String documentType;
@@ -35,11 +35,11 @@ public class KycDocument implements Serializable {
         this.documentId = documentId;
     }
 
-    public Integer getCustomerId() {
+    public Long getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(Integer customerId) {
+    public void setCustomerId(Long customerId) {
         this.customerId = customerId;
     }
 
