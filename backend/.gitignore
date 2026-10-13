@@ -4,7 +4,7 @@
 # ==========================================
 
 HELP.md
-**/target/
+target/
 **/build/
 **/out/
 **/*.class
@@ -98,4 +98,4 @@ desktop.ini
 
 .sass-cache/
 ```
-.idea/
+backend/.idea/
