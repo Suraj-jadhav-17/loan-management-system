@@ -1,6 +1,6 @@
 package com.loanapp.loan_application.controller.customer;
 
-import com.loanapp.loan_application.dto.user.UserProfileResponse;
+import com.loanapp.loan_application.dto.customer.CustomerProfileResponse;
 import com.loanapp.loan_application.response.ApiResponse;
 import com.loanapp.loan_application.service.customer.CustomerService;
 import com.loanapp.loan_application.service.user.UserService;
@@ -8,9 +8,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 
@@ -32,20 +31,10 @@ public class CustomerController {
     }
 
     @GetMapping("/profile")
-    public ResponseEntity<?> customerProfile(HttpSession http, HttpServletRequest request) {
+    public ResponseEntity<?> customerProfile(Authentication authentication, HttpServletRequest request) {
 
-        String email = http.getAttribute("email").toString();
-
-        if (email == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new ApiResponse<>(
-                    "401",
-                    false,
-                            "User session not found. Please login again.",
-                    null,
-                            LocalDateTime.now(), request.getRequestURI(), null));
-        }
-        UserProfileResponse user = userService.findByProfile(email);
+        String email = authentication.getName();
+        CustomerProfileResponse user = customerService.findByProfile(email);
 
 
         return ResponseEntity.ok(new ApiResponse<>("200", true, "Success", user, LocalDateTime.now(), request.getRequestURI(), null));
@@ -53,5 +42,15 @@ public class CustomerController {
 
     }
 
-    @GetMapping
+    @PutMapping("/profile")
+    public ResponseEntity<?>updateProfile(Authentication authentication,HttpServletRequest request,    @RequestBody CustomerProfileResponse response){
+        String email = authentication.getName();
+        System.out.println(email);
+        CustomerProfileResponse customer = customerService.updateProfile(email,response);
+        return ResponseEntity.ok(new ApiResponse<>("200", true, "Success", customer, LocalDateTime.now(), request.getRequestURI(), null));
+
+
+
+    }
+
 }

@@ -69,10 +69,9 @@ public class AuthController {
 
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginDto loginDto, HttpServletRequest request, HttpSession session) {
+    public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginDto loginDto, HttpServletRequest request) {
 
         LoginResponse loginUser = authService.login(loginDto);
-        session.setAttribute("email", loginDto.getEmail());
         ApiResponse<LoginResponse> response = new ApiResponse<>("200", true, "User Login Successfully", loginUser, LocalDateTime.now(), request.getRequestURI(), null);
 
         return ResponseEntity.ok(response);

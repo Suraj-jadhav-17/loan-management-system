@@ -1,6 +1,6 @@
 package com.loanapp.loan_application.serviceimpl.user;
 
-import com.loanapp.loan_application.dto.user.UserProfileResponse;
+import com.loanapp.loan_application.dto.customer.CustomerProfileResponse;
 import com.loanapp.loan_application.entity.register.User;
 import com.loanapp.loan_application.repository.register.UserRepository;
 import com.loanapp.loan_application.service.user.UserService;
@@ -15,21 +15,4 @@ public class UserServiceImpl implements UserService {
         this.userRepo = userRepo;
     }
 
-    @Override
-    public UserProfileResponse findByProfile(String email) {
-       User user = userRepo.findByEmail(email).orElseThrow(()->
-                new RuntimeException("User Detail Not Exsits"));
-
-
-        UserProfileResponse response = new UserProfileResponse();
-
-        response.setUserId(user.getUserId());
-        response.setFirstName(user.getFirstName());
-        response.setLastName(user.getLastName());
-        response.setEmail(user.getEmail());
-        response.setMobileNo(user.getMobileNo());
-        response.setRoleName(user.getRole().getRoleName());
-
-        return response;
-    }
 }
