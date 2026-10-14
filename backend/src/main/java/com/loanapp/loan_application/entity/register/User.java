@@ -28,4 +28,5 @@ public class User {
     private String mobileNo;
     @Column(name = "Password")
     private String password;
+
 }

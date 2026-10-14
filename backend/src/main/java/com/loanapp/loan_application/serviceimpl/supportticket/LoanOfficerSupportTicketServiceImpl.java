@@ -2,7 +2,7 @@ package com.loanapp.loan_application.serviceimpl.supportticket;
 
 import com.loanapp.loan_application.dto.supportticket.SupportTicketResponseDto;
 import com.loanapp.loan_application.entity.supportticket.SupportTicket;
-import com.loanapp.loan_application.repository.loanaccount.LoanAccountRepository;
+import com.loanapp.loan_application.repository.loan.LoanAccountRepository;
 import com.loanapp.loan_application.repository.supportticket.SupportTicketRepository;
 import com.loanapp.loan_application.service.file.LocalFileStorageService;
 import com.loanapp.loan_application.service.supportticket.LoanOfficerSupportTicketService;
