@@ -31,7 +31,7 @@ public class EligibilityResult {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "EligibilityStatus")
-    private String eligibilityStatus;
+    private EligibilityStatus eligibilityStatus;
 
     @Column( precision = 18, scale = 2)
     private BigDecimal loanAmount;
@@ -40,7 +40,7 @@ public class EligibilityResult {
     private String decision;
 
 
-    private String riskCategory;
+    private RiskCategory riskCategory;
 
 
     private String borrowingLimit;

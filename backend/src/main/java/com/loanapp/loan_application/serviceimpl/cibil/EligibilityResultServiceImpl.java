@@ -3,6 +3,8 @@ package com.loanapp.loan_application.serviceimpl.cibil;
 import com.loanapp.loan_application.dto.cibil.EligibilityResultRequestDto;
 import com.loanapp.loan_application.dto.cibil.EligibilityResultResponseDto;
 import com.loanapp.loan_application.entity.cibil.EligibilityResult;
+import com.loanapp.loan_application.entity.cibil.EligibilityStatus;
+import com.loanapp.loan_application.entity.cibil.RiskCategory;
 import com.loanapp.loan_application.entity.cibil.ScoreCard;
 import com.loanapp.loan_application.entity.register.Customer;
 import com.loanapp.loan_application.entity.kycdocument.KycDocument;
@@ -100,24 +102,24 @@ public class EligibilityResultServiceImpl implements EligibilityResultService {
             throw new RuntimeException("Calculated score must be between 300 and 900");
         }
         if (score >= 810) {
-            return new Decision("ELIGIBLE", "AUTO_APPROVE", "LOW", "Above 75 Lakh",
+            return new Decision(EligibilityStatus.ELIGIBLE, "AUTO_APPROVE", RiskCategory.LOW, "Above 75 Lakh",
                     BigDecimal.valueOf(10_000_000), null);
         }
         if (score >= 750) {
-            return new Decision("ELIGIBLE", "MANUAL_REVIEW", "LOW", "50 Lakh to 75 Lakh",
+            return new Decision(EligibilityStatus.ELIGIBLE, "MANUAL_REVIEW", RiskCategory.LOW, "50 Lakh to 75 Lakh",
                     BigDecimal.valueOf(7_500_000), "Manual officer review required.");
         }
         if (score >= 690) {
-            return new Decision("UNDER_REVIEW", "MANUAL_REVIEW", "MEDIUM",
+            return new Decision(EligibilityStatus.UNDER_REVIEW, "MANUAL_REVIEW", RiskCategory.MEDIUM,
                     "25 Lakh to 50 Lakh", BigDecimal.valueOf(5_000_000),
                     "Manual officer review required.");
         }
         if (score >= 630) {
-            return new Decision("UNDER_REVIEW", "MANUAL_REVIEW", "MEDIUM",
+            return new Decision(EligibilityStatus.UNDER_REVIEW, "MANUAL_REVIEW", RiskCategory.MEDIUM,
                     "10 Lakh to 25 Lakh", BigDecimal.valueOf(2_500_000),
                     "Manual officer review required.");
         }
-        return new Decision("INELIGIBLE", "AUTO_REJECT", "HIGH", "Less than 10 Lakh",
+        return new Decision(EligibilityStatus.INELIGIBLE, "AUTO_REJECT", RiskCategory.HIGH, "Less than 10 Lakh",
                 BigDecimal.ZERO, "Calculated score is below 630.");
     }
 
@@ -139,7 +141,7 @@ public class EligibilityResultServiceImpl implements EligibilityResultService {
         }
     }
 
-    private record Decision(String eligibilityStatus, String decision, String riskCategory,
+    private record Decision(EligibilityStatus eligibilityStatus, String decision, RiskCategory riskCategory,
                             String borrowingLimit, BigDecimal loanAmount, String rejectionReason) {
     }
 }
