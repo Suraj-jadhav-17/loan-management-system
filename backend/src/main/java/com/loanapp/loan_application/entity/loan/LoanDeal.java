@@ -39,7 +39,8 @@ public class LoanDeal {
    private String ifscCode;
    private Long emiDay;
    private BigDecimal approvedAmount;
-
+    @Enumerated(EnumType.STRING)
+    private LoanStatus status;
 
 
 }

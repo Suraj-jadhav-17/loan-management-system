@@ -1,4 +1,4 @@
-package com.loanapp.loan_application.dto.customer;
+package com.loanapp.loan_application.dto.cuatomer;
 
 import jakarta.persistence.Column;
 import lombok.Data;
