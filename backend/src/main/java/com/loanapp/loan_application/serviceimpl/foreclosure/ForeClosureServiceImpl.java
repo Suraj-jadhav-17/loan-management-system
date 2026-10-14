@@ -36,6 +36,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.List;
+import com.loanapp.loan_application.service.mail.EmailService;
 
 @Service
 @RequiredArgsConstructor
@@ -50,6 +51,7 @@ public class ForeClosureServiceImpl implements ForeClosureService {
     private final LoanClosureService loanClosureService;
     private final EmiSchedulesService emiSchedulesService;
     private final ModelMapper modelMapper;
+    private final EmailService emailService;
 
     @Value("${loan.foreclosure.fee-rate:2.0}")
     private BigDecimal foreclosureFeeRate;
@@ -160,6 +162,7 @@ public class ForeClosureServiceImpl implements ForeClosureService {
         return mapToResponse(foreClosureRequestRepo.save(foreclosure));
     }
 
+
     @Override
     public ForeClosureResponseDto makePayment(ForeClosurePaymentDto request) {
         if (request == null || request.getForeClosureId() == null) {
@@ -167,20 +170,24 @@ public class ForeClosureServiceImpl implements ForeClosureService {
         }
 
         ForeClosureRequest foreclosure = getForeclosureEntity(request.getForeClosureId());
+
         if (foreclosure.getStatus() != ForeClosureStatus.APPROVED) {
             throw new RuntimeException("Foreclosure request must be approved before payment");
         }
+
         if (Boolean.TRUE.equals(foreclosure.getIsPaid())) {
             throw new RuntimeException("Foreclosure payment is already completed");
         }
 
         BigDecimal requiredAmount = foreclosure.getForeClosureAmount();
         BigDecimal paidAmount = request.getPaidAmount();
+
         if (paidAmount == null || paidAmount.compareTo(requiredAmount) != 0) {
             throw new RuntimeException("Paid amount must exactly match foreclosure amount");
         }
 
         LoanAccount loanAccount = foreclosure.getLoanAccount();
+
         savePaymentRecord(loanAccount.getLoanAccountId(), paidAmount, foreclosure.getForeClosureType());
 
         if (foreclosure.getForeClosureType() == ForeClosureType.FULL) {
@@ -193,8 +200,37 @@ public class ForeClosureServiceImpl implements ForeClosureService {
         foreclosure.setStatus(ForeClosureStatus.PAID);
         foreclosure.setPaymentDate(LocalDateTime.now());
 
-        return mapToResponse(foreClosureRequestRepo.save(foreclosure));
+        ForeClosureRequest saved = foreClosureRequestRepo.save(foreclosure);
+        String email = loanAccount.getCustomer().getEmail();
+
+        if (foreclosure.getForeClosureType() == ForeClosureType.FULL) {
+            emailService.sendLoanNotification(
+                    email,
+                    "Full Foreclosure Completed",
+                    "Dear " + loanAccount.getCustomer().getFirstName() + ",\n\n"
+                            + "Your full foreclosure has been processed.\n"
+                            + "Loan Account: " + loanAccount.getLoanAccountNo() + "\n"
+                            + "Settlement Amount: " + paidAmount + "\n"
+                            + "Status: Loan Closed\n\n"
+                            + "Thank you for banking with us."
+            );
+        } else {
+            emailService.sendLoanNotification(
+                    email,
+                    "Partial Foreclosure Completed",
+                    "Dear " + loanAccount.getCustomer().getFirstName() + ",\n\n"
+                            + "Your partial foreclosure has been processed.\n"
+                            + "Loan Account: " + loanAccount.getLoanAccountNo() + "\n"
+                            + "Amount Paid: " + paidAmount + "\n"
+                            + "Updated Outstanding Principal: " + loanAccount.getOutstandingPrincipal() + "\n"
+                            + "Status: Loan Active\n\n"
+                            + "Your loan remains active after partial foreclosure."
+            );
+        }
+
+        return mapToResponse(saved);
     }
+
 
     private void applyFullSettlementQuote(ForeClosureRequest request, LoanAccount loanAccount) {
         BigDecimal principal = money(loanAccount.getOutstandingPrincipal());
