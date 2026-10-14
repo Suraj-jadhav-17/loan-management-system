@@ -3,6 +3,7 @@ package com.loanapp.loan_application.serviceimpl.loan;
 import com.loanapp.loan_application.dto.loan.LoanDealRequestDto;
 import com.loanapp.loan_application.dto.loan.LoanDealResponseDto;
 
+import com.loanapp.loan_application.entity.cibil.EligibilityResult;
 import com.loanapp.loan_application.entity.cibil.ScoreCard;
 import com.loanapp.loan_application.entity.loan.LoanDeal;
 import com.loanapp.loan_application.entity.loan.LoanType;
@@ -10,6 +11,7 @@ import com.loanapp.loan_application.entity.register.Customer;
 import com.loanapp.loan_application.exception.InvalidInputException;
 import com.loanapp.loan_application.exception.ResourceNotFoundException;
 
+import com.loanapp.loan_application.repository.cibil.EligibilityResultRepo;
 import com.loanapp.loan_application.repository.cibil.ScoreCardRepo;
 import com.loanapp.loan_application.repository.loan.LoanDealRepo;
 
@@ -34,6 +36,7 @@ public class LoanDealServiceImpl  implements LoanDealService {
     private final CustomerRepository customerRepo;
     private final ScoreCardRepo cardRepo;
     private final ModelMapper mapper;
+    private final EligibilityResultRepo eligibilityResultRepo;
     private final DealReviewService  dealReviewService;
 
     @Override
@@ -46,7 +49,10 @@ public class LoanDealServiceImpl  implements LoanDealService {
         }
         Customer customer = customerRepo.findById(request.getCustomerId()).orElseThrow(()->new ResourceNotFoundException("Customer Not Found"));
         ScoreCard card = cardRepo.findTopByCustomerCustomerIdOrderByScoreCardIdDesc(customer.getCustomerId()).orElseThrow(()->new ResourceNotFoundException("Card Not Found"));
-
+        EligibilityResult result =  eligibilityResultRepo.findTopByCustomerCustomerIdOrderByIdDesc(customer.getCustomerId()).orElseThrow(()->new ResourceNotFoundException("Eligibility Result Not Found"));
+        if (request.getAmount().compareTo(card.getEligibleLoanAmount()) > 0){
+           throw new InvalidInputException("Invalid input: Requested amount exceeds the eligible loan amount");
+        }
         LoanDeal deal = LoanDeal.builder()
                 .amount(request.getAmount())
                 .approvedAmount(card.getEligibleLoanAmount())
@@ -56,8 +62,7 @@ public class LoanDealServiceImpl  implements LoanDealService {
                 .emiAmount(getEmiAmount(request.getAmount(),request.getLoanType(), request.getTenureMonths()))
                 .emiDay(request.getEmiDay())
                 .ifscCode(request.getIfscCode())
-                .interestRate(request.getLoanType().equals(LoanType.CAR_LOAN)? new BigDecimal(10.0)
-                        : request.getLoanType().equals(LoanType.HOME_LOAN)?new BigDecimal(15.0): BigDecimal.ZERO)
+                .interestRate(request.getLoanType().equals(LoanType.CAR_LOAN)? new BigDecimal(10.0) : request.getLoanType().equals(LoanType.HOME_LOAN)?new BigDecimal(15.0): BigDecimal.ZERO)
                 .loanType(request.getLoanType())
                 .tenureMonths(request.getTenureMonths())
                 .build();

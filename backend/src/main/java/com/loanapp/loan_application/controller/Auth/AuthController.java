@@ -1,4 +1,4 @@
-package com.loanapp.loan_application.controller.auth;
+package com.loanapp.loan_application.controller.Auth;
 
 import com.loanapp.loan_application.dto.register.LoginDto;
 import com.loanapp.loan_application.dto.register.RegistrationRequest;
