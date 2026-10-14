@@ -1,3 +1,4 @@
+
 package com.loanapp.loan_application.dto.kycdocument;
 
 public class KycStatusResponseDto {

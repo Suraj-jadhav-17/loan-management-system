@@ -1,20 +1,25 @@
+
 package com.loanapp.loan_application.dto.kycdocument;
+
+import jakarta.validation.constraints.NotEmpty;
 
 import java.util.List;
 
 public class KycDocumentReviewRequestDto {
 
-    private List<Integer> documentIds;
+    @NotEmpty(message = "Select at least one document")
+    private List<Long> documentIds;
+
     private String rejectionReason;
 
     public KycDocumentReviewRequestDto() {
     }
 
-    public List<Integer> getDocumentIds() {
+    public List<Long> getDocumentIds() {
         return documentIds;
     }
 
-    public void setDocumentIds(List<Integer> documentIds) {
+    public void setDocumentIds(List<Long> documentIds) {
         this.documentIds = documentIds;
     }
 

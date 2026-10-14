@@ -1,4 +1,3 @@
-
 package com.loanapp.loan_application.controller.foreclosure;
 
 import com.loanapp.loan_application.dto.foreclosure.LoanClosureResponseDto;
@@ -10,21 +9,24 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/auth/v1/loan-office")
+@RequestMapping("/auth/v1/loan-office/loan-closure")
 @RequiredArgsConstructor
 public class LoanOfficerLoanClosureController {
-
     private final LoanClosureService loanClosureService;
     private final UserRepository userRepository;
 
     @PostMapping("/{loanAccountId}/normal")
-    public LoanClosureResponseDto closeLoanNormally(@PathVariable Long loanAccountId, Authentication authentication) {
+    public LoanClosureResponseDto closeLoanNormally(
+            @PathVariable Long loanAccountId,
+            Authentication authentication) {
         User user = getAuthenticatedUser(authentication);
         return loanClosureService.closeLoanNormally(loanAccountId, user.getUserId());
     }
 
     @PostMapping("/{loanAccountId}/foreclosure")
-    public LoanClosureResponseDto closeLoanByForeclosure(@PathVariable Long loanAccountId, Authentication authentication) {
+    public LoanClosureResponseDto closeLoanByForeclosure(
+            @PathVariable Long loanAccountId,
+            Authentication authentication) {
         User user = getAuthenticatedUser(authentication);
         return loanClosureService.closeLoanByForeclosure(loanAccountId, user.getUserId());
     }

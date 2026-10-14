@@ -1,10 +1,14 @@
+
 package com.loanapp.loan_application.dto.kycdocument;
 
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.web.multipart.MultipartFile;
 
 public class KycDocumentRequestDto {
 
+    @NotBlank(message = "Document type is required")
     private String documentType;
+
     private MultipartFile file;
 
     public KycDocumentRequestDto() {

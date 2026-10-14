@@ -1,42 +1,44 @@
+
 package com.loanapp.loan_application.dto.supportticket;
 
 import java.time.LocalDateTime;
 
 public class SupportTicketResponseDto {
 
-    private Integer ticketId;
-    private Integer customerId;
-    private Integer loanAccountId;
+    private Long ticketId;
+    private Long customerId;
+    private Long loanAccountId;
     private String subject;
     private String description;
     private String status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String attachmentUrl;
 
     public SupportTicketResponseDto() {
     }
 
-    public Integer getTicketId() {
+    public Long getTicketId() {
         return ticketId;
     }
 
-    public void setTicketId(Integer ticketId) {
+    public void setTicketId(Long ticketId) {
         this.ticketId = ticketId;
     }
 
-    public Integer getCustomerId() {
+    public Long getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(Integer customerId) {
+    public void setCustomerId(Long customerId) {
         this.customerId = customerId;
     }
 
-    public Integer getLoanAccountId() {
+    public Long getLoanAccountId() {
         return loanAccountId;
     }
 
-    public void setLoanAccountId(Integer loanAccountId) {
+    public void setLoanAccountId(Long loanAccountId) {
         this.loanAccountId = loanAccountId;
     }
 
@@ -78,5 +80,13 @@ public class SupportTicketResponseDto {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getAttachmentUrl() {
+        return attachmentUrl;
+    }
+
+    public void setAttachmentUrl(String attachmentUrl) {
+        this.attachmentUrl = attachmentUrl;
     }
 }

@@ -1,13 +1,12 @@
-
 package com.loanapp.loan_application.serviceimpl.cibil;
 
 import com.loanapp.loan_application.dto.cibil.ScoreCardRequestDto;
 import com.loanapp.loan_application.dto.cibil.ScoreCardResponseDto;
 import com.loanapp.loan_application.entity.cibil.RiskCategory;
 import com.loanapp.loan_application.entity.cibil.ScoreCard;
-import com.loanapp.loan_application.entity.cibil.ScoreCardStatus;
 import com.loanapp.loan_application.entity.register.Customer;
 import com.loanapp.loan_application.entity.kycdocument.KycDocument;
+import com.loanapp.loan_application.entity.cibil.ScoreCardStatus;
 import com.loanapp.loan_application.repository.kycdocument.KycDocumentRepository;
 import com.loanapp.loan_application.repository.cibil.ScoreCardRepo;
 import com.loanapp.loan_application.repository.register.CustomerRepository;
@@ -20,7 +19,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
@@ -32,65 +30,51 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Slf4j
 public class ScoreCardServiceImpl implements ScoreCardService {
-
     private final ScoreCardRepo scoreCardRepo;
     private final CustomerRepository customerRepository;
     private final KycDocumentRepository kycDocumentRepository;
     private final ModelMapper modelMapper;
-
     private static final List<String> REQUIRED_KYC_DOCUMENT_TYPES =
             List.of("Aadhaar Card", "PAN Card", "Salary Slip");
 
     @Override
     @CacheEvict(value = "latestScoreCard", key = "#request.customerId")
     public ScoreCardResponseDto createScoreCard(ScoreCardRequestDto request) {
-
+        if (request == null || request.getCustomerId() == null) {
+            throw new RuntimeException("Customer ID is required");
+        }
         log.info("Creating scorecard for customerId={}", request.getCustomerId());
-
         Customer customer = customerRepository.findById(request.getCustomerId())
                 .orElseThrow(() -> new RuntimeException("Customer not found with id: " + request.getCustomerId()));
-
         validateKycApproved(request.getCustomerId());
         validateCustomerData(customer);
 
         int incomeScore = calculateIncomeScore(customer.getMonthlyIncome());
         int employmentScore = calculateEmploymentScore(customer.getEmploymentType());
         int ageScore = calculateAgeScore(customer.getAge());
-
         BigDecimal foir = calculateFoir(customer.getMonthlyInvestment(), customer.getMonthlyIncome());
         int foirScore = calculateFoirScore(foir);
 
-        int cibilScore = incomeScore + employmentScore + ageScore + foirScore;
-
+        int rawScore = incomeScore + employmentScore + ageScore + foirScore;
+        int cibilScore = 300 + (int) Math.round(rawScore * 0.6);
         BigDecimal eligibleLoanAmount = calculateEligibleLoanAmount(cibilScore);
         RiskCategory riskCategory = calculateRiskCategory(cibilScore);
-
-        boolean eligible = cibilScore >= 550;
+        boolean eligible = cibilScore >= 630;
 
         ScoreCard scoreCard = ScoreCard.builder()
                 .customer(customer)
-                .currentStatus(eligible
-                                ? ScoreCardStatus.ELIGIBLE
-                                : ScoreCardStatus.REJECTED)
-                .rejectionReason(eligible
-                                ? null
-                                : "Calculated score is below 550.")
+                .currentStatus(eligible ? ScoreCardStatus.ELIGIBLE : ScoreCardStatus.REJECTED)
+                .rejectionReason(eligible ? null : "Calculated score is below 630.")
                 .appliedDate(LocalDateTime.now())
                 .cibilScore(cibilScore)
                 .riskCategory(riskCategory)
                 .eligibleLoanAmount(eligibleLoanAmount)
                 .foir(foir)
-                .incomeScore(incomeScore)
-                .employmentScore(employmentScore)
-                .ageScore(ageScore)
-                .foirScore(foirScore)
                 .totalScore(cibilScore)
                 .build();
 
         ScoreCard savedScoreCard = scoreCardRepo.save(scoreCard);
-
         ScoreCardResponseDto response = modelMapper.map(savedScoreCard, ScoreCardResponseDto.class);
-
         response.setCustomerId(savedScoreCard.getCustomer().getCustomerId());
         return response;
     }
@@ -98,23 +82,18 @@ public class ScoreCardServiceImpl implements ScoreCardService {
     @Override
     @Cacheable(value = "latestScoreCard", key = "#customerId")
     public ScoreCardResponseDto getLatestScoreCard(Long customerId) {
-
         ScoreCard scoreCard = scoreCardRepo
-                        .findTopByCustomerCustomerIdOrderByScoreCardIdDesc(customerId)
-                        .orElseThrow(() -> new RuntimeException("Scorecard not found for customer: " + customerId));
-
+                .findTopByCustomerCustomerIdOrderByScoreCardIdDesc(customerId)
+                .orElseThrow(() -> new RuntimeException("Scorecard not found for customer: " + customerId));
         ScoreCardResponseDto response = modelMapper.map(scoreCard, ScoreCardResponseDto.class);
-
         response.setCustomerId(scoreCard.getCustomer().getCustomerId());
         return response;
     }
 
     @Override
     public Page<ScoreCardResponseDto> getScoreCardHistory(Long customerId, Pageable pageable) {
-
         return scoreCardRepo.findByCustomerCustomerIdOrderByScoreCardIdDesc(customerId, pageable)
                 .map(scoreCard -> {
-
                     ScoreCardResponseDto response = modelMapper.map(scoreCard, ScoreCardResponseDto.class);
                     response.setCustomerId(scoreCard.getCustomer().getCustomerId());
                     return response;
@@ -122,25 +101,17 @@ public class ScoreCardServiceImpl implements ScoreCardService {
     }
 
     private void validateKycApproved(Long customerId) {
-
-        List<KycDocument> documents = kycDocumentRepository.findByCustomerIdOrderByDocumentIdDesc(
-                                customerId);
-
+        List<KycDocument> documents =
+                kycDocumentRepository.findByCustomerIdOrderByDocumentIdDesc(customerId);
         Map<String, KycDocument> latestDocuments = new HashMap<>();
-
         for (KycDocument document : documents) {
             latestDocuments.putIfAbsent(document.getDocumentType(), document);
         }
-
-        boolean approved = REQUIRED_KYC_DOCUMENT_TYPES.stream()
-                        .allMatch(type -> {
-                            KycDocument document = latestDocuments.get(type);
-
-                            return document != null
-                                    && "APPROVED".equalsIgnoreCase(
-                                    document.getVerificationStatus());
-                        });
-
+        boolean approved = REQUIRED_KYC_DOCUMENT_TYPES.stream().allMatch(type -> {
+            KycDocument document = latestDocuments.get(type);
+            return document != null &&
+                    "APPROVED".equalsIgnoreCase(document.getVerificationStatus());
+        });
         if (!approved) {
             throw new RuntimeException(
                     "KYC Pending. Scorecard calculation is blocked until all required KYC documents are approved.");
@@ -148,160 +119,78 @@ public class ScoreCardServiceImpl implements ScoreCardService {
     }
 
     private int calculateIncomeScore(BigDecimal income) {
-
-        if (income == null || income.compareTo(BigDecimal.ZERO) <= 0) {
-            return 0;
-        }
-
-        if (income.compareTo(BigDecimal.valueOf(25_000)) < 0) {
-            return 100;
-        }
-
-        if (income.compareTo(BigDecimal.valueOf(50_000)) <= 0) {
-            return 200;
-        }
-
-        if (income.compareTo(BigDecimal.valueOf(100_000)) <= 0) {
-            return 300;
-        }
-
+        if (income == null || income.compareTo(BigDecimal.ZERO) <= 0) return 0;
+        if (income.compareTo(BigDecimal.valueOf(25_000)) < 0) return 100;
+        if (income.compareTo(BigDecimal.valueOf(50_000)) <= 0) return 200;
+        if (income.compareTo(BigDecimal.valueOf(100_000)) <= 0) return 300;
         return 400;
     }
 
     private int calculateEmploymentScore(String employmentType) {
-
-        if (employmentType == null || employmentType.isBlank()) {
-            return 0;
-        }
-
+        if (employmentType == null || employmentType.isBlank()) return 0;
         String employment = employmentType.trim().toLowerCase();
-
-        if (employment.equals("government")) {
-            return 200;
-        }
-
-        if (employment.equals("private") || employment.equals("private sector")) {
-            return 150;
-        }
-
-        if (employment.equals("self-employed") ||
-                employment.equals("self employed") ||
-                employment.equals("business")) {
-            return 100;
-        }
-
+        if (employment.equals("government")) return 200;
+        if (employment.equals("private") || employment.equals("private sector")) return 150;
+        if (employment.equals("self-employed") || employment.equals("self employed")
+                || employment.equals("business")) return 100;
         return 0;
     }
 
     private int calculateAgeScore(Long age) {
-
-        if (age == null) {
-            return 0;
-        }
-
-        if (age >= 21 && age <= 24) {
-            return 50;
-        }
-
-        if (age >= 25 && age <= 45) {
-            return 150;
-        }
-
-        if (age >= 46 && age <= 60) {
-            return 100;
-        }
-
+        if (age == null) return 0;
+        if (age >= 21 && age <= 24) return 50;
+        if (age >= 25 && age <= 45) return 150;
+        if (age >= 46 && age <= 60) return 100;
         return 0;
     }
 
     private BigDecimal calculateFoir(BigDecimal totalMonthlyDebtPayment, BigDecimal monthlyIncome) {
-
         if (monthlyIncome == null || monthlyIncome.compareTo(BigDecimal.ZERO) <= 0) {
             throw new RuntimeException("Monthly income must be greater than zero");
         }
-
         if (totalMonthlyDebtPayment == null || totalMonthlyDebtPayment.compareTo(BigDecimal.ZERO) < 0) {
             throw new RuntimeException("Monthly investment / total monthly obligation cannot be negative");
         }
-
-        return totalMonthlyDebtPayment
-                .divide(monthlyIncome, 4, RoundingMode.HALF_UP)
-                .multiply(BigDecimal.valueOf(100))
-                .setScale(2, RoundingMode.HALF_UP);
+        return totalMonthlyDebtPayment.divide(monthlyIncome, 4, RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_UP);
     }
 
     private int calculateFoirScore(BigDecimal foir) {
-
-        if (foir.compareTo(BigDecimal.valueOf(30)) < 0) {
-            return 250;
-        }
-
-        if (foir.compareTo(BigDecimal.valueOf(50)) <= 0) {
-            return 150;
-        }
-
-        if (foir.compareTo(BigDecimal.valueOf(60)) <= 0) {
-            return 75;
-        }
-
+        if (foir.compareTo(BigDecimal.valueOf(30)) < 0) return 250;
+        if (foir.compareTo(BigDecimal.valueOf(50)) <= 0) return 150;
+        if (foir.compareTo(BigDecimal.valueOf(60)) <= 0) return 75;
         return 0;
     }
 
     private BigDecimal calculateEligibleLoanAmount(Integer cibilScore) {
-
-        if (cibilScore == null || cibilScore < 0 || cibilScore > 1000) {
-            throw new RuntimeException("Calculated score must be between 0 and 1000");
+        if (cibilScore == null || cibilScore < 300 || cibilScore > 900) {
+            throw new RuntimeException("Calculated score must be between 300 and 900");
         }
-
-        if (cibilScore >= 850) {
-            return BigDecimal.valueOf(10_000_000);
-        }
-
-        if (cibilScore >= 750) {
-            return BigDecimal.valueOf(7_500_000);
-        }
-
-        if (cibilScore >= 650) {
-            return BigDecimal.valueOf(5_000_000);
-        }
-
-        if (cibilScore >= 550) {
-            return BigDecimal.valueOf(2_500_000);
-        }
-
+        if (cibilScore >= 810) return BigDecimal.valueOf(10_000_000);
+        if (cibilScore >= 750) return BigDecimal.valueOf(7_500_000);
+        if (cibilScore >= 690) return BigDecimal.valueOf(5_000_000);
+        if (cibilScore >= 630) return BigDecimal.valueOf(2_500_000);
         return BigDecimal.ZERO;
     }
 
     private RiskCategory calculateRiskCategory(Integer cibilScore) {
-
-        if (cibilScore >= 750) {
-            return RiskCategory.LOW;
-        }
-
-        if (cibilScore >= 550) {
-            return RiskCategory.MEDIUM;
-        }
-
+        if (cibilScore >= 750) return RiskCategory.LOW;
+        if (cibilScore >= 630) return RiskCategory.MEDIUM;
         return RiskCategory.HIGH;
     }
 
     private void validateCustomerData(Customer customer) {
-
-        if (customer.getAge() == null) {throw new RuntimeException("Customer age is required");
-        }
-
+        if (customer.getAge() == null) throw new RuntimeException("Customer age is required");
         if (customer.getEmploymentType() == null || customer.getEmploymentType().isBlank()) {
             throw new RuntimeException("Customer employment type is required");
         }
-
-        if (customer.getMonthlyIncome() == null || customer.getMonthlyIncome().compareTo(BigDecimal.ZERO) <= 0) {
+        if (customer.getMonthlyIncome() == null ||
+                customer.getMonthlyIncome().compareTo(BigDecimal.ZERO) <= 0) {
             throw new RuntimeException("Customer monthly income must be greater than zero");
         }
-
-        if (customer.getMonthlyInvestment() == null || customer.getMonthlyInvestment().compareTo(BigDecimal.ZERO) < 0) {
-            throw new RuntimeException(
-                    "Customer monthly investment / total monthly obligation is required"
-            );
+        if (customer.getMonthlyInvestment() == null ||
+                customer.getMonthlyInvestment().compareTo(BigDecimal.ZERO) < 0) {
+            throw new RuntimeException("Customer monthly investment / total monthly obligation is required");
         }
     }
 }

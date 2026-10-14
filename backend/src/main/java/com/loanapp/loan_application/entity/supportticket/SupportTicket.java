@@ -1,3 +1,4 @@
+
 package com.loanapp.loan_application.entity.supportticket;
 
 import jakarta.persistence.*;
@@ -11,53 +12,56 @@ public class SupportTicket implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "TicketId")
-    private Integer ticketId;
+    private Long ticketId;
 
     @Column(name = "CustomerId", nullable = false)
-    private Integer customerId;
+    private Long customerId;
 
     @Column(name = "LoanAccountId")
-    private Integer loanAccountId;
+    private Long loanAccountId;
 
-    @Column(name = "Subject", length = 255)
+    @Column(name = "Subject", length = 255, nullable = false)
     private String subject;
 
-    @Column(name = "Description", length = 2000)
+    @Column(name = "Description", length = 2000, nullable = false)
     private String description;
 
-    @Column(name = "Status", length = 50)
+    @Column(name = "Status", length = 50, nullable = false)
     private String status;
 
-    @Column(name = "CreatedAt")
+    @Column(name = "CreatedAt", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "UpdatedAt")
+    @Column(name = "UpdatedAt", nullable = false)
     private LocalDateTime updatedAt;
+
+    @Column(name = "AttachmentPath", length = 1000)
+    private String attachmentPath;
 
     public SupportTicket() {
     }
 
-    public Integer getTicketId() {
+    public Long getTicketId() {
         return ticketId;
     }
 
-    public void setTicketId(Integer ticketId) {
+    public void setTicketId(Long ticketId) {
         this.ticketId = ticketId;
     }
 
-    public Integer getCustomerId() {
+    public Long getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(Integer customerId) {
+    public void setCustomerId(Long customerId) {
         this.customerId = customerId;
     }
 
-    public Integer getLoanAccountId() {
+    public Long getLoanAccountId() {
         return loanAccountId;
     }
 
-    public void setLoanAccountId(Integer loanAccountId) {
+    public void setLoanAccountId(Long loanAccountId) {
         this.loanAccountId = loanAccountId;
     }
 
@@ -99,5 +103,13 @@ public class SupportTicket implements Serializable {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getAttachmentPath() {
+        return attachmentPath;
+    }
+
+    public void setAttachmentPath(String attachmentPath) {
+        this.attachmentPath = attachmentPath;
     }
 }

@@ -28,14 +28,17 @@ public class EligibilityResult {
 
     private Integer cibilScore;
 
-    private String eligibilityStatus;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "EligibilityStatus")
+    private EligibilityStatus eligibilityStatus;
 
     @Column(precision = 18, scale = 2)
     private BigDecimal loanAmount;
 
     private String decision;
 
-    private String riskCategory;
+
+    private RiskCategory riskCategory;
 
     private String borrowingLimit;
 
