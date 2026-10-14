@@ -1,0 +1,101 @@
+
+<aside class="loan-sidebar">
+
+  <div class="sidebar-brand">
+    <i class="bi bi-bank"></i>
+    <h3>Loan Officer</h3>
+  </div>
+
+  <nav class="sidebar-menu">
+
+    <a routerLink="/loan-officer/dashboard" class="menu-link">
+      <i class="bi bi-speedometer2"></i>
+      <span>Dashboard</span>
+    </a>
+
+    <button class="menu-link menu-toggle"
+            type="button"
+            (click)="toggleMenu('customers')">
+
+      <i class="bi bi-people"></i>
+      <span>Customer Management</span>
+
+      <i class="bi bi-chevron-down arrow"
+         [class.rotated]="openMenu === 'customers'"></i>
+    </button>
+
+    <div class="submenu"
+         [class.show]="openMenu === 'customers'">
+
+      <a routerLink="/loan-officer/customers"
+         routerLinkActive="selected">
+        Customers
+      </a>
+
+      <a routerLink="/loan-officer/kyc"
+         routerLinkActive="selected">
+        KYC Verification
+      </a>
+
+      <a routerLink="/loan-officer/eligibility"
+         routerLinkActive="selected">
+        Eligibility Check
+      </a>
+
+      <a routerLink="/loan-officer/score-card"
+         routerLinkActive="selected">
+        Score Cards
+      </a>
+
+    </div>
+
+    
+    <button class="menu-link menu-toggle"
+            type="button"
+            (click)="toggleMenu('loans')">
+
+      <i class="bi bi-cash-stack"></i>
+      <span>Loan Processing</span>
+
+      <i class="bi bi-chevron-down arrow"
+         [class.rotated]="openMenu === 'loans'"></i>
+    </button>
+
+    <div class="submenu"
+         [class.show]="openMenu === 'loans'">
+
+      <a routerLink="/loan-officer/loan-deals">Loan Applications</a>
+      <a routerLink="/loan-officer/deal-review">Deal Review</a>
+      <a routerLink="/loan-officer/sanction-letters">Sanction Letters</a>
+      <a routerLink="/loan-officer/disbursements">Disbursements</a>
+
+    </div>
+
+    <!-- Requests and Collections -->
+    <button class="menu-link menu-toggle"
+            type="button"
+            (click)="toggleMenu('requests')">
+
+      <i class="bi bi-file-earmark-text"></i>
+      <span>Requests &amp; Collections</span>
+
+      <i class="bi bi-chevron-down arrow"
+         [class.rotated]="openMenu === 'requests'"></i>
+    </button>
+
+    <div class="submenu"
+         [class.show]="openMenu === 'requests'">
+
+      <a routerLink="/loan-officer/emi-schedules">EMI Schedules</a>
+      <a routerLink="/loan-officer/payments">Loan Payments</a>
+      <a routerLink="/loan-officer/foreclosure">Foreclosure Requests</a>
+
+    </div>
+
+    <a routerLink="/loan-officer/support" class="menu-link">
+      <i class="bi bi-ticket-perforated"></i>
+      <span>Support Tickets</span>
+    </a>
+
+  </nav>
+</aside>

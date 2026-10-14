@@ -1,22 +1,23 @@
+
 package com.loanapp.loan_application.dto.kycdocument;
 
 public class KycDocumentResponseDto {
 
-    private Integer documentId;
+    private Long documentId;
     private Long customerId;
     private String documentType;
-    private String filePath;
     private String fileUrl;
     private String verificationStatus;
+    private String rejectionReason;
 
     public KycDocumentResponseDto() {
     }
 
-    public Integer getDocumentId() {
+    public Long getDocumentId() {
         return documentId;
     }
 
-    public void setDocumentId(Integer documentId) {
+    public void setDocumentId(Long documentId) {
         this.documentId = documentId;
     }
 
@@ -36,14 +37,6 @@ public class KycDocumentResponseDto {
         this.documentType = documentType;
     }
 
-    public String getFilePath() {
-        return filePath;
-    }
-
-    public void setFilePath(String filePath) {
-        this.filePath = filePath;
-    }
-
     public String getFileUrl() {
         return fileUrl;
     }
@@ -58,5 +51,13 @@ public class KycDocumentResponseDto {
 
     public void setVerificationStatus(String verificationStatus) {
         this.verificationStatus = verificationStatus;
+    }
+
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
+
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
     }
 }

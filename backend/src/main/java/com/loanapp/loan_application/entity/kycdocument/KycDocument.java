@@ -1,3 +1,4 @@
+
 package com.loanapp.loan_application.entity.kycdocument;
 
 import jakarta.persistence.*;
@@ -10,7 +11,7 @@ public class KycDocument implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "DocumentId")
-    private Integer documentId;
+    private Long documentId;
 
     @Column(name = "CustomerId", nullable = false)
     private Long customerId;
@@ -24,14 +25,17 @@ public class KycDocument implements Serializable {
     @Column(name = "VerificationStatus", length = 50)
     private String verificationStatus;
 
+    @Column(name = "RejectionReason", length = 1000)
+    private String rejectionReason;
+
     public KycDocument() {
     }
 
-    public Integer getDocumentId() {
+    public Long getDocumentId() {
         return documentId;
     }
 
-    public void setDocumentId(Integer documentId) {
+    public void setDocumentId(Long documentId) {
         this.documentId = documentId;
     }
 
@@ -65,5 +69,13 @@ public class KycDocument implements Serializable {
 
     public void setVerificationStatus(String verificationStatus) {
         this.verificationStatus = verificationStatus;
+    }
+
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
+
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
     }
 }
