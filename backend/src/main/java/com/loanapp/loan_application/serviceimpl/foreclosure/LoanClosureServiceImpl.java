@@ -18,21 +18,23 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import com.loanapp.loan_application.service.mail.EmailService;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class LoanClosureServiceImpl implements LoanClosureService {
-
     private final LoanClosureRepo loanClosureRepo;
     private final LoanAccountRepository loanAccountRepository;
     private final EmiScheduleRepository emiScheduleRepository;
     private final ForeClosureRequestRepo foreClosureRequestRepo;
     private final ModelMapper modelMapper;
+    private final EmailService emailService;
+
+
 
     @Override
     public LoanClosureResponseDto closeLoanNormally(Long loanAccountId, Long closedBy) {
@@ -43,27 +45,25 @@ public class LoanClosureServiceImpl implements LoanClosureService {
         }
 
         List<EmiSchedules> schedules = emiScheduleRepository.findByLoanAccountId(loanAccountId);
+
         if (schedules.isEmpty() || schedules.stream()
                 .anyMatch(e -> e.getPaymentStatus() != PaymentStatus.PAID)) {
             throw new RuntimeException("All EMIs must be paid before normal closure");
         }
 
-        if (loan.getOutstandingPrincipal() == null ||
-                loan.getOutstandingPrincipal().compareTo(BigDecimal.ZERO) > 0) {
-            throw new RuntimeException("Outstanding principal must be zero before closure");
+        if (loan.getOutstandingPrincipal() == null
+                || loan.getOutstandingPrincipal().compareTo(BigDecimal.ZERO) != 0) {
+            throw new RuntimeException("Outstanding principal must be exactly zero before closure");
         }
 
-        BigDecimal totalPaid = loan.getTotalPaidAmount() == null
-                ? BigDecimal.ZERO : loan.getTotalPaidAmount();
-
         loan.setOutstandingPrincipal(BigDecimal.ZERO);
-        loan.setLoanStatus(LoanStatus.valueOf("CLOSED"));
+        loan.setLoanStatus(LoanStatus.CLOSED);
         loanAccountRepository.save(loan);
 
         LoanClosure closure = LoanClosure.builder()
                 .loanAccount(loan)
                 .closureType(LoanClosureType.NORMAL)
-                .finalSettlementAmount(totalPaid)
+                .finalSettlementAmount(BigDecimal.ZERO)
                 .closureDate(LocalDateTime.now())
                 .closureStatus(LoanClosureStatus.CLOSED)
                 .closedBy(closedBy)
@@ -71,8 +71,24 @@ public class LoanClosureServiceImpl implements LoanClosureService {
                 .cibilUpdated(false)
                 .build();
 
-        return toDto(loanClosureRepo.save(closure));
+        LoanClosure savedClosure = loanClosureRepo.save(closure);
+
+        emailService.sendLoanNotification(
+                loan.getCustomer().getEmail(),
+                "Loan Closure Completed",
+                "Dear " + loan.getCustomer().getFirstName() + ",\n\n"
+                        + "Congratulations! Your loan has been closed successfully.\n"
+                        + "Loan Account: " + loan.getLoanAccountNo() + "\n"
+                        + "Closure Type: Normal Closure\n"
+                        + "Closure Date: " + savedClosure.getClosureDate() + "\n"
+                        + "Outstanding Principal: " + loan.getOutstandingPrincipal() + "\n"
+                        + "Status: CLOSED\n\n"
+                        + "Thank you for banking with us."
+        );
+
+        return toDto(savedClosure);
     }
+
 
     @Override
     public LoanClosureResponseDto closeLoanByForeclosure(Long loanAccountId, Long closedBy) {
@@ -82,9 +98,9 @@ public class LoanClosureServiceImpl implements LoanClosureService {
             throw new RuntimeException("Loan closure record already exists");
         }
 
-        if (!"CLOSED".equalsIgnoreCase(String.valueOf(loan.getLoanStatus())) ||
-                loan.getOutstandingPrincipal() == null ||
-                loan.getOutstandingPrincipal().compareTo(BigDecimal.ZERO) != 0) {
+        if (!"CLOSED".equalsIgnoreCase(String.valueOf(loan.getLoanStatus()))
+                || loan.getOutstandingPrincipal() == null
+                || loan.getOutstandingPrincipal().compareTo(BigDecimal.ZERO) != 0) {
             throw new RuntimeException("Loan must be fully settled before closure");
         }
 
