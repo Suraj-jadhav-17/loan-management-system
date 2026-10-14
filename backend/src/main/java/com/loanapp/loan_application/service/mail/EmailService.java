@@ -44,6 +44,12 @@ public class EmailService {
 
     }
 
+    public void sendNotificationEmail(String email, String subject, String message) {
+        SimpleMailMessage mail = new SimpleMailMessage();
+        mail.setTo(email);
+        mail.setSubject(subject);
+        mail.setText(message);
+        javaMailSender.send(mail);
     public void sendLoanNotification(String email, String subject, String body) {
         if (email == null || email.isBlank()) {
             log.warn("Loan notification email skipped because customer email is missing");
