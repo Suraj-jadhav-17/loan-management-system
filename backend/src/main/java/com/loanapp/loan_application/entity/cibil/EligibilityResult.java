@@ -29,7 +29,8 @@ public class EligibilityResult {
 
     private Integer cibilScore;
 
-
+    @Enumerated(EnumType.STRING)
+    @Column(name = "EligibilityStatus")
     private String eligibilityStatus;
 
     @Column( precision = 18, scale = 2)

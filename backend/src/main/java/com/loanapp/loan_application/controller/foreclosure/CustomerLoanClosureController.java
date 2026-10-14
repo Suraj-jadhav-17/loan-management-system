@@ -19,9 +19,7 @@ public class CustomerLoanClosureController {
     private final UserRepository userRepository;
 
     @GetMapping("/{loanAccountId}")
-    public LoanClosureResponseDto getClosure(
-            @PathVariable Long loanAccountId,
-            Authentication authentication) {
+    public LoanClosureResponseDto getClosure(@PathVariable Long loanAccountId, Authentication authentication) {
         User user = userRepository.findByEmail(authentication.getName())
                 .orElseThrow(() -> new RuntimeException("Authenticated user not found"));
 
