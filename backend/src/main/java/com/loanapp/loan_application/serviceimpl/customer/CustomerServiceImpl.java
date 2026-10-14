@@ -1,19 +1,25 @@
 package com.loanapp.loan_application.serviceimpl.customer;
 
-import com.loanapp.loan_application.dto.customer.CustomerProfileResponse;
+import com.loanapp.loan_application.dto.cuatomer.CustomerProfileResponse;
 import com.loanapp.loan_application.entity.register.Customer;
 import com.loanapp.loan_application.repository.register.CustomerRepository;
-import com.loanapp.loan_application.repository.register.UserRepository;
 import com.loanapp.loan_application.service.customer.CustomerService;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
 
  private final CustomerRepository customerRepository;
+ private final ModelMapper modelMapper;
 
-    public CustomerServiceImpl(CustomerRepository customerRepository) {
+
+    public CustomerServiceImpl(CustomerRepository customerRepository, ModelMapper modelMapper) {
         this.customerRepository = customerRepository;
+
+        this.modelMapper = modelMapper;
     }
 
     @Override
@@ -60,4 +66,16 @@ public class CustomerServiceImpl implements CustomerService {
 
         return customerProfileResponse;
     }
+
+    @Override
+    public List<CustomerProfileResponse> getAllCustomerList() {
+
+        List<Customer> customers = customerRepository.findAll();
+
+        return customers.stream()
+                .map(customer -> modelMapper.map(customer, CustomerProfileResponse.class))
+                .toList();
+    }
+
+
 }

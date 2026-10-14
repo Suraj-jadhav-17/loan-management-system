@@ -1,6 +1,6 @@
 package com.loanapp.loan_application.controller.customer;
 
-import com.loanapp.loan_application.dto.customer.CustomerProfileResponse;
+import com.loanapp.loan_application.dto.cuatomer.CustomerProfileResponse;
 import com.loanapp.loan_application.response.ApiResponse;
 import com.loanapp.loan_application.service.customer.CustomerService;
 import com.loanapp.loan_application.service.user.UserService;

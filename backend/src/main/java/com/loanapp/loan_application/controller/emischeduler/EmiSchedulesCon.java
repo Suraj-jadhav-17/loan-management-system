@@ -15,7 +15,7 @@ public class EmiSchedulesCon {
     public EmiSchedulesCon(EmiSchedulesService emiSchedulesService) {
         this.emiSchedulesService = emiSchedulesService;
     }
-    @GetMapping("/{loanAccountId}")
+    @GetMapping("/emi-schedules/{loanAccountId}")
     public List<EmiSchedulesDto>getByLoanId(@PathVariable Long loanAccountId) {
         return emiSchedulesService.getByLoanId(loanAccountId);
     }

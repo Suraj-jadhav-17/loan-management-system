@@ -14,36 +14,30 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "EligibilityResults")
+@Table(name = "eligibility_results")
 public class EligibilityResult {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-
+    @Column(name = "eligibility_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn( nullable = false)
+    @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
-
 
     private Integer cibilScore;
 
-
     private String eligibilityStatus;
 
-    @Column( precision = 18, scale = 2)
+    @Column(precision = 18, scale = 2)
     private BigDecimal loanAmount;
-
 
     private String decision;
 
-
     private String riskCategory;
 
-
     private String borrowingLimit;
-
 
     private String rejectionReason;
 }
