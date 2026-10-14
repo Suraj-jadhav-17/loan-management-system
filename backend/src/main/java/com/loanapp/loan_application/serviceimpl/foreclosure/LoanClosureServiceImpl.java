@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import com.loanapp.loan_application.service.mail.EmailService;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +32,9 @@ public class LoanClosureServiceImpl implements LoanClosureService {
     private final EmiScheduleRepository emiScheduleRepository;
     private final ForeClosureRequestRepo foreClosureRequestRepo;
     private final ModelMapper modelMapper;
+    private final EmailService emailService;
+
+
 
     @Override
     public LoanClosureResponseDto closeLoanNormally(Long loanAccountId, Long closedBy) {
@@ -41,6 +45,7 @@ public class LoanClosureServiceImpl implements LoanClosureService {
         }
 
         List<EmiSchedules> schedules = emiScheduleRepository.findByLoanAccountId(loanAccountId);
+
         if (schedules.isEmpty() || schedules.stream()
                 .anyMatch(e -> e.getPaymentStatus() != PaymentStatus.PAID)) {
             throw new RuntimeException("All EMIs must be paid before normal closure");
@@ -52,7 +57,7 @@ public class LoanClosureServiceImpl implements LoanClosureService {
         }
 
         loan.setOutstandingPrincipal(BigDecimal.ZERO);
-        loan.setLoanStatus(LoanStatus.valueOf("CLOSED"));
+        loan.setLoanStatus(LoanStatus.CLOSED);
         loanAccountRepository.save(loan);
 
         LoanClosure closure = LoanClosure.builder()
@@ -66,8 +71,24 @@ public class LoanClosureServiceImpl implements LoanClosureService {
                 .cibilUpdated(false)
                 .build();
 
-        return toDto(loanClosureRepo.save(closure));
+        LoanClosure savedClosure = loanClosureRepo.save(closure);
+
+        emailService.sendLoanNotification(
+                loan.getCustomer().getEmail(),
+                "Loan Closure Completed",
+                "Dear " + loan.getCustomer().getFirstName() + ",\n\n"
+                        + "Congratulations! Your loan has been closed successfully.\n"
+                        + "Loan Account: " + loan.getLoanAccountNo() + "\n"
+                        + "Closure Type: Normal Closure\n"
+                        + "Closure Date: " + savedClosure.getClosureDate() + "\n"
+                        + "Outstanding Principal: " + loan.getOutstandingPrincipal() + "\n"
+                        + "Status: CLOSED\n\n"
+                        + "Thank you for banking with us."
+        );
+
+        return toDto(savedClosure);
     }
+
 
     @Override
     public LoanClosureResponseDto closeLoanByForeclosure(Long loanAccountId, Long closedBy) {
