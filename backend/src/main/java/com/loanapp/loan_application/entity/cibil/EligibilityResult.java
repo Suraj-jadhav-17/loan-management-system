@@ -1,3 +1,4 @@
+
 package com.loanapp.loan_application.entity.cibil;
 
 import com.loanapp.loan_application.entity.register.Customer;
@@ -19,13 +20,11 @@ public class EligibilityResult {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn( nullable = false)
+    @JoinColumn(nullable = false)
     private Customer customer;
-
 
     private Integer cibilScore;
 
@@ -33,18 +32,14 @@ public class EligibilityResult {
     @Column(name = "EligibilityStatus")
     private EligibilityStatus eligibilityStatus;
 
-    @Column( precision = 18, scale = 2)
+    @Column(precision = 18, scale = 2)
     private BigDecimal loanAmount;
-
 
     private String decision;
 
-
-    private RiskCategory riskCategory;
-
+    private String riskCategory;
 
     private String borrowingLimit;
-
 
     private String rejectionReason;
 }
