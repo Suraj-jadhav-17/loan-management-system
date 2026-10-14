@@ -1,5 +1,6 @@
 package com.loanapp.loan_application.repository.register;
 
+import com.loanapp.loan_application.dto.cuatomer.CustomerProfileResponse;
 import com.loanapp.loan_application.entity.register.Customer;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

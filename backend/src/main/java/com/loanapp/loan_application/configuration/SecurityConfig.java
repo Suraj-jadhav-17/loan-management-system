@@ -23,10 +23,8 @@ public class SecurityConfig {
 
         http
                 .csrf(csrf -> csrf.disable())
-
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
                 .authorizeHttpRequests(auth -> auth
 
                         .requestMatchers(
@@ -35,9 +33,6 @@ public class SecurityConfig {
                                 "/auth/v1/login",
                                 "/oauth/**"
                         ).permitAll()
-
-                        .requestMatchers("/auth/v1/loan-office/**")
-                        .hasRole("LoanOfficer")
 
                         .requestMatchers("/auth/v1/customer/**")
                         .hasRole("Customer")
@@ -48,9 +43,11 @@ public class SecurityConfig {
                         .requestMatchers("/auth/v1/loan-officer/profile")
                         .hasRole("LoanOfficer")
 
+                        .requestMatchers("/auth/v1/loan-officer/**")
+                        .hasRole("LoanOfficer")
+
                         .anyRequest().authenticated()
                 )
-
                 .addFilterBefore(
                         jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class

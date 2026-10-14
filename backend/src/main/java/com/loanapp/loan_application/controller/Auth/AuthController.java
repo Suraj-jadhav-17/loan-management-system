@@ -1,4 +1,4 @@
-package com.loanapp.loan_application.controller.auth;
+package com.loanapp.loan_application.controller.Auth;
 
 import com.loanapp.loan_application.dto.register.LoginDto;
 import com.loanapp.loan_application.dto.register.RegistrationRequest;
@@ -41,38 +41,50 @@ public class AuthController {
 
         ApiResponse<User> response = new ApiResponse<>("200", true, "Registration successful", savedUser, LocalDateTime.now(), request.getRequestURI(), null);
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
 
     @PostMapping("/verified-otp")
-    public ResponseEntity<?> verifiedEmailOtp(@RequestBody VerifyOtpRequest request, HttpSession session) {
-        String customerEmail = (String) session.getAttribute("email");
-        Boolean registrationDone = (Boolean) session.getAttribute("registrationDone");
+    public ResponseEntity<?> verifiedEmailOtp(
+            @Valid @RequestBody VerifyOtpRequest request,
+            HttpSession session) {
+
+        Boolean registrationDone =
+                (Boolean) session.getAttribute("registrationDone");
+
+        String customerEmail =
+                (String) session.getAttribute("email");
 
         if (registrationDone == null || !registrationDone) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Please complete registration first.");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("Please complete registration first.");
         }
 
         if (customerEmail == null) {
-            return ResponseEntity.badRequest().body("Registration session expired");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Registration session expired. Please register again.");
         }
+
         boolean verifiedOtp = authService.checkOtp(customerEmail, request);
+
         if (!verifiedOtp) {
-            return ResponseEntity.badRequest().body("Invalid or expired OTP");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Invalid or expired OTP.");
         }
+
         session.removeAttribute("email");
+        session.removeAttribute("registrationDone");
 
-        return ResponseEntity.ok("Email verified successfully");
-
+        return ResponseEntity.ok("Email verified successfully.");
     }
 
 
+
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginDto loginDto, HttpServletRequest request, HttpSession session) {
+    public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginDto loginDto, HttpServletRequest request) {
 
         LoginResponse loginUser = authService.login(loginDto);
-        session.setAttribute("email", loginDto.getEmail());
         ApiResponse<LoginResponse> response = new ApiResponse<>("200", true, "User Login Successfully", loginUser, LocalDateTime.now(), request.getRequestURI(), null);
 
         return ResponseEntity.ok(response);
