@@ -19,6 +19,5 @@ public class TotalApplicationsDto {
 
     private Long pandingApplication;
 
-    private Long
 }
 

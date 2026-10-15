@@ -1,6 +1,7 @@
 package com.loanapp.loan_application.repository.cibil;
 
 import com.loanapp.loan_application.entity.cibil.EligibilityResult;
+import com.loanapp.loan_application.entity.cibil.EligibilityStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,4 +15,15 @@ public interface EligibilityResultRepo extends JpaRepository<EligibilityResult, 
     Optional<EligibilityResult> findTopByCustomerCustomerIdOrderByIdDesc(Long customerId);
 
     Page<EligibilityResult> findByCustomerCustomerIdOrderByIdDesc(Long customerId, Pageable pageable);
+
+    long countByCibilScoreBetween(int first, int second);
+
+    long countByCibilScoreBetweenAndEligibilityStatus(int first, int second, EligibilityStatus eligibilityStatus);
+
+
+
+    long countByEligibilityStatus(EligibilityStatus eligibilityStatus);
+
+
+
 }
