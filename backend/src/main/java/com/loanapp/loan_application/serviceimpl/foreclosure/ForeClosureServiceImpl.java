@@ -13,76 +13,68 @@ import com.loanapp.loan_application.entity.loan.LoanAccount;
 import com.loanapp.loan_application.entity.loan.LoanStatus;
 import com.loanapp.loan_application.entity.payment.LoanPayments;
 import com.loanapp.loan_application.entity.payment.PaymentStatus;
-import com.loanapp.loan_application.entity.penalty.PenaltyCharges;
 import com.loanapp.loan_application.entity.register.User;
 import com.loanapp.loan_application.repository.emischedulerepository.EmiScheduleRepository;
 import com.loanapp.loan_application.repository.foreclosure.ForeClosureRequestRepo;
 import com.loanapp.loan_application.repository.loan.LoanAccountRepository;
 import com.loanapp.loan_application.repository.payment.LoanPaymentsRepository;
-import com.loanapp.loan_application.repository.penalty.PenaltyChargesRepository;
 import com.loanapp.loan_application.repository.register.UserRepository;
 import com.loanapp.loan_application.service.emischeduler.EmiSchedulesService;
 import com.loanapp.loan_application.service.foreclosure.ForeClosureService;
 import com.loanapp.loan_application.service.foreclosure.LoanClosureService;
+import com.loanapp.loan_application.service.mail.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.Comparator;
 import java.util.List;
-import com.loanapp.loan_application.service.mail.EmailService;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class ForeClosureServiceImpl implements ForeClosureService {
+
     private final ForeClosureRequestRepo foreClosureRequestRepo;
     private final LoanAccountRepository loanAccountRepository;
     private final EmiScheduleRepository emiScheduleRepository;
     private final LoanPaymentsRepository loanPaymentsRepository;
-    private final PenaltyChargesRepository penaltyChargesRepository;
     private final UserRepository userRepository;
     private final LoanClosureService loanClosureService;
     private final EmiSchedulesService emiSchedulesService;
     private final ModelMapper modelMapper;
     private final EmailService emailService;
 
-    @Value("${loan.foreclosure.fee-rate:2.0}")
-    private BigDecimal foreclosureFeeRate;
-
     @Override
     public ForeClosureResponseDto createRequest(ForeClosureCreateRequestDto request) {
+
         if (request == null || request.getLoanAccountId() == null) {
             throw new RuntimeException("Loan Account ID is required");
         }
+
         if (request.getForeClosureType() == null) {
             throw new RuntimeException("Foreclosure type is required");
         }
 
-        LoanAccount loanAccount = loanAccountRepository.findById(request.getLoanAccountId())
+        LoanAccount loanAccount = loanAccountRepository
+                .findById(request.getLoanAccountId())
                 .orElseThrow(() -> new RuntimeException("Loan account not found"));
 
         if (loanAccount.getLoanStatus() != LoanStatus.ACTIVE) {
             throw new RuntimeException("Foreclosure is allowed only for active loan");
         }
 
-        BigDecimal principal = money(loanAccount.getOutstandingPrincipal());
-        if (principal.compareTo(BigDecimal.ZERO) <= 0) {
+        BigDecimal outstandingPrincipal = money(loanAccount.getOutstandingPrincipal());
+
+        if (outstandingPrincipal.compareTo(BigDecimal.ZERO) <= 0) {
             throw new RuntimeException("Loan has no outstanding principal");
         }
 
-        boolean pendingExists = foreClosureRequestRepo
-                .existsByLoanAccountLoanAccountIdAndStatus(
-                        request.getLoanAccountId(), ForeClosureStatus.PENDING);
-        boolean approvedExists = foreClosureRequestRepo
-                .existsByLoanAccountLoanAccountIdAndStatus(
-                        request.getLoanAccountId(), ForeClosureStatus.APPROVED);
+        boolean pendingExists = foreClosureRequestRepo.existsByLoanAccountLoanAccountIdAndStatus(request.getLoanAccountId(), ForeClosureStatus.PENDING);
+        boolean approvedExists = foreClosureRequestRepo.existsByLoanAccountLoanAccountIdAndStatus(request.getLoanAccountId(), ForeClosureStatus.APPROVED);
 
         if (pendingExists || approvedExists) {
             throw new RuntimeException("An active foreclosure request already exists");
@@ -98,16 +90,21 @@ public class ForeClosureServiceImpl implements ForeClosureService {
 
         if (request.getForeClosureType() == ForeClosureType.FULL) {
             applyFullSettlementQuote(entity, loanAccount);
+
         } else {
+
             BigDecimal partialAmount = request.getPartialAmount();
+
             if (partialAmount == null || partialAmount.compareTo(BigDecimal.ZERO) <= 0) {
                 throw new RuntimeException("Partial foreclosure amount must be greater than zero");
             }
-            if (partialAmount.compareTo(principal) >= 0) {
+
+            if (partialAmount.compareTo(outstandingPrincipal) >= 0) {
                 throw new RuntimeException("Partial amount must be less than outstanding principal");
             }
 
             partialAmount = money(partialAmount);
+
             entity.setPartialAmount(partialAmount);
             entity.setOutstandingPrincipal(partialAmount);
             entity.setAccruedInterest(money(BigDecimal.ZERO));
@@ -116,22 +113,28 @@ public class ForeClosureServiceImpl implements ForeClosureService {
             entity.setForeClosureAmount(partialAmount);
         }
 
-        return mapToResponse(foreClosureRequestRepo.save(entity));
+        ForeClosureRequest saved = foreClosureRequestRepo.save(entity);
+
+        return mapToResponse(saved);
     }
 
     @Override
     public ForeClosureResponseDto approveRequest(ForeClosureApprovalDto request) {
+
         if (request == null || request.getForeClosureId() == null) {
             throw new RuntimeException("Foreclosure ID is required");
         }
+
         validateOfficer(request.getOfficerId());
 
         ForeClosureRequest foreclosure = getForeclosureEntity(request.getForeClosureId());
+
         if (foreclosure.getStatus() != ForeClosureStatus.PENDING) {
             throw new RuntimeException("Only pending foreclosure request can be approved");
         }
 
         if (foreclosure.getForeClosureType() == ForeClosureType.FULL) {
+
             applyFullSettlementQuote(foreclosure, foreclosure.getLoanAccount());
         }
 
@@ -140,17 +143,21 @@ public class ForeClosureServiceImpl implements ForeClosureService {
         foreclosure.setApprovedAt(LocalDateTime.now());
         foreclosure.setRemarks(request.getRemarks());
 
-        return mapToResponse(foreClosureRequestRepo.save(foreclosure));
+        ForeClosureRequest saved = foreClosureRequestRepo.save(foreclosure);
+        return mapToResponse(saved);
     }
 
     @Override
     public ForeClosureResponseDto rejectRequest(ForeClosureApprovalDto request) {
+
         if (request == null || request.getForeClosureId() == null) {
             throw new RuntimeException("Foreclosure ID is required");
         }
+
         validateOfficer(request.getOfficerId());
 
         ForeClosureRequest foreclosure = getForeclosureEntity(request.getForeClosureId());
+
         if (foreclosure.getStatus() != ForeClosureStatus.PENDING) {
             throw new RuntimeException("Only pending foreclosure request can be rejected");
         }
@@ -159,12 +166,14 @@ public class ForeClosureServiceImpl implements ForeClosureService {
         foreclosure.setClosedBy(request.getOfficerId());
         foreclosure.setRemarks(request.getRemarks());
 
-        return mapToResponse(foreClosureRequestRepo.save(foreclosure));
-    }
+        ForeClosureRequest saved = foreClosureRequestRepo.save(foreclosure);
 
+        return mapToResponse(saved);
+    }
 
     @Override
     public ForeClosureResponseDto makePayment(ForeClosurePaymentDto request) {
+
         if (request == null || request.getForeClosureId() == null) {
             throw new RuntimeException("Foreclosure ID is required");
         }
@@ -179,7 +188,7 @@ public class ForeClosureServiceImpl implements ForeClosureService {
             throw new RuntimeException("Foreclosure payment is already completed");
         }
 
-        BigDecimal requiredAmount = foreclosure.getForeClosureAmount();
+        BigDecimal requiredAmount = money(foreclosure.getForeClosureAmount());
         BigDecimal paidAmount = request.getPaidAmount();
 
         if (paidAmount == null || paidAmount.compareTo(requiredAmount) != 0) {
@@ -187,11 +196,11 @@ public class ForeClosureServiceImpl implements ForeClosureService {
         }
 
         LoanAccount loanAccount = foreclosure.getLoanAccount();
-
         savePaymentRecord(loanAccount.getLoanAccountId(), paidAmount, foreclosure.getForeClosureType());
 
         if (foreclosure.getForeClosureType() == ForeClosureType.FULL) {
             processFullForeclosure(foreclosure, loanAccount);
+
         } else {
             processPartialForeclosure(loanAccount, paidAmount);
         }
@@ -201,189 +210,164 @@ public class ForeClosureServiceImpl implements ForeClosureService {
         foreclosure.setPaymentDate(LocalDateTime.now());
 
         ForeClosureRequest saved = foreClosureRequestRepo.save(foreclosure);
+
         String email = loanAccount.getCustomer().getEmail();
 
         if (foreclosure.getForeClosureType() == ForeClosureType.FULL) {
-            emailService.sendLoanNotification(
-                    email,
+
+            emailService.sendLoanNotification(email,
                     "Full Foreclosure Completed",
-                    "Dear " + loanAccount.getCustomer().getFirstName() + ",\n\n"
+                    "Dear "
+                            + loanAccount.getCustomer().getFirstName()
+                            + ",\n\n"
                             + "Your full foreclosure has been processed.\n"
-                            + "Loan Account: " + loanAccount.getLoanAccountNo() + "\n"
-                            + "Settlement Amount: " + paidAmount + "\n"
+                            + "Loan Account: "
+                            + loanAccount.getLoanAccountNo()
+                            + "\n"
+                            + "Outstanding Principal Paid: "
+                            + paidAmount
+                            + "\n"
+                            + "Additional foreclosure charges: Rs 0.00\n"
                             + "Status: Loan Closed\n\n"
                             + "Thank you for banking with us."
             );
+
         } else {
+
             emailService.sendLoanNotification(
                     email,
                     "Partial Foreclosure Completed",
-                    "Dear " + loanAccount.getCustomer().getFirstName() + ",\n\n"
+                    "Dear "
+                            + loanAccount.getCustomer().getFirstName()
+                            + ",\n\n"
                             + "Your partial foreclosure has been processed.\n"
-                            + "Loan Account: " + loanAccount.getLoanAccountNo() + "\n"
-                            + "Amount Paid: " + paidAmount + "\n"
-                            + "Updated Outstanding Principal: " + loanAccount.getOutstandingPrincipal() + "\n"
+                            + "Loan Account: "
+                            + loanAccount.getLoanAccountNo()
+                            + "\n"
+                            + "Amount Paid: "
+                            + paidAmount
+                            + "\n"
+                            + "Updated Outstanding Principal: "
+                            + loanAccount.getOutstandingPrincipal()
+                            + "\n"
                             + "Status: Loan Active\n\n"
                             + "Your loan remains active after partial foreclosure."
             );
         }
-
         return mapToResponse(saved);
     }
 
 
     private void applyFullSettlementQuote(ForeClosureRequest request, LoanAccount loanAccount) {
+
         BigDecimal principal = money(loanAccount.getOutstandingPrincipal());
-        BigDecimal accruedInterest = calculateAccruedInterest(loanAccount, principal);
-        BigDecimal overdueDues = calculateOverdueDues(loanAccount.getLoanAccountId());
 
-        BigDecimal fee = principal.multiply(rate(foreclosureFeeRate))
-                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
-
-        BigDecimal total = principal.add(accruedInterest)
-                .add(overdueDues)
-                .add(fee)
-                .setScale(2, RoundingMode.HALF_UP);
+        if (principal.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new RuntimeException("Loan has no outstanding principal");
+        }
 
         request.setOutstandingPrincipal(principal);
-        request.setAccruedInterest(accruedInterest);
-        request.setOverdueDues(overdueDues);
-        request.setForeclosureFee(fee);
-        request.setForeClosureAmount(total);
-    }
-
-    private BigDecimal calculateAccruedInterest(LoanAccount loanAccount, BigDecimal principal) {
-        BigDecimal annualRate = loanAccount.getInterestRate();
-        if (annualRate == null || annualRate.compareTo(BigDecimal.ZERO) < 0) {
-            throw new RuntimeException("Loan interest rate must be configured and cannot be negative");
-        }
-
-        List<EmiSchedules> schedules =
-                emiScheduleRepository.findByLoanAccountId(loanAccount.getLoanAccountId());
-
-        LocalDate today = LocalDate.now();
-        LocalDate lastDueDate = schedules.stream()
-                .map(EmiSchedules::getDueDate)
-                .filter(date -> date != null && !date.isAfter(today))
-                .max(Comparator.naturalOrder())
-                .orElse(loanAccount.getDisbursementDate() == null
-                        ? today : loanAccount.getDisbursementDate().toLocalDate());
-
-        long days = Math.max(0, ChronoUnit.DAYS.between(lastDueDate, today));
-        if (days == 0 || principal.compareTo(BigDecimal.ZERO) <= 0) {
-            return money(BigDecimal.ZERO);
-        }
-
-        return principal.multiply(annualRate)
-                .multiply(BigDecimal.valueOf(days))
-                .divide(BigDecimal.valueOf(36500), 2, RoundingMode.HALF_UP);
-    }
-
-    private BigDecimal calculateOverdueDues(Long loanAccountId) {
-        LocalDate today = LocalDate.now();
-
-        BigDecimal overdueInterest = emiScheduleRepository.findByLoanAccountId(loanAccountId)
-                .stream()
-                .filter(emi -> emi.getDueDate() != null && emi.getDueDate().isBefore(today))
-                .filter(emi -> emi.getPaymentStatus() != PaymentStatus.PAID
-                        && emi.getPaymentStatus() != PaymentStatus.CANCELLED)
-                .map(EmiSchedules::getInterestAmount)
-                .map(this::money)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        BigDecimal activePenalties = penaltyChargesRepository.findByLoanAccountId(loanAccountId)
-                .stream()
-                .filter(penalty -> "ACTIVE".equalsIgnoreCase(penalty.getStatus()))
-                .map(PenaltyCharges::getPenaltyAmount)
-                .map(this::money)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        return overdueInterest.add(activePenalties)
-                .setScale(2, RoundingMode.HALF_UP);
+        request.setAccruedInterest(BigDecimal.ZERO.setScale(2));
+        request.setOverdueDues(BigDecimal.ZERO.setScale(2));
+        request.setForeclosureFee(BigDecimal.ZERO.setScale(2));
+        request.setForeClosureAmount(principal);
     }
 
     private BigDecimal money(BigDecimal amount) {
+
         return amount == null
                 ? BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP)
                 : amount.setScale(2, RoundingMode.HALF_UP);
     }
 
-    private BigDecimal rate(BigDecimal value) {
-        return value == null ? BigDecimal.ZERO : value.max(BigDecimal.ZERO);
-    }
-
     private void processFullForeclosure(ForeClosureRequest foreclosure, LoanAccount loanAccount) {
-        BigDecimal payment = foreclosure.getForeClosureAmount();
+
+        BigDecimal payment = money(foreclosure.getForeClosureAmount());
         loanAccount.setOutstandingPrincipal(BigDecimal.ZERO);
 
         BigDecimal totalPaid = loanAccount.getTotalPaidAmount() == null
-                ? BigDecimal.ZERO : loanAccount.getTotalPaidAmount();
+                ? BigDecimal.ZERO
+                : loanAccount.getTotalPaidAmount();
+
         loanAccount.setTotalPaidAmount(totalPaid.add(payment));
 
         cancelPendingEmis(loanAccount.getLoanAccountId(), "Loan fully foreclosed");
+
         loanAccount.setLoanStatus(LoanStatus.CLOSED);
         loanAccountRepository.save(loanAccount);
 
-        loanClosureService.closeLoanByForeclosure(
-                loanAccount.getLoanAccountId(), foreclosure.getClosedBy());
+        loanClosureService.closeLoanByForeclosure(loanAccount.getLoanAccountId(), foreclosure.getClosedBy());
     }
 
     private void processPartialForeclosure(LoanAccount loanAccount, BigDecimal partialAmount) {
+
         BigDecimal oldPrincipal = loanAccount.getOutstandingPrincipal();
-        if (oldPrincipal == null || partialAmount == null
-                || partialAmount.compareTo(BigDecimal.ZERO) <= 0) {
+
+        if (oldPrincipal == null || partialAmount == null || partialAmount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new RuntimeException("Invalid partial foreclosure amount");
         }
 
         BigDecimal newPrincipal = oldPrincipal.subtract(partialAmount);
+
         if (newPrincipal.compareTo(BigDecimal.ZERO) <= 0) {
             throw new RuntimeException("Partial foreclosure cannot make balance zero");
         }
 
         loanAccount.setOutstandingPrincipal(newPrincipal);
+
         BigDecimal totalPaid = loanAccount.getTotalPaidAmount() == null
-                ? BigDecimal.ZERO : loanAccount.getTotalPaidAmount();
+                ? BigDecimal.ZERO
+                : loanAccount.getTotalPaidAmount();
+
         loanAccount.setTotalPaidAmount(totalPaid.add(partialAmount));
         loanAccount.setLoanStatus(LoanStatus.ACTIVE);
-        loanAccountRepository.save(loanAccount);
 
-        emiSchedulesService.regenerateAfterPartialForeclosure(
-                loanAccount.getLoanAccountId(), newPrincipal);
+        loanAccountRepository.save(loanAccount);
+        emiSchedulesService.regenerateAfterPartialForeclosure(loanAccount.getLoanAccountId(), newPrincipal);
     }
 
     private void cancelPendingEmis(Long loanAccountId, String reason) {
-        List<EmiSchedules> schedules = emiScheduleRepository
-                .findByLoanAccountIdAndPaymentStatus(loanAccountId, PaymentStatus.PENDING);
+
+        List<EmiSchedules> schedules = emiScheduleRepository.findByLoanAccountIdAndPaymentStatus(loanAccountId, PaymentStatus.PENDING);
 
         for (EmiSchedules schedule : schedules) {
             schedule.setPaymentStatus(PaymentStatus.CANCELLED);
             schedule.setCancellationReason(reason);
         }
+
         emiScheduleRepository.saveAll(schedules);
     }
 
     private void savePaymentRecord(Long loanAccountId, BigDecimal amount, ForeClosureType type) {
+
         LoanPayments payment = new LoanPayments();
+
         payment.setLoanAccountId(loanAccountId);
         payment.setPaymentAmount(amount);
         payment.setPaymentStatus(PaymentStatus.PAID);
-        payment.setPaymentName(type == ForeClosureType.FULL
-                ? "FULL_FORECLOSURE" : "PARTIAL_FORECLOSURE");
+        payment.setPaymentName(
+                type == ForeClosureType.FULL
+                        ? "FULL_FORECLOSURE"
+                        : "PARTIAL_FORECLOSURE");
+
         loanPaymentsRepository.save(payment);
     }
 
     private void validateOfficer(Long officerId) {
+
         if (officerId == null) {
             throw new RuntimeException("Officer ID is required");
         }
 
         User user = userRepository.findById(officerId)
                 .orElseThrow(() -> new RuntimeException("Officer not found"));
+
         if (user.getRole() == null || user.getRole().getRoleName() == null) {
             throw new RuntimeException("User role not found");
         }
 
         String role = user.getRole().getRoleName();
+
         if (!"ADMIN".equalsIgnoreCase(role)
                 && !"LOAN_OFFICER".equalsIgnoreCase(role)
                 && !"LOAN OFFICER".equalsIgnoreCase(role)
@@ -395,27 +379,33 @@ public class ForeClosureServiceImpl implements ForeClosureService {
     @Override
     @Transactional(readOnly = true)
     public ForeClosureResponseDto getRequest(Long foreClosureId) {
+
         return mapToResponse(getForeclosureEntity(foreClosureId));
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<ForeClosureResponseDto> getPendingRequests() {
-        return foreClosureRequestRepo.findByStatus(ForeClosureStatus.PENDING)
-                .stream().map(this::mapToResponse).toList();
+
+        return foreClosureRequestRepo
+                .findByStatus(ForeClosureStatus.PENDING)
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
     }
 
     private ForeClosureRequest getForeclosureEntity(Long foreClosureId) {
+
         if (foreClosureId == null) {
             throw new RuntimeException("Foreclosure ID is required");
         }
-        return foreClosureRequestRepo.findById(foreClosureId)
-                .orElseThrow(() -> new RuntimeException("Foreclosure request not found"));
+
+        return foreClosureRequestRepo.findById(foreClosureId).orElseThrow(() -> new RuntimeException("Foreclosure request not found"));
     }
 
     private ForeClosureResponseDto mapToResponse(ForeClosureRequest entity) {
-        ForeClosureResponseDto response =
-                modelMapper.map(entity, ForeClosureResponseDto.class);
+
+        ForeClosureResponseDto response = modelMapper.map(entity, ForeClosureResponseDto.class);
         response.setLoanAccountId(entity.getLoanAccount().getLoanAccountId());
         return response;
     }
