@@ -3,7 +3,10 @@ package com.loanapp.loan_application.dto.report;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+
+
+import java.time.LocalDateTime;
+import java.util.Date;
 
 @Data
 @NoArgsConstructor
@@ -16,6 +19,7 @@ public class ScoreCardWithReport {
     private Long rejected;
     private Long panding;
     private Long approvalPerCentage;
+    private String approveDate;
 
 
 

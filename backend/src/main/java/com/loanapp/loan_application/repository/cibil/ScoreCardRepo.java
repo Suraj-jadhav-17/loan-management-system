@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+
 import java.util.Optional;
 
 @Repository
@@ -25,4 +26,7 @@ public interface ScoreCardRepo extends JpaRepository<ScoreCard, Long> {
     long countByRiskCategoryAndCurrentStatus(RiskCategory riskCategory, ScoreCardStatus scoreCardStatus);
 
     long countByRiskCategory(RiskCategory riskCategory);
+
+
+    Optional<ScoreCard> findByRiskCategory(RiskCategory riskCategory);
 }
