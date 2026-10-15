@@ -1,15 +1,13 @@
 
-import { computed, Service, signal } from '@angular/core';
+import { computed, Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Notification } from '../models/notification.model';
 
-@Service()
+@Injectable({
+  providedIn: 'root'
+})
 export class NotificationService {
-  private http: HttpClient;
-
-  constructor(http: HttpClient) {
-    this.http = http;
-  }
+  private http = inject(HttpClient);
 
   private baseUrl = 'http://localhost:8080/notifications';
 
@@ -32,7 +30,7 @@ export class NotificationService {
     this.http
       .get<Notification[]>(`${this.baseUrl}/loan/${loanAccountId}`)
       .subscribe({
-        next: (data) => {
+        next: (data: Notification[]) => {
           this.notifications.set(data);
           this.loading.set(false);
         },
@@ -70,7 +68,7 @@ export class NotificationService {
         {}
       )
       .subscribe({
-        next: (updatedNotification) => {
+        next: (updatedNotification: Notification) => {
           this.notifications.update(items =>
             items.map(item =>
               item.notificationId === notificationId

@@ -1,7 +1,32 @@
 
 import { Routes } from '@angular/router';
 
+import {
+  Dashboard as CustomerLayout
+} from './layout/customer/dashboard/dashboard';
+import { EmiSchedulerComponent } from './features/emi-scheduler/pages/emi-scheduler/emi-scheduler';
+
 export const routes: Routes = [
+  {
+    path: '',
+    redirectTo: 'customer/dashboard',
+    pathMatch: 'full'
+  },
+  {
+    path: 'customer',
+    component: CustomerLayout,
+    children: [
+      {
+        path: 'dashboard',
+        component: CustomerLayout
+      },
+      {
+        path: '',
+        redirectTo: 'dashboard',
+        pathMatch: 'full'
+      }
+    ]
+  },
   {
     path: 'emi-scheduler',
     loadComponent: () =>
@@ -27,25 +52,10 @@ export const routes: Routes = [
         .then(m => m.Notifications)
   },
   {
-    path: '',
-    redirectTo: 'emi-scheduler',
-    pathMatch: 'full'
+    path: '**',
+    redirectTo: 'customer/dashboard'
+  }
+  ,{
+    path: 'customer/dashboard/emi-scheduler',component:EmiSchedulerComponent
   }
 ];
-import { Dashboard as CustomerLayout } from './layout/customer/dashboard/dashboard';
-export const routes: Routes = [{
-    path: 'customer',
-    component: CustomerLayout,
-    children: [{ path: 'dashboard',component: CustomerLayout},
-      {
-        path: '',
-        redirectTo: 'dashboard',
-        pathMatch: 'full'
-      }
-    ]
-  },
-  {
-    path: '',
-    redirectTo: 'customer/dashboard',
-    pathMatch: 'full'
-  }];

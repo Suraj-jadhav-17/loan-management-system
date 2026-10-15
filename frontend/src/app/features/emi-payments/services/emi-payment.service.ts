@@ -1,15 +1,13 @@
 
-import { computed, Service, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { computed, Injectable, inject, signal } from '@angular/core';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { EmiPayment } from '../models/emi-payment.model';
 
-@Service()
+@Injectable({
+  providedIn: 'root'
+})
 export class EmiPaymentService {
-  private http: HttpClient;
-
-  constructor(http: HttpClient) {
-    this.http = http;
-  }
+  private http = inject(HttpClient);
 
   private baseUrl = 'http://localhost:8080';
 
@@ -32,11 +30,11 @@ export class EmiPaymentService {
     this.http
       .get<EmiPayment[]>(`${this.baseUrl}/payments/${loanAccountId}`)
       .subscribe({
-        next: (data) => {
+        next: (data: EmiPayment[]) => {
           this.payments.set(data);
           this.loading.set(false);
         },
-        error: (error) => {
+        error: (error: HttpErrorResponse) => {
           this.errorMessage.set(
             error.status === 0
               ? 'Backend is not reachable.'
@@ -57,7 +55,7 @@ export class EmiPaymentService {
         next: () => {
           this.getPayments(payment.loanAccountId);
         },
-        error: (error) => {
+        error: (error: HttpErrorResponse) => {
           this.errorMessage.set(
             error.status === 0
               ? 'Backend is not reachable.'
