@@ -1,0 +1,283 @@
+
+:host {
+  display: block;
+  color: #1e293b;
+}
+
+.notifications-page {
+  min-height: 100%;
+  padding: 24px;
+  background: #f5f7fb;
+}
+
+.page-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+
+  h1 {
+    margin: 0 0 8px;
+    color: #172554;
+    font-size: 26px;
+    font-weight: 700;
+  }
+
+  p {
+    margin: 0;
+    color: #64748b;
+    font-size: 14px;
+  }
+}
+
+.notification-count {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 76px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #dbeafe;
+  color: #1d4ed8;
+
+  span {
+    font-size: 24px;
+    font-weight: 700;
+  }
+
+  small {
+    font-size: 12px;
+  }
+}
+
+.search-card {
+  margin-bottom: 22px;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 3px 12px rgb(15 23 42 / 4%);
+
+  label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+}
+
+.search-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+
+  input {
+    flex: 1 1 220px;
+    min-width: 0;
+    padding: 11px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    outline: none;
+    font-size: 14px;
+
+    &:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgb(37 99 235 / 10%);
+    }
+  }
+
+  button {
+    padding: 11px 18px;
+    border: none;
+    border-radius: 8px;
+    background: #2563eb;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover {
+      background: #1d4ed8;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  .secondary-button {
+    background: #e2e8f0;
+    color: #334155;
+
+    &:hover {
+      background: #cbd5e1;
+    }
+  }
+}
+
+.notification-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.notification-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 3px 12px rgb(15 23 42 / 3%);
+
+  &.unread {
+    border-left: 4px solid #2563eb;
+    background: #fafdff;
+  }
+}
+
+.notification-icon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.notification-content {
+  flex: 1;
+  min-width: 0;
+
+  p {
+    margin: 10px 0;
+    color: #475569;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+}
+
+.notification-title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+
+  h2 {
+    margin: 0;
+    color: #172554;
+    font-size: 16px;
+    font-weight: 700;
+  }
+}
+
+.status-badge {
+  padding: 5px 10px;
+  border-radius: 20px;
+  background: #fff7ed;
+  color: #c2410c;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.notification-card:not(.unread) .status-badge {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.notification-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.mark-read-button {
+  margin-top: 14px;
+  padding: 8px 12px;
+  border: 1px solid #bfdbfe;
+  border-radius: 7px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    background: #dbeafe;
+  }
+}
+
+.empty-state {
+  padding: 42px 20px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 12px;
+  background: #fff;
+  text-align: center;
+
+  h2 {
+    margin: 0 0 8px;
+    color: #334155;
+    font-size: 18px;
+  }
+
+  p {
+    margin: 0;
+    color: #64748b;
+    font-size: 14px;
+  }
+}
+
+.message {
+  margin: 0 0 18px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.error {
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+@media (max-width: 700px) {
+  .notifications-page {
+    padding: 14px;
+  }
+
+  .page-heading {
+    align-items: flex-start;
+
+    h1 {
+      font-size: 22px;
+    }
+  }
+
+  .search-row {
+    flex-direction: column;
+
+    button {
+      width: 100%;
+    }
+  }
+
+  .notification-card {
+    padding: 14px;
+    gap: 10px;
+  }
+
+  .notification-meta {
+    flex-direction: column;
+  }
+}

@@ -1,4 +1,3 @@
-
 package com.loanapp.loan_application.entity.cibil;
 
 import com.loanapp.loan_application.entity.register.Customer;
@@ -15,15 +14,16 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "EligibilityResults")
+@Table(name = "eligibility_results")
 public class EligibilityResult {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "eligibility_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(nullable = false)
+    @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
 
     private Integer cibilScore;
@@ -37,7 +37,8 @@ public class EligibilityResult {
 
     private String decision;
 
-    private String riskCategory;
+
+    private RiskCategory riskCategory;
 
     private String borrowingLimit;
 

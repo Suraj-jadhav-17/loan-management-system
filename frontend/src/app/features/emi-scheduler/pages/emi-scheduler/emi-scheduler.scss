@@ -1,0 +1,280 @@
+
+:host {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.scheduler-page {
+  padding: 24px;
+  color: #243047;
+  background: #f7f9fc;
+  min-height: 100%;
+  box-sizing: border-box;
+}
+
+.page-heading {
+  margin-bottom: 22px;
+
+  h2 {
+    margin: 0 0 6px;
+    font-size: 25px;
+    font-weight: 700;
+    color: #173d73;
+  }
+
+  p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 14px;
+  }
+}
+
+.loan-selector {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 18px;
+  margin-bottom: 22px;
+  background: #fff;
+  border: 1px solid #e0e7f0;
+  border-radius: 10px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+
+  label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+  }
+
+  input {
+    width: 220px;
+    max-width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    outline: none;
+    font-size: 14px;
+    box-sizing: border-box;
+
+    &:focus {
+      border-color: #1761ad;
+      box-shadow: 0 0 0 3px #1761ad18;
+    }
+  }
+}
+
+.primary-button,
+.secondary-button {
+  padding: 11px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.primary-button {
+  color: #fff;
+  background: #1458a5;
+  border: 1px solid #1458a5;
+
+  &:hover:not(:disabled) {
+    background: #0e447f;
+  }
+}
+
+.secondary-button {
+  color: #1458a5;
+  background: #fff;
+  border: 1px solid #1458a5;
+
+  &:hover:not(:disabled) {
+    background: #edf5ff;
+  }
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.summary-card {
+  padding: 20px;
+  border: 1px solid #e1e8f0;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 3px 10px #1c355508;
+  border-top: 4px solid #1761ad;
+}
+
+.paid-card {
+  border-top-color: #20965b;
+}
+
+.pending-card {
+  border-top-color: #e6a12a;
+}
+
+.balance-card {
+  border-top-color: #1761ad;
+}
+
+.card-title {
+  margin-bottom: 12px;
+  color: #5c6678;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.card-value {
+  margin-bottom: 10px;
+  color: #173d73;
+  font-size: 25px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.card-description {
+  color: #778195;
+  font-size: 12px;
+}
+
+.schedule-section {
+  padding: 20px;
+  background: #fff;
+  border: 1px solid #e0e7f0;
+  border-radius: 10px;
+
+  h3 {
+    margin: 0 0 18px;
+    color: #243047;
+    font-size: 17px;
+  }
+}
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+thead {
+  background: #edf3fa;
+}
+
+th {
+  color: #35445c;
+  font-weight: 600;
+}
+
+th,
+td {
+  padding: 14px 12px;
+  text-align: left;
+  border-bottom: 1px solid #e7ecf2;
+}
+
+tbody tr:hover {
+  background: #f8fbff;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.paid-status {
+  color: #147541;
+  background: #e3f7eb;
+}
+
+.pending-status {
+  color: #98600a;
+  background: #fff2d6;
+}
+
+.empty-state {
+  padding: 28px;
+  text-align: center;
+  color: #778195;
+  white-space: normal;
+}
+
+.message,
+.loading-message {
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.error {
+  color: #a51d2d;
+  background: #fff0f1;
+  border: 1px solid #ffd5d9;
+}
+
+.success {
+  color: #176b3a;
+  background: #e9f8ee;
+  border: 1px solid #c8eed4;
+}
+
+.loading-message {
+  color: #1458a5;
+  background: #edf5ff;
+}
+
+@media (max-width: 900px) {
+  .summary-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .scheduler-page {
+    padding: 14px;
+  }
+
+  .loan-selector {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .input-group input {
+    width: 100%;
+  }
+
+  .primary-button,
+  .secondary-button {
+    width: 100%;
+  }
+
+  .schedule-section {
+    padding: 12px;
+  }
+}
