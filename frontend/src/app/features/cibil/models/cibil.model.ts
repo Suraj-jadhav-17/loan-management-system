@@ -1,4 +1,3 @@
-
 export interface ScoreCard {
   scoreCardId: number;
   customerId: number;
