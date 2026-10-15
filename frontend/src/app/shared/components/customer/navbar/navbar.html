@@ -1,0 +1,106 @@
+
+<aside class="loan-sidebar">
+
+  <div class="sidebar-brand">
+    <i class="bi bi-person"></i>
+    <h3>User</h3>
+  </div>
+
+  <nav class="sidebar-menu">
+
+
+    <button class="menu-link menu-toggle"
+            type="button"
+            (click)="toggleMenu('customers')">
+
+      <i class="bi bi-person-lines-fill"></i>
+      <span>Customer</span>
+
+      <i class="bi bi-chevron-down arrow"
+         [class.rotated]="openMenu === 'customers'"></i>
+    </button>
+
+    <div class="submenu"
+         [class.show]="openMenu === 'customers'">
+
+          <a routerLink="/loan-officer/score-card"
+         routerLinkActive="selected">
+        Profile
+      </a>
+
+      <a routerLink="/loan-officer/customers"
+         routerLinkActive="selected">
+        <i class="bi bi-speedometer2"> </i><span>Dashboard</span>
+      </a>
+
+      <a routerLink="/loan-officer/kyc"
+         routerLinkActive="selected">
+        KYC Verification
+      </a>
+
+      <a routerLink="/loan-officer/eligibility"
+         routerLinkActive="selected">
+        Cibil Score
+      </a>
+
+      <a routerLink="/loan-officer/score-card"
+         routerLinkActive="selected">
+        Eligibility Result
+      </a>
+
+    </div>
+
+    
+    <button class="menu-link menu-toggle"
+            type="button"
+            (click)="toggleMenu('loans')">
+
+      <i class="bi bi-cash-stack"></i>
+      <span>Loan Services</span>
+
+      <i class="bi bi-chevron-down arrow"
+         [class.rotated]="openMenu === 'loans'"></i>
+    </button>
+
+    <div class="submenu"
+         [class.show]="openMenu === 'loans'">
+
+      <a routerLink="/loan-officer/loan-deals">Apply Loan</a>
+      <a routerLink="/loan-officer/deal-review">Track Status</a>
+      <a routerLink="/loan-officer/sanction-letters">Foreclosure Request</a>
+    
+
+    </div>
+
+    <!-- Requests and Collections -->
+    <button class="menu-link menu-toggle"
+            type="button"
+            (click)="toggleMenu('requests')">
+
+      <i class="bi bi-credit-card"></i>
+      <span>Payments</span>
+
+      <i class="bi bi-chevron-down arrow"
+         [class.rotated]="openMenu === 'requests'"></i>
+    </button>
+
+    <div class="submenu"
+         [class.show]="openMenu === 'requests'">
+
+      <a routerLink="/loan-officer/emi-schedules">EMI Schedules</a>
+      <a routerLink="/loan-officer/payments">Loan Payments</a>
+      <a routerLink="/loan-officer/foreclosure">Foreclosure Requests</a>
+
+    </div>
+
+    <a routerLink="/loan-officer/support" class="menu-link">
+      <i class="bi bi-ticket-perforated"></i>
+      <span>Support Ticket</span>
+    </a>
+
+    <a routerLink="/loan-officer/support" class="menu-link">
+      <i class="bi bi-box-arrow-right"></i>
+      <span>Logout</span>
+    </a>
+  </nav>
+</aside>
