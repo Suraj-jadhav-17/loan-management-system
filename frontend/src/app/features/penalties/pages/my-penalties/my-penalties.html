@@ -1,0 +1,107 @@
+
+<div class="penalty-page">
+  <div class="page-heading">
+    <div>
+      <h1>Penalty Management</h1>
+      <p>View and manage penalties associated with your loan account.</p>
+    </div>
+  </div>
+
+  <div class="search-card">
+    <label for="loanAccountId">Loan Account ID</label>
+
+    <div class="search-row">
+      <input
+        id="loanAccountId"
+        type="number"
+        [(ngModel)]="loanAccountId"
+        placeholder="Enter Loan Account ID"
+        min="1"
+      />
+
+      <button
+        type="button"
+        (click)="viewPenalties()"
+        [disabled]="penaltyService.loading()"
+      >
+        View Penalties
+      </button>
+
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="applyOverduePenalties()"
+        [disabled]="penaltyService.loading()"
+      >
+        Apply Overdue Penalties
+      </button>
+    </div>
+  </div>
+
+  <p class="message error" *ngIf="penaltyService.errorMessage()">
+    {{ penaltyService.errorMessage() }}
+  </p>
+
+  <div class="summary-grid">
+    <div class="summary-card">
+      <span>Total Penalties</span>
+      <h2>{{ penaltyService.penaltyCount() }}</h2>
+    </div>
+
+    <div class="summary-card">
+      <span>Total Penalty Amount</span>
+      <h2>
+        {{ penaltyService.totalPenalty() | currency:'INR':'symbol':'1.2-2' }}
+      </h2>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <h2>Penalty Details</h2>
+
+    <p *ngIf="penaltyService.loading()">Loading penalties...</p>
+
+    <div class="table-wrapper" *ngIf="!penaltyService.loading()">
+      <table>
+        <thead>
+          <tr>
+            <th>Penalty ID</th>
+            <th>Loan Account</th>
+            <th>EMI Schedule</th>
+            <th>Penalty Type</th>
+            <th>Amount</th>
+            <th>Delay Days</th>
+            <th>Applied Date</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let penalty of penaltyService.penalties()">
+            <td>{{ penalty.penaltyId ?? '-' }}</td>
+            <td>{{ penalty.loanAccountId }}</td>
+            <td>{{ penalty.emiScheduleId }}</td>
+            <td>{{ penalty.penaltyType }}</td>
+            <td>
+              {{ penalty.penaltyAmount | currency:'INR':'symbol':'1.2-2' }}
+            </td>
+            <td>{{ penalty.delayDays }}</td>
+            <td>{{ penalty.appliedDate | date:'dd MMM yyyy' }}</td>
+            <td>
+              <span class="status-badge">
+                {{ penalty.status }}
+              </span>
+            </td>
+          </tr>
+
+          <tr *ngIf="penaltyService.penalties().length === 0">
+            <td colspan="8" class="empty-state">
+              No penalties to display. Enter a Loan Account ID and click
+              View Penalties.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

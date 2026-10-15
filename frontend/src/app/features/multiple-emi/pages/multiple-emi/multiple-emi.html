@@ -1,0 +1,143 @@
+
+<div class="multiple-emi-page">
+  <div class="page-heading">
+    <div>
+      <h1>Multiple EMI Request</h1>
+      <p>Submit and track your multiple EMI requests.</p>
+    </div>
+  </div>
+
+  <div class="request-card">
+    <h2>Submit New Request</h2>
+
+    <form (ngSubmit)="submitRequest()">
+      <div class="form-group">
+        <label for="loanAccountId">Loan Account ID</label>
+        <input
+          id="loanAccountId"
+          name="loanAccountId"
+          type="number"
+          min="1"
+          [(ngModel)]="loanAccountId"
+          required
+          placeholder="Enter Loan Account ID"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="requestedAmount">Requested Amount (₹)</label>
+        <input
+          id="requestedAmount"
+          name="requestedAmount"
+          type="number"
+          min="1"
+          [(ngModel)]="requestedAmount"
+          required
+          placeholder="Enter requested amount"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="reason">Reason</label>
+        <textarea
+          id="reason"
+          name="reason"
+          [(ngModel)]="reason"
+          rows="3"
+          placeholder="Enter reason for the request"
+        ></textarea>
+      </div>
+
+      <button type="submit" [disabled]="loading">
+        {{ loading ? 'Submitting...' : 'Submit Request' }}
+      </button>
+    </form>
+  </div>
+
+  <div class="search-card">
+    <label for="searchLoanId">View Existing Requests</label>
+
+    <div class="search-row">
+      <input
+        id="searchLoanId"
+        name="searchLoanId"
+        type="number"
+        min="1"
+        [(ngModel)]="loanAccountId"
+        placeholder="Enter Loan Account ID"
+      />
+
+      <button
+        type="button"
+        (click)="viewRequests()"
+        [disabled]="loading"
+      >
+        {{ loading ? 'Loading...' : 'View Requests' }}
+      </button>
+    </div>
+  </div>
+
+  <p class="message error" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </p>
+
+  <p class="message success" *ngIf="successMessage">
+    {{ successMessage }}
+  </p>
+
+  <div class="table-card">
+    <h2>Request History</h2>
+
+    <p *ngIf="loading">Loading requests...</p>
+
+    <div class="table-wrapper" *ngIf="!loading">
+      <table>
+        <thead>
+          <tr>
+            <th>Request ID</th>
+            <th>Loan Account ID</th>
+            <th>Requested Amount</th>
+            <th>Reason</th>
+            <th>Status</th>
+            <th>Created At</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let request of requests">
+            <td>{{ request.requestId ?? '-' }}</td>
+            <td>{{ request.loanAccountId }}</td>
+            <td>
+              {{ request.requestedAmount | currency:'INR':'symbol':'1.2-2' }}
+            </td>
+            <td>{{ request.reason || '-' }}</td>
+            <td>
+              <span
+                class="status-badge"
+                [class.approved]="request.status?.toUpperCase() === 'APPROVED'"
+                [class.rejected]="request.status?.toUpperCase() === 'REJECTED'"
+                [class.pending]="!request.status || request.status.toUpperCase() === 'PENDING'"
+              >
+                {{ request.status || 'Pending' }}
+              </span>
+            </td>
+            <td>
+              {{
+                request.createdAt
+                  ? (request.createdAt | date:'dd MMM yyyy')
+                  : '-'
+              }}
+            </td>
+          </tr>
+
+          <tr *ngIf="requests.length === 0">
+            <td colspan="6" class="empty-state">
+              No requests to display. Enter a Loan Account ID and click
+              View Requests.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
