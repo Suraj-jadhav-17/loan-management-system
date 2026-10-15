@@ -11,17 +11,17 @@
 
     <button class="menu-link menu-toggle"
             type="button"
-            (click)="toggleMenu('customers')">
+            (click)="toggleMenu('customer')">
 
       <i class="bi bi-person-lines-fill"></i>
       <span>Customer</span>
 
       <i class="bi bi-chevron-down arrow"
-         [class.rotated]="openMenu === 'customers'"></i>
+         [class.rotated]="openMenu === 'customer'"></i>
     </button>
 
     <div class="submenu"
-         [class.show]="openMenu === 'customers'">
+         [class.show]="openMenu === 'customer'">
 
           <a routerLink="/loan-officer/score-card"
          routerLinkActive="selected">
@@ -40,7 +40,7 @@
 
       <a routerLink="/loan-officer/eligibility"
          routerLinkActive="selected">
-        Cibil Score
+        CIBIL Score
       </a>
 
       <a routerLink="/loan-officer/score-card"
@@ -53,17 +53,17 @@
     
     <button class="menu-link menu-toggle"
             type="button"
-            (click)="toggleMenu('loans')">
+            (click)="toggleMenu('loan')">
 
       <i class="bi bi-cash-stack"></i>
       <span>Loan Services</span>
 
       <i class="bi bi-chevron-down arrow"
-         [class.rotated]="openMenu === 'loans'"></i>
+         [class.rotated]="openMenu === 'loan'"></i>
     </button>
 
     <div class="submenu"
-         [class.show]="openMenu === 'loans'">
+         [class.show]="openMenu === 'loan'">
 
       <a routerLink="/loan-officer/loan-deals">Apply Loan</a>
       <a routerLink="/loan-officer/deal-review">Track Status</a>
@@ -75,17 +75,17 @@
     <!-- Requests and Collections -->
     <button class="menu-link menu-toggle"
             type="button"
-            (click)="toggleMenu('requests')">
+            (click)="toggleMenu('payment')">
 
       <i class="bi bi-credit-card"></i>
       <span>Payments</span>
 
       <i class="bi bi-chevron-down arrow"
-         [class.rotated]="openMenu === 'requests'"></i>
+         [class.rotated]="openMenu === 'payment'"></i>
     </button>
 
     <div class="submenu"
-         [class.show]="openMenu === 'requests'">
+         [class.show]="openMenu === 'payment'">
 
       <a routerLink="/loan-officer/emi-schedules">EMI Schedules</a>
       <a routerLink="/loan-officer/payments">Loan Payments</a>

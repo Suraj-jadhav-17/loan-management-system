@@ -1,9 +1,19 @@
 
 .loan-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+
   width: 235px;
-  min-height: 100vh;
-  flex-shrink: 0;
+  height: 100vh;
+  box-sizing: border-box;
+
   overflow-y: auto;
+  overflow-x: hidden;
+  flex-shrink: 0;
+  z-index: 1000;
+
   color: #fff;
   background: linear-gradient(
     180deg,

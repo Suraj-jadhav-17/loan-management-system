@@ -1,17 +1,34 @@
 
+:host {
+  display: block;
+}
+
 .loan-sidebar {
-  width: 235px;
-  min-height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+
+  width: 250px;
+  height: 100vh;
+  height: 100dvh;
+
+  margin: 0;
   flex-shrink: 0;
   overflow-y: auto;
+  overflow-x: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
   color: #fff;
   background: linear-gradient(
     180deg,
-    #0d13c4 0%,
-    #1c0496 55%,
-    #12034e 100%
+    #1015c8 0%,
+    #2006a0 55%,
+    #100344 100%
   );
+
+  z-index: 1000;
 }
+
 
 .sidebar-brand {
   text-align: center;
