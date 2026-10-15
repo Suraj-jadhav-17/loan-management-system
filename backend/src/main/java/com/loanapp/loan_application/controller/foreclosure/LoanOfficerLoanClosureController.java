@@ -31,7 +31,7 @@ public class LoanOfficerLoanClosureController {
         return loanClosureService.closeLoanByForeclosure(loanAccountId, user.getUserId());
     }
 
-    @GetMapping("/{loanAccountId}")
+    @GetMapping("/loan-closure/{loanAccountId}")
     public LoanClosureResponseDto getClosure(@PathVariable Long loanAccountId) {
         return loanClosureService.getClosure(loanAccountId);
     }

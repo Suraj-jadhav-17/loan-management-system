@@ -99,16 +99,21 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public LoginResponse login(LoginDto loginDto) {
+
         User user = modelMapperConfig.map(loginDto, User.class);
-        User checkEmail = userRepository.findByEmail(user.getEmail()).orElseThrow(() -> new RuntimeException("Email not found"));
+
+        User checkEmail = userRepository.findByEmail(user.getEmail())
+                .orElseThrow(() -> new RuntimeException("Email not found"));
 
         if (!passwordEncoder.matches(user.getPassword(), checkEmail.getPassword())) {
             throw new RuntimeException("Password not match");
         }
 
-        String accessToken = jwtService.generateToken(checkEmail.getEmail(), checkEmail.getRole().getRoleName());
-        String refreshToken = jwtService.generateRefreshToken(accessToken);
+        String email = checkEmail.getEmail();
+        String role = checkEmail.getRole().getRoleName();
 
+        String accessToken = jwtService.generateToken(email, role);
+        String refreshToken = jwtService.generateRefreshToken(email);
 
         return new LoginResponse(accessToken, refreshToken);
     }
