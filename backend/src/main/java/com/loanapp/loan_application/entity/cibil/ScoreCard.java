@@ -46,4 +46,6 @@ public class ScoreCard {
     private BigDecimal foir;
 
     private Integer totalScore;
+
+
 }

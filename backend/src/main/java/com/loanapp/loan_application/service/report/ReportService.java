@@ -1,6 +1,7 @@
 package com.loanapp.loan_application.service.report;
 
 import com.loanapp.loan_application.dto.report.CibilScore;
+import com.loanapp.loan_application.dto.report.ScoreCardWithReport;
 import com.loanapp.loan_application.dto.report.TotalApplicationsDto;
 
 import java.util.List;
@@ -11,4 +12,5 @@ public interface ReportService {
 
     Map<String, Object> getCibilScore();
 
+    Map<String, Object>  scoreCardReport();
 }
