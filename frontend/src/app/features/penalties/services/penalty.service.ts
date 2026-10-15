@@ -1,15 +1,13 @@
 
-import { computed, Service, signal } from '@angular/core';
+import { computed, Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Penalty } from '../models/penalty.model';
 
-@Service()
+@Injectable({
+  providedIn: 'root'
+})
 export class PenaltyService {
-  private http: HttpClient;
-
-  constructor(http: HttpClient) {
-    this.http = http;
-  }
+  private http = inject(HttpClient);
 
   private baseUrl = 'http://localhost:8080/penalties';
 
@@ -33,7 +31,7 @@ export class PenaltyService {
     this.http
       .get<Penalty[]>(`${this.baseUrl}/loan/${loanAccountId}`)
       .subscribe({
-        next: (data) => {
+        next: (data: Penalty[]) => {
           this.penalties.set(data);
           this.loading.set(false);
         },
@@ -51,7 +49,7 @@ export class PenaltyService {
     this.http
       .get<Penalty[]>(`${this.baseUrl}/emi/${emiScheduleId}`)
       .subscribe({
-        next: (data) => {
+        next: (data: Penalty[]) => {
           this.penalties.set(data);
           this.loading.set(false);
         },

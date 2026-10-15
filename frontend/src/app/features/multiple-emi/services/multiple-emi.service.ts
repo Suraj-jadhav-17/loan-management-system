@@ -1,10 +1,13 @@
 
-import { computed, Service, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { computed, Injectable, inject, signal } from '@angular/core';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { MultipleEmiRequest } from '../models/multiple-emi.model';
 
-@Service()
+@Injectable({
+  providedIn: 'root'
+})
 export class MultipleEmiService {
+  private http = inject(HttpClient);
   private baseUrl = 'http://localhost:8080/multiple-emi';
 
   requests = signal<MultipleEmiRequest[]>([]);
@@ -12,8 +15,6 @@ export class MultipleEmiService {
   errorMessage = signal('');
 
   requestCount = computed(() => this.requests().length);
-
-  constructor(private http: HttpClient) {}
 
   loadRequests(loanAccountId: number): void {
     this.loading.set(true);
@@ -24,11 +25,11 @@ export class MultipleEmiService {
         `${this.baseUrl}/loan/${loanAccountId}`
       )
       .subscribe({
-        next: (data) => {
+        next: (data: MultipleEmiRequest[]) => {
           this.requests.set(data);
           this.loading.set(false);
         },
-        error: (error) => {
+        error: (error: HttpErrorResponse) => {
           this.errorMessage.set(
             error.status === 0
               ? 'Backend is not reachable. Check whether it is running.'
@@ -53,7 +54,7 @@ export class MultipleEmiService {
           onSuccess?.();
           this.loadRequests(data.loanAccountId);
         },
-        error: (error) => {
+        error: (error: HttpErrorResponse) => {
           this.errorMessage.set(
             error.status === 0
               ? 'Backend is not reachable. Check whether it is running.'
@@ -77,7 +78,7 @@ export class MultipleEmiService {
         next: () => {
           this.loadRequests(loanAccountId);
         },
-        error: (error) => {
+        error: (error: HttpErrorResponse) => {
           this.errorMessage.set(
             error.status === 0
               ? 'Backend is not reachable. Check whether it is running.'

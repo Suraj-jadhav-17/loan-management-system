@@ -3,6 +3,7 @@ package com.loanapp.loan_application.controller.cibil;
 
 import com.loanapp.loan_application.dto.cibil.EligibilityResultRequestDto;
 import com.loanapp.loan_application.dto.cibil.EligibilityResultResponseDto;
+import com.loanapp.loan_application.entity.cibil.OfficerReviewDecision;
 import com.loanapp.loan_application.service.cibil.EligibilityResultService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -23,7 +24,6 @@ public class LoanOfficerEligibilityController {
 
         EligibilityResultRequestDto request = new EligibilityResultRequestDto();
         request.setCustomerId(customerId);
-
         return ResponseEntity.status(HttpStatus.CREATED).body(eligibilityResultService.checkEligibility(request));
     }
 
@@ -37,5 +37,11 @@ public class LoanOfficerEligibilityController {
     public ResponseEntity<Page<EligibilityResultResponseDto>> getEligibilityHistory(@PathVariable Long customerId, Pageable pageable) {
 
         return ResponseEntity.ok(eligibilityResultService.getEligibilityHistory(customerId, pageable));
+    }
+
+    @PutMapping("/{customerId}/review")
+    public ResponseEntity<EligibilityResultResponseDto> reviewEligibility(@PathVariable Long customerId, @RequestParam OfficerReviewDecision decision) {
+
+        return ResponseEntity.ok(eligibilityResultService.reviewEligibility(customerId, decision));
     }
 }

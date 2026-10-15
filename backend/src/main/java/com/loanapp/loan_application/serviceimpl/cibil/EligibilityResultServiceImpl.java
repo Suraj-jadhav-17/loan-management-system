@@ -1,10 +1,11 @@
+
 package com.loanapp.loan_application.serviceimpl.cibil;
 
 import com.loanapp.loan_application.dto.cibil.EligibilityResultRequestDto;
 import com.loanapp.loan_application.dto.cibil.EligibilityResultResponseDto;
 import com.loanapp.loan_application.entity.cibil.EligibilityResult;
 import com.loanapp.loan_application.entity.cibil.EligibilityStatus;
-import com.loanapp.loan_application.entity.cibil.RiskCategory;
+import com.loanapp.loan_application.entity.cibil.OfficerReviewDecision;
 import com.loanapp.loan_application.entity.cibil.ScoreCard;
 import com.loanapp.loan_application.entity.register.Customer;
 import com.loanapp.loan_application.entity.kycdocument.KycDocument;
@@ -21,6 +22,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
@@ -30,118 +32,191 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Slf4j
 public class EligibilityResultServiceImpl implements EligibilityResultService {
+
     private final EligibilityResultRepo eligibilityResultRepo;
     private final ScoreCardRepo scoreCardRepo;
     private final CustomerRepository customerRepository;
     private final KycDocumentRepository kycDocumentRepository;
     private final ModelMapper modelMapper;
+
     private static final List<String> REQUIRED_KYC_DOCUMENT_TYPES =
             List.of("Aadhaar Card", "PAN Card", "Salary Slip");
 
     @Override
-    @CacheEvict(value = "latestEligibility", key = "#request.customerId")
+    @CacheEvict(value = "latestEligibility", key = "#request.customerId", condition = "#request != null && #request.customerId != null")
     public EligibilityResultResponseDto checkEligibility(EligibilityResultRequestDto request) {
+
         if (request == null || request.getCustomerId() == null) {
             throw new RuntimeException("Customer ID is required");
         }
-        log.info("Checking eligibility for customerId={}", request.getCustomerId());
-        Customer customer = customerRepository.findById(request.getCustomerId())
-                .orElseThrow(() -> new RuntimeException("Customer not found with id: " + request.getCustomerId()));
-        validateKycApproved(request.getCustomerId());
+
+        Long customerId = request.getCustomerId();
+
+        log.info("Checking eligibility for customerId={}", customerId);
+
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new RuntimeException("Customer not found with id: " + customerId));
+
+        validateKycApproved(customerId);
 
         ScoreCard scoreCard = scoreCardRepo
-                .findTopByCustomerCustomerIdOrderByScoreCardIdDesc(request.getCustomerId())
-                .orElseThrow(() -> new RuntimeException("Scorecard not found for customer: "
-                        + request.getCustomerId() + ". Generate a scorecard first."));
+                .findTopByCustomerCustomerIdOrderByScoreCardIdDesc(customerId)
+                .orElseThrow(() ->
+                        new RuntimeException("Scorecard not found for customer: " + customerId + ". Generate a scorecard first."));
+
         Decision decision = getDecision(scoreCard.getCibilScore());
 
-        EligibilityResult result = EligibilityResult.builder()
-                .customer(customer)
-                .cibilScore(scoreCard.getCibilScore())
-                .eligibilityStatus(decision.eligibilityStatus())
-                .decision(decision.decision())
-                .riskCategory(decision.riskCategory())
-                .borrowingLimit(decision.borrowingLimit())
-                .loanAmount(decision.loanAmount())
-                .rejectionReason(decision.rejectionReason())
-                .build();
+        EligibilityResult result = eligibilityResultRepo.findTopByCustomerCustomerIdOrderByIdDesc(customerId).orElse(null);
+
+        if (result != null
+                && scoreCard.getCibilScore().equals(result.getCibilScore())
+                && ("OFFICER_APPROVED".equalsIgnoreCase(result.getDecision())
+                || "OFFICER_REJECTED".equalsIgnoreCase(result.getDecision()))) {
+
+            return toResponseDto(result);
+        }
+
+        if (result == null
+                || !scoreCard.getCibilScore().equals(result.getCibilScore())
+                || "OFFICER_APPROVED".equalsIgnoreCase(result.getDecision())
+                || "OFFICER_REJECTED".equalsIgnoreCase(result.getDecision())) {
+
+            result = EligibilityResult.builder()
+                    .customer(customer)
+                    .build();
+        }
+
+        result.setCustomer(customer);
+        result.setCibilScore(scoreCard.getCibilScore());
+        result.setEligibilityStatus(decision.eligibilityStatus());
+        result.setDecision(decision.decision());
+        result.setRiskCategory(decision.riskCategory());
+        result.setBorrowingLimit(decision.borrowingLimit());
+        result.setLoanAmount(decision.loanAmount());
+        result.setRejectionReason(decision.rejectionReason());
 
         EligibilityResult savedResult = eligibilityResultRepo.save(result);
-        EligibilityResultResponseDto response =
-                modelMapper.map(savedResult, EligibilityResultResponseDto.class);
-        response.setCustomerId(savedResult.getCustomer().getCustomerId());
-        return response;
+
+        return toResponseDto(savedResult);
     }
 
     @Override
     @Cacheable(value = "latestEligibility", key = "#customerId")
     public EligibilityResultResponseDto getLatestEligibility(Long customerId) {
+
         EligibilityResult result = eligibilityResultRepo
                 .findTopByCustomerCustomerIdOrderByIdDesc(customerId)
-                .orElseThrow(() -> new RuntimeException(
-                        "Eligibility result not found for customer: " + customerId));
-        EligibilityResultResponseDto response =
-                modelMapper.map(result, EligibilityResultResponseDto.class);
-        response.setCustomerId(result.getCustomer().getCustomerId());
-        return response;
+                .orElseThrow(() -> new RuntimeException("Eligibility result not found for customer: " + customerId));
+
+        return toResponseDto(result);
     }
 
     @Override
     public Page<EligibilityResultResponseDto> getEligibilityHistory(Long customerId, Pageable pageable) {
-        return eligibilityResultRepo.findByCustomerCustomerIdOrderByIdDesc(customerId, pageable)
-                .map(result -> {
-                    EligibilityResultResponseDto response =
-                            modelMapper.map(result, EligibilityResultResponseDto.class);
-                    response.setCustomerId(result.getCustomer().getCustomerId());
-                    return response;
-                });
+
+        return eligibilityResultRepo.findByCustomerCustomerIdOrderByIdDesc(customerId, pageable).map(this::toResponseDto);
+    }
+
+    @Override
+    @CacheEvict(value = "latestEligibility", key = "#customerId")
+    public EligibilityResultResponseDto reviewEligibility(Long customerId, OfficerReviewDecision officerDecision) {
+
+        if (officerDecision == null) {
+            throw new RuntimeException("Officer decision must be APPROVE or REJECT");
+        }
+
+        EligibilityResult result = eligibilityResultRepo.findTopByCustomerCustomerIdOrderByIdDesc(customerId)
+                .orElseThrow(() -> new RuntimeException("Eligibility result not found for customer: " + customerId));
+
+        if (!"MANUAL_REVIEW".equalsIgnoreCase(result.getDecision())) {
+            throw new RuntimeException("Only applications pending manual review can be approved or rejected");
+        }
+
+        if (officerDecision == OfficerReviewDecision.APPROVE) {
+
+            result.setEligibilityStatus(EligibilityStatus.ELIGIBLE);
+            result.setDecision("OFFICER_APPROVED");
+            result.setRejectionReason(null);
+
+        } else {
+
+            result.setEligibilityStatus(EligibilityStatus.INELIGIBLE);
+            result.setDecision("OFFICER_REJECTED");
+            result.setRejectionReason("Rejected by loan officer after manual review.");
+        }
+
+        EligibilityResult savedResult = eligibilityResultRepo.save(result);
+
+        log.info("Officer reviewed eligibility for customerId={}, decision={}", customerId, officerDecision);
+
+        return toResponseDto(savedResult);
+    }
+
+    private EligibilityResultResponseDto toResponseDto(EligibilityResult result) {
+
+        EligibilityResultResponseDto response = modelMapper.map(result, EligibilityResultResponseDto.class);
+        response.setCustomerId(result.getCustomer().getCustomerId());
+        return response;
     }
 
     private Decision getDecision(Integer score) {
+
         if (score == null || score < 300 || score > 900) {
-            throw new RuntimeException("Calculated score must be between 300 and 900");
+            throw new RuntimeException(
+                    "Calculated score must be between 300 and 900"
+            );
         }
+
         if (score >= 810) {
-            return new Decision(EligibilityStatus.ELIGIBLE, "AUTO_APPROVE", RiskCategory.LOW, "Above 75 Lakh",
-                    BigDecimal.valueOf(10_000_000), null);
+            return new Decision(EligibilityStatus.ELIGIBLE, "AUTO_APPROVE", "LOW", "Above 75 Lakh", BigDecimal.valueOf(10_000_000), null);
         }
+
         if (score >= 750) {
-            return new Decision(EligibilityStatus.ELIGIBLE, "MANUAL_REVIEW", RiskCategory.LOW, "50 Lakh to 75 Lakh",
-                    BigDecimal.valueOf(7_500_000), "Manual officer review required.");
+            return new Decision(EligibilityStatus.ELIGIBLE, "MANUAL_REVIEW", "LOW", "50 Lakh to 75 Lakh", BigDecimal.valueOf(7_500_000), "Manual officer review required.");
         }
+
         if (score >= 690) {
-            return new Decision(EligibilityStatus.UNDER_REVIEW, "MANUAL_REVIEW", RiskCategory.MEDIUM,
-                    "25 Lakh to 50 Lakh", BigDecimal.valueOf(5_000_000),
-                    "Manual officer review required.");
+            return new Decision(EligibilityStatus.UNDER_REVIEW, "MANUAL_REVIEW", "MEDIUM", "25 Lakh to 50 Lakh", BigDecimal.valueOf(5_000_000), "Manual officer review required.");
         }
+
         if (score >= 630) {
-            return new Decision(EligibilityStatus.UNDER_REVIEW, "MANUAL_REVIEW", RiskCategory.MEDIUM,
-                    "10 Lakh to 25 Lakh", BigDecimal.valueOf(2_500_000),
-                    "Manual officer review required.");
+            return new Decision(EligibilityStatus.UNDER_REVIEW, "MANUAL_REVIEW", "MEDIUM", "10 Lakh to 25 Lakh", BigDecimal.valueOf(2_500_000), "Manual officer review required.");
         }
-        return new Decision(EligibilityStatus.INELIGIBLE, "AUTO_REJECT", RiskCategory.HIGH, "Less than 10 Lakh",
-                BigDecimal.ZERO, "Calculated score is below 630.");
+
+        return new Decision(EligibilityStatus.INELIGIBLE, "AUTO_REJECT", "HIGH", "Less than 10 Lakh", BigDecimal.ZERO, "Calculated score is below 630.");
     }
 
     private void validateKycApproved(Long customerId) {
-        List<KycDocument> documents =
-                kycDocumentRepository.findByCustomerIdOrderByDocumentIdDesc(customerId);
+
+        List<KycDocument> documents = kycDocumentRepository.findByCustomerIdOrderByDocumentIdDesc(customerId);
+
         Map<String, KycDocument> latestDocuments = new HashMap<>();
+
         for (KycDocument document : documents) {
-            latestDocuments.putIfAbsent(document.getDocumentType(), document);
+            latestDocuments.putIfAbsent(
+                    document.getDocumentType(),
+                    document
+            );
         }
-        boolean approved = REQUIRED_KYC_DOCUMENT_TYPES.stream().allMatch(type -> {
-            KycDocument document = latestDocuments.get(type);
-            return document != null &&
-                    "APPROVED".equalsIgnoreCase(document.getVerificationStatus());
-        });
+
+        boolean approved = REQUIRED_KYC_DOCUMENT_TYPES.stream()
+                .allMatch(type -> {
+                    KycDocument document = latestDocuments.get(type);
+
+                    return document != null
+                            && "APPROVED".equalsIgnoreCase(
+                            document.getVerificationStatus()
+                    );
+                });
+
         if (!approved) {
             throw new RuntimeException(
-                    "KYC Pending. Eligibility check is blocked until all required KYC documents are approved.");
+                    "KYC Pending. Eligibility check is blocked until all required KYC documents are approved."
+            );
         }
     }
 
-    private record Decision(EligibilityStatus eligibilityStatus, String decision, RiskCategory riskCategory,
-                            String borrowingLimit, BigDecimal loanAmount, String rejectionReason) {
+    private record Decision(EligibilityStatus eligibilityStatus, String decision, String riskCategory,
+            String borrowingLimit, BigDecimal loanAmount, String rejectionReason) {
     }
 }

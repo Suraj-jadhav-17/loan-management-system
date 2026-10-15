@@ -1,15 +1,13 @@
 
-import { computed, Service, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { computed, Injectable, inject, signal } from '@angular/core';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { EmiSchedule } from '../models/emi-schedule.model';
 
-@Service()
+@Injectable({
+  providedIn: 'root'
+})
 export class EmiSchedulerService {
-  private http: HttpClient;
-
-  constructor(http: HttpClient) {
-    this.http = http;
-  }
+  private http = inject(HttpClient);
 
   private baseUrl = 'http://localhost:8080/emi';
 
@@ -38,11 +36,11 @@ export class EmiSchedulerService {
     this.http
       .get<EmiSchedule[]>(`${this.baseUrl}/${loanAccountId}`)
       .subscribe({
-        next: (data) => {
+        next: (data: EmiSchedule[]) => {
           this.schedules.set(data);
           this.loading.set(false);
         },
-        error: (error) => {
+        error: (error: HttpErrorResponse) => {
           this.errorMessage.set(
             error.status === 0
               ? 'Backend is not reachable.'
@@ -63,7 +61,7 @@ export class EmiSchedulerService {
         next: () => {
           this.getSchedule(loanAccountId);
         },
-        error: (error) => {
+        error: (error: HttpErrorResponse) => {
           this.errorMessage.set(
             error.status === 0
               ? 'Backend is not reachable.'
