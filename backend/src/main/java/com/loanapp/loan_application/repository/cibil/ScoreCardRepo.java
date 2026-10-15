@@ -1,5 +1,6 @@
 package com.loanapp.loan_application.repository.cibil;
 
+import com.loanapp.loan_application.entity.cibil.RiskCategory;
 import com.loanapp.loan_application.entity.cibil.ScoreCard;
 import com.loanapp.loan_application.entity.cibil.ScoreCardStatus;
 import org.springframework.data.domain.Page;
@@ -16,8 +17,12 @@ public interface ScoreCardRepo extends JpaRepository<ScoreCard, Long> {
 
     Page<ScoreCard> findByCustomerCustomerIdOrderByScoreCardIdDesc(Long customerId, Pageable pageable);
 
-    long countByCibilScoreBetween(int first, int second);
+ 
+  
 
-    long countByCibilScoreBetweenAndCurrentStatus(int first, int second, ScoreCardStatus scoreCardStatus);
+    long countByCurrentStatus(ScoreCardStatus scoreCardStatus);
 
+    long countByRiskCategoryAndCurrentStatus(RiskCategory riskCategory, ScoreCardStatus scoreCardStatus);
+
+    long countByRiskCategory(RiskCategory riskCategory);
 }

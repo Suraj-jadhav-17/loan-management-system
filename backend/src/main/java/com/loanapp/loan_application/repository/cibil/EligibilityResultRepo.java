@@ -21,7 +21,6 @@ public interface EligibilityResultRepo extends JpaRepository<EligibilityResult, 
     long countByCibilScoreBetweenAndEligibilityStatus(int first, int second, EligibilityStatus eligibilityStatus);
 
 
-
     long countByEligibilityStatus(EligibilityStatus eligibilityStatus);
 
 
