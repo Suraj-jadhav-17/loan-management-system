@@ -1,0 +1,128 @@
+
+<div class="scheduler-page">
+  <div class="page-heading">
+    <h2>EMI Schedule</h2>
+    <p>View your loan repayment schedule and outstanding EMIs.</p>
+  </div>
+
+  <div class="loan-selector">
+    <div class="input-group">
+      <label for="loanId">Loan Account ID</label>
+      <input
+        id="loanId"
+        name="loanId"
+        type="number"
+        min="1"
+        [(ngModel)]="loanAccountId"
+        placeholder="Enter loan account ID"
+      />
+    </div>
+
+    <button
+      type="button"
+      class="primary-button"
+      (click)="viewSchedule()"
+      [disabled]="emiService.loading()"
+    >
+      View Schedule
+    </button>
+
+    <button
+      type="button"
+      class="secondary-button"
+      (click)="generateSchedule()"
+      [disabled]="emiService.loading()"
+    >
+      {{ emiService.loading() ? 'Processing...' : 'Generate Schedule' }}
+    </button>
+  </div>
+
+  <div class="message error" *ngIf="emiService.errorMessage()">
+    {{ emiService.errorMessage() }}
+  </div>
+
+  <div class="message success" *ngIf="successMessage">
+    {{ successMessage }}
+  </div>
+
+  <div class="loading-message" *ngIf="emiService.loading()">
+    Loading EMI schedule...
+  </div>
+
+  <div class="summary-cards">
+    <div class="summary-card paid-card">
+      <div class="card-title">Paid EMIs</div>
+      <div class="card-value">{{ paidSchedules.length }}</div>
+      <div class="card-description">
+        Amount paid: {{ paidAmount | currency:'INR':'symbol':'1.0-2' }}
+      </div>
+    </div>
+
+    <div class="summary-card pending-card">
+      <div class="card-title">Pending EMIs</div>
+      <div class="card-value">{{ pendingSchedules.length }}</div>
+      <div class="card-description">
+        Amount pending: {{ pendingAmount | currency:'INR':'symbol':'1.0-2' }}
+      </div>
+    </div>
+
+    <div class="summary-card balance-card">
+      <div class="card-title">Remaining Balance</div>
+      <div class="card-value">
+        {{ remainingBalance | currency:'INR':'symbol':'1.0-2' }}
+      </div>
+      <div class="card-description">
+        {{ pendingSchedules.length }} EMIs remaining
+      </div>
+    </div>
+  </div>
+
+  <section class="schedule-section">
+    <h3>Installment Details</h3>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Installment</th>
+            <th>Due Date</th>
+            <th>EMI Amount</th>
+            <th>Principal</th>
+            <th>Interest</th>
+            <th>Opening Balance</th>
+            <th>Closing Balance</th>
+            <th>Payment Status</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let item of schedules">
+            <td>{{ item.installmentNo }}</td>
+            <td>{{ item.dueDate | date:'dd MMM yyyy' }}</td>
+            <td>{{ item.emi | currency:'INR':'symbol':'1.0-2' }}</td>
+            <td>{{ item.principalAmount | currency:'INR':'symbol':'1.0-2' }}</td>
+            <td>{{ item.interestAmount | currency:'INR':'symbol':'1.0-2' }}</td>
+            <td>{{ item.openingBalance | currency:'INR':'symbol':'1.0-2' }}</td>
+            <td>{{ item.closingBalance | currency:'INR':'symbol':'1.0-2' }}</td>
+            <td>
+              <span
+                class="status-badge"
+                [class.paid-status]="item.paymentStatus?.toUpperCase() === 'PAID'"
+                [class.pending-status]="item.paymentStatus?.toUpperCase() !== 'PAID'"
+              >
+                {{ item.paymentStatus || 'Pending' }}
+              </span>
+            </td>
+          </tr>
+
+          <tr *ngIf="!emiService.loading() && schedules.length === 0">
+            <td colspan="8" class="empty-state">
+              No EMI schedule available. Enter a loan account ID and select
+              View Schedule.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
