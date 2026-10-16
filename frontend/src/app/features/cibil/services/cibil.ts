@@ -15,7 +15,7 @@ export class Cibil {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = environment.apiUrl;
 
-  // Customer scorecard
+  // Customer scorecard APIs
   createScoreCard(): Observable<ScoreCard> {
     return this.http.post<ScoreCard>(
       `${this.baseUrl}/auth/v1/customer/scorecards`,
@@ -39,6 +39,7 @@ export class Cibil {
     );
   }
 
+  // Customer eligibility APIs
   checkEligibility(): Observable<EligibilityResult> {
     return this.http.post<EligibilityResult>(
       `${this.baseUrl}/auth/v1/customer/eligibility/check`,
@@ -62,6 +63,7 @@ export class Cibil {
     );
   }
 
+  // Loan Officer scorecard APIs
   createCustomerScoreCard(customerId: number): Observable<ScoreCard> {
     return this.http.post<ScoreCard>(
       `${this.baseUrl}/auth/v1/loan-office/scorecards/${customerId}`,
@@ -86,6 +88,7 @@ export class Cibil {
     );
   }
 
+  // Loan Officer eligibility APIs
   checkCustomerEligibility(
     customerId: number
   ): Observable<EligibilityResult> {

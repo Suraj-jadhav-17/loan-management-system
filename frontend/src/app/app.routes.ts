@@ -17,7 +17,7 @@ export const routes: Routes = [
   path: 'dashboard/home',
   component: EmiPayments
 },
-     
+
       {
         path: 'emi-schedule',
         component: EmiPayments
