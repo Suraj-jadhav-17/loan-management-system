@@ -1,5 +1,6 @@
 package com.loanapp.loan_application.service.jwt;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,45 +23,110 @@ public class JwtService {
     private long refreshTokenExpirationTime;
 
     private SecretKey getSigningKey() {
-        return Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+        return Keys.hmacShaKeyFor(
+                secretKey.getBytes(StandardCharsets.UTF_8)
+        );
     }
 
     public String generateToken(String email, String role) {
-
-        return Jwts.builder().signWith(getSigningKey()).subject(email).claim("role", role).issuedAt(new Date()).expiration(new Date(System.currentTimeMillis() + expirationTime)).compact();
-    }
-
-    public String extractEmail(String token) {
-
-        return Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(token).getPayload().getSubject();
-    }
-
-    public String extractRole(String token) {
-
-        return Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(token).getPayload().get("role", String.class);
+        return buildToken(email, role, "ACCESS", expirationTime);
     }
 
     public String generateRefreshToken(String email) {
+        return buildToken(
+                email,
+                null,
+                "REFRESH",
+                refreshTokenExpirationTime
+        );
+    }
 
-        return Jwts.builder().subject(email).issuedAt(new Date()).expiration(new Date(System.currentTimeMillis() + refreshTokenExpirationTime)).signWith(getSigningKey()).compact();
+    public String generateVerificationToken(
+            String email,
+            String purpose
+    ) {
+        return buildToken(email, null, purpose, 300000);
+    }
+
+    private String buildToken(
+            String email,
+            String role,
+            String purpose,
+            long expiration
+    ) {
+        var builder = Jwts.builder()
+                .subject(email)
+                .claim("purpose", purpose)
+                .issuedAt(new Date())
+                .expiration(new Date(
+                        System.currentTimeMillis() + expiration
+                ));
+
+        if (role != null) {
+            builder.claim("role", role);
+        }
+
+        return builder
+                .signWith(getSigningKey())
+                .compact();
+    }
+
+    private Claims extractClaims(String token) {
+        return Jwts.parser()
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+    }
+
+    public String extractEmail(String token) {
+        return extractClaims(token).getSubject();
+    }
+
+    public String extractRole(String token) {
+        return extractClaims(token).get("role", String.class);
+    }
+
+    public String extractPurpose(String token) {
+        return extractClaims(token).get("purpose", String.class);
     }
 
     public boolean isValidToken(String token) {
-
         try {
-            extractEmail(token);
-            return true;
+            Claims claims = extractClaims(token);
 
-        } catch (Exception e) {
+            return "ACCESS".equals(
+                    claims.get("purpose", String.class)
+            );
+        } catch (Exception ex) {
             return false;
         }
     }
 
-    public boolean isRefreshTokenValid(String refreshToken) {
+    public boolean isValidVerificationToken(
+            String token,
+            String expectedPurpose
+    ) {
+        try {
+            Claims claims = extractClaims(token);
 
-        return isValidToken(refreshToken);
+            return expectedPurpose.equals(
+                    claims.get("purpose", String.class)
+            );
+        } catch (Exception ex) {
+            return false;
+        }
     }
 
+    public boolean isRefreshTokenValid(String token) {
+        try {
+            Claims claims = extractClaims(token);
 
-
+            return "REFRESH".equals(
+                    claims.get("purpose", String.class)
+            );
+        } catch (Exception ex) {
+            return false;
+        }
+    }
 }
