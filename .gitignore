@@ -1,59 +1,24 @@
-```gitignore
-# ==========================================
-# Java / Maven / Spring Boot
-# ==========================================
+# See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
 
-HELP.md
-**/target/
-**/build/
-**/out/
-**/*.class
+# Compiled output
+/dist
+/tmp
+/out-tsc
+/bazel-out
 
-# Maven Wrapper
-backend/.mvn/wrapper/maven-wrapper.jar
+# Node
+/node_modules
+npm-debug.log
+yarn-error.log
 
-# ==========================================
-# Angular / Node.js
-# ==========================================
-
-**/node_modules/
-**/dist/
-**/.angular/cache/
-**/coverage/
-**/out-tsc/
-**/npm-debug.log*
-**/yarn-error.log*
-**/pnpm-debug.log*
-
-# Angular / TypeScript generated output
-**/tmp/
-**/bazel-out/
-**/*.tsbuildinfo
-
-# ==========================================
-# IDEs / Editors
-# ==========================================
-
-# IntelliJ IDEA
-backend/.idea/
-**/*.iml
-**/*.iws
-**/*.ipr
-
-# Eclipse / Spring Tool Suite
-.classpath
+# IDEs and editors
+.idea/
 .project
+.classpath
+.c9/
+*.launch
 .settings/
-.factorypath
-.apt_generated/
-.springBeans
-.sts4-cache/
-
-# NetBeans
-/nbproject/private/
-**/nbbuild/
-**/nbdist/
-**/.nb-gradle/
+*.sublime-workspace
 
 # Visual Studio Code
 .vscode/*
@@ -62,40 +27,18 @@ backend/.idea/
 !.vscode/launch.json
 !.vscode/extensions.json
 !.vscode/mcp.json
-.history/
+.history/*
 
-# ==========================================
-# Environment variables / secrets
-# ==========================================
+# Miscellaneous
+/.angular/cache
+.sass-cache/
+/connect.lock
+/coverage
+/libpeerconnection.log
+testem.log
+/typings
+__screenshots__/
 
-.env
-.env.*
-!.env.example
-
-# ==========================================
-# Logs / temporary files
-# ==========================================
-
-**/*.log
-**/tmp/
-**/temp/
-**/connect.lock
-**/libpeerconnection.log
-**/testem.log
-**/__screenshots__/
-
-# ==========================================
-# Operating system files
-# ==========================================
-
+# System files
 .DS_Store
 Thumbs.db
-desktop.ini
-
-# ==========================================
-# Miscellaneous
-# ==========================================
-
-.sass-cache/
-```
-.idea/

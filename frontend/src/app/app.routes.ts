@@ -1,19 +1,59 @@
 
 import { Routes } from '@angular/router';
+
+import { Login } from './shared/components/auth/login/login';
+import { MfaVerifyComponent } from './shared/components/auth/mfa-verify/mfa-verify';
+import { MfaSetupComponent } from './shared/components/auth/mfa-setup/mfa-setup';
+import { MfaRecoveryComponent } from './shared/components/auth/mfa-recovery/mfa-recovery';
+
 import { Dashboard as CustomerLayout } from './layout/customer/dashboard/dashboard';
-import { EmiPayments } from './features/emi-payments/pages/emi-payments/emi-payments';
-import { Dashboard as AdminDashboard } from './layout/admin/dashboard/dashboard';
+import { Dashboard as CustomerDashboard } from './layout/dashboards/customer/dashboard/dashboard';
+
 import { LoanDeal } from './features/loan-deal/pages/loan-deal/loan-deal';
+
 export const routes: Routes = [
   {
-    path: 'user',
+    path: 'login',
+    component: Login
+  },
+  {
+    path: 'mfa',
+    component: MfaVerifyComponent
+  },
+  {
+    path: 'mfa-setup',
+    component: MfaSetupComponent
+  },
+  {
+    path: 'mfa-recovery',
+    component: MfaRecoveryComponent
+  },
+  {
+    path: 'customer',
     component: CustomerLayout,
     children: [
-      {path: 'dashboard',redirectTo: 'dashboard/home',pathMatch: 'full'},
-      {path: 'dashboard/home',component: EmiPayments},
-      { path: 'emi-schedule', component: EmiPayments},
-      {path:'loan-deal',component:LoanDeal}
+      {
+        path: 'dashboard',
+        component: CustomerDashboard
+      },
+      {
+        path: 'loan-deal',
+        component: LoanDeal
+      },
+      {
+        path: '',
+        redirectTo: 'dashboard',
+        pathMatch: 'full'
+      }
     ]
   },
-  {path: '',redirectTo: 'user/dashboard',pathMatch: 'full'}
+  {
+    path: '',
+    redirectTo: 'login',
+    pathMatch: 'full'
+  },
+  {
+    path: '**',
+    redirectTo: 'login'
+  }
 ];
