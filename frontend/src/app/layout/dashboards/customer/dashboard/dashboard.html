@@ -1,0 +1,42 @@
+<div class="app-layout">
+  <app-navbar></app-navbar>
+
+  <div class="workspace">
+    <app-topbar></app-topbar>
+
+    <main class="page-content">
+      <h1>Customer Dashboard</h1>
+      <p class="subtitle">Your loan and EMI summary</p>
+
+      <p *ngIf="loading">Loading dashboard...</p>
+      <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+      <div class="cards" *ngIf="!loading">
+        <section class="card">
+          <span>Active Loans</span>
+          <strong>{{ dashboard.activeLoan ?? 0 }}</strong>
+        </section>
+        <section class="card">
+          <span>Total Paid Amount</span>
+          <strong>{{ dashboard.totalPaidAmount ?? 0 }}</strong>
+        </section>
+        <section class="card">
+          <span>Upcoming EMI</span>
+          <strong>{{ dashboard.upcomingEmi ?? 0 }}</strong>
+        </section>
+        <section class="card">
+          <span>Upcoming EMI Date</span>
+          <strong>{{ dashboard.upcomingEmiDate || 'Not available' }}</strong>
+        </section>
+        <section class="card">
+          <span>Paid EMIs</span>
+          <strong>{{ dashboard.paidEmi ?? 0 }}</strong>
+        </section>
+        <section class="card">
+          <span>Total Applications</span>
+          <strong>{{ dashboard.totalApplication ?? 0 }}</strong>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>

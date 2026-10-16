@@ -1,0 +1,16 @@
+:host { display: block; min-height: 100vh; background: #f3f6fb; }
+.page-content { padding: 24px; }
+h1 { margin: 0 0 6px; color: #172b4d; }
+.subtitle { margin: 0 0 24px; color: #667085; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px; }
+.card, .table-card { padding: 22px; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px #172b4d12; }
+.card { display: flex; flex-direction: column; gap: 12px; }
+.card span { color: #667085; font-size: 14px; }
+.card strong { color: #172b4d; font-size: 24px; overflow-wrap: anywhere; }
+.table-card { margin-top: 22px; }
+.table-card h2 { margin-top: 0; color: #172b4d; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 12px; border-bottom: 1px solid #eaecf0; text-align: left; }
+th { color: #475467; background: #f9fafb; }
+.error { color: #b42318; }

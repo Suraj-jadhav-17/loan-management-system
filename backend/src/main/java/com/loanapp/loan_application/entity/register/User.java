@@ -3,6 +3,8 @@ package com.loanapp.loan_application.entity.register;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Data
 @Table(name="Users")
@@ -28,5 +30,18 @@ public class User {
     private String mobileNo;
     @Column(name = "Password")
     private String password;
+
+
+    @Column(name = "MfaEnabled", nullable = false)
+    private boolean mfaEnabled = false;
+
+    @Column(name = "MfaSecret", length = 100)
+    private String mfaSecret;
+
+    @Column(name = "RecoveryOtp")
+    private String recoveryOtp;
+
+    @Column(name = "RecoveryOtpExpiry")
+    private LocalDateTime recoveryOtpExpiry;
 
 }

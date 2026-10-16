@@ -12,9 +12,21 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Set;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    private static final Set<String> PUBLIC_AUTH_PATHS = Set.of(
+            "/auth/v1/register",
+            "/auth/v1/verified-otp",
+            "/auth/v1/login",
+            "/auth/v1/authenticator/setup",
+            "/auth/v1/authenticator/verify-setup",
+            "/auth/v1/authenticator/verify-login",
+            "/auth/v1/recovery/request",
+            "/auth/v1/recovery/verify"
+    );
 
     private final JwtService jwtService;
 
@@ -22,52 +34,47 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.jwtService = jwtService;
     }
 
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        return "OPTIONS".equalsIgnoreCase(request.getMethod())
+                || PUBLIC_AUTH_PATHS.contains(request.getServletPath());
+    }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain) throws ServletException, IOException {
 
         String authHeader = request.getHeader("Authorization");
-
-        System.out.println("Request URI: " + request.getRequestURI());
-        System.out.println("Authorization Header Present: " + (authHeader != null));
-
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            System.out.println("JWT token missing");
+            filterChain.doFilter(request, response);
+            return;
+        }
+        String token = authHeader.substring(7).trim();
+        if (!jwtService.isValidToken(token)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String token = authHeader.substring(7);
-
-        if (!jwtService.isValidToken(token)) {
-            System.out.println("JWT token invalid or expired");
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        if (token.isEmpty() || !jwtService.isValidToken(token)) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "JWT token is invalid or expired.");
             return;
         }
 
         String email = jwtService.extractEmail(token);
         String role = jwtService.extractRole(token);
-
-        System.out.println("JWT Email: " + email);
-        System.out.println("JWT Role: " + role);
-
-        if (role == null || role.isBlank()) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        if (email == null || email.isBlank() || role == null || role.isBlank()) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "JWT token is missing required claims.");
             return;
         }
+
         String normalizedRole = role.startsWith("ROLE_") ? role : "ROLE_" + role;
-        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(normalizedRole);
-
-        System.out.println("Granted Authority: " + authority.getAuthority());
-
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+        var authority = new SimpleGrantedAuthority(normalizedRole);
+        var authentication = new UsernamePasswordAuthenticationToken(
                 email, null, Collections.singleton(authority));
 
-        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-
+        SecurityContextHolder.getContext().setAuthentication(authentication);
         filterChain.doFilter(request, response);
     }
-
-
 }
-

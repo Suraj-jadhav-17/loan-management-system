@@ -6,8 +6,15 @@
 }
 
 .topbar {
+  position: fixed;
+  top: 0;
+  left: 250px;
+  right: 0;
+  z-index: 1000;
+
   height: 60px;
-  width: 100%;
+  width: auto;
+  box-sizing: border-box;
   padding: 0 28px;
 
   display: flex;
@@ -24,7 +31,6 @@
 
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
-
 .topbar-brand {
   display: flex;
   align-items: center;

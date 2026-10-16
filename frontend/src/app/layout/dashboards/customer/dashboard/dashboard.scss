@@ -1,0 +1,12 @@
+:host { display: block; min-height: 100vh; }
+.app-layout { min-height: 100vh; }
+.workspace { margin-left: 250px; width: calc(100% - 250px); min-height: 100vh; display: flex; flex-direction: column; }
+.page-content { flex: 1; min-width: 0; padding: 24px; background: #f3f6fb; }
+h1 { margin: 0 0 6px; color: #172b4d; }
+.subtitle { margin: 0 0 24px; color: #667085; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px; }
+.card { padding: 22px; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px #172b4d12; display: flex; flex-direction: column; gap: 12px; }
+.card span { color: #667085; font-size: 14px; }
+.card strong { color: #172b4d; font-size: 24px; overflow-wrap: anywhere; }
+.error { color: #b42318; }
+@media (max-width: 760px) { .workspace { margin-left: 0; width: 100%; } .page-content { padding: 16px; } }

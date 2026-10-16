@@ -1,6 +1,6 @@
 package com.loanapp.loan_application.controller.report;
 
-import com.loanapp.loan_application.dto.report.CibilScore;
+import com.loanapp.loan_application.dto.report.ScoreCardWithReport;
 import com.loanapp.loan_application.dto.report.TotalApplicationsDto;
 import com.loanapp.loan_application.response.ApiResponse;
 import com.loanapp.loan_application.service.report.ReportService;
@@ -26,13 +26,13 @@ public class ReportController {
 
     @GetMapping("totalApplication")
 
-    public ResponseEntity<?> getAllApplications(HttpServletRequest request){
+    public ResponseEntity<?> getAllApplications(HttpServletRequest request) {
 
-        TotalApplicationsDto totalApplicationsDto =  reportService.getAllApplication();
-        if(totalApplicationsDto==null){
-            throw  new RuntimeException("No any Data Available");
+        TotalApplicationsDto totalApplicationsDto = reportService.getAllApplication();
+        if (totalApplicationsDto == null) {
+            throw new RuntimeException("No any Data Available");
         }
-        ApiResponse response =    new ApiResponse<>(
+        ApiResponse response = new ApiResponse<>(
                 "200",
                 true,
                 "All Application Fetch Successfully",
@@ -47,12 +47,12 @@ public class ReportController {
 
     @GetMapping("/cibilReport")
 
-    public ResponseEntity<?> getCibilScore(HttpServletRequest request){
+    public ResponseEntity<?> getCibilScore(HttpServletRequest request) {
         Map<String, Object> cibilScore = reportService.getCibilScore();
-        if(cibilScore==null){
-            throw  new RuntimeException("No any Data Available");
+        if (cibilScore == null) {
+            throw new RuntimeException("No any Data Available");
         }
-        ApiResponse response =    new ApiResponse<>(
+        ApiResponse response = new ApiResponse<>(
                 "200",
                 true,
                 "All Cibil Fetch Successfully",
@@ -62,5 +62,24 @@ public class ReportController {
                 null
         );
         return ResponseEntity.ok(cibilScore);
+    }
+
+    @GetMapping("/scoreCardReport")
+    public ResponseEntity<?> GetAllReportScoreCard(HttpServletRequest request) {
+        Map<String, Object>  scoreCardWithReport = reportService.scoreCardReport();
+
+         if(scoreCardWithReport==null){
+             throw new RuntimeException("No any Data Available");
+         }
+         ApiResponse apiResponse = new ApiResponse("200",
+                 true,
+                 "All ScoreCard Fetch Successfully",
+                 scoreCardWithReport,
+                 LocalDateTime.now(),
+                 request.getRequestURI(),
+                 null
+         );
+         return ResponseEntity.ok(apiResponse);
+
     }
 }
