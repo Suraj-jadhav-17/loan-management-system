@@ -1,3 +1,4 @@
+
 :host {
   display: block;
   min-height: 100vh;
@@ -8,12 +9,33 @@
 }
 
 .workspace {
-  margin-left: 250px;
-  width: calc(100% - 250px);
+  margin-left: 235px;
+  width: calc(100% - 235px);
   min-height: 100vh;
-
   display: flex;
   flex-direction: column;
+}
+
+.topbar {
+  height: 60px;
+  padding: 0 28px;
+  display: flex;
+  align-items: center;
+  color: #fff;
+  background: linear-gradient(90deg, #1267ed, #0646a0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.topbar-brand i {
+  font-size: 25px;
 }
 
 .page-content {
@@ -21,4 +43,15 @@
   min-width: 0;
   padding: 24px;
   background: #f3f6fb;
+}
+
+@media (max-width: 768px) {
+  .workspace {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .page-content {
+    padding: 14px;
+  }
 }

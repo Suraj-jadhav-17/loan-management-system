@@ -1,4 +1,3 @@
-
 export type LoanClosureType = 'NORMAL' | 'FORECLOSURE';
 
 export type LoanClosureStatus =

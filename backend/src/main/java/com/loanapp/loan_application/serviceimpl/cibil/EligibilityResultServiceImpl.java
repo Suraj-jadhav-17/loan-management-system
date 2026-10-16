@@ -3,10 +3,7 @@ package com.loanapp.loan_application.serviceimpl.cibil;
 
 import com.loanapp.loan_application.dto.cibil.EligibilityResultRequestDto;
 import com.loanapp.loan_application.dto.cibil.EligibilityResultResponseDto;
-import com.loanapp.loan_application.entity.cibil.EligibilityResult;
-import com.loanapp.loan_application.entity.cibil.EligibilityStatus;
-import com.loanapp.loan_application.entity.cibil.OfficerReviewDecision;
-import com.loanapp.loan_application.entity.cibil.ScoreCard;
+import com.loanapp.loan_application.entity.cibil.*;
 import com.loanapp.loan_application.entity.register.Customer;
 import com.loanapp.loan_application.entity.kycdocument.KycDocument;
 import com.loanapp.loan_application.repository.kycdocument.KycDocumentRepository;
@@ -90,7 +87,7 @@ public class EligibilityResultServiceImpl implements EligibilityResultService {
         result.setCibilScore(scoreCard.getCibilScore());
         result.setEligibilityStatus(decision.eligibilityStatus());
         result.setDecision(decision.decision());
-        result.setRiskCategory(decision.riskCategory());
+        result.setRiskCategory(RiskCategory.valueOf(decision.riskCategory()));
         result.setBorrowingLimit(decision.borrowingLimit());
         result.setLoanAmount(decision.loanAmount());
         result.setRejectionReason(decision.rejectionReason());

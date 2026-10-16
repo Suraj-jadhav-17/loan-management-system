@@ -1,4 +1,3 @@
-
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -21,6 +20,7 @@ export class ForeclosureRequestPage {
   loanAccountId: number | null = null;
   type: ForeClosureType = 'FULL';
   partialAmount: number | null = null;
+  requestId: number | null = null;
 
   request: ForeClosureResponse | null = null;
   loading = false;
@@ -28,62 +28,82 @@ export class ForeclosureRequestPage {
   message = '';
 
   submitRequest(): void {
+    if (this.loading) {
+      return;
+    }
+
     this.error = '';
     this.message = '';
     this.request = null;
 
-    if (!this.loanAccountId || this.loanAccountId <= 0) {
+    if (
+      this.loanAccountId === null ||
+      !Number.isInteger(Number(this.loanAccountId)) ||
+      this.loanAccountId <= 0
+    ) {
       this.error = 'Enter a valid loan account ID.';
       return;
     }
 
-    if (this.type === 'PARTIAL' &&
-        (!this.partialAmount || this.partialAmount <= 0)) {
-      this.error = 'Enter a valid partial amount.';
+    if (
+      this.type === 'PARTIAL' &&
+      (this.partialAmount === null || this.partialAmount <= 0)
+    ) {
+      this.error = 'Enter a valid partial foreclosure amount.';
       return;
     }
 
     this.loading = true;
 
     this.foreclosure.createRequest({
-      loanAccountId: this.loanAccountId,
+      loanAccountId: Number(this.loanAccountId),
       foreClosureType: this.type,
       partialAmount: this.type === 'PARTIAL' ? this.partialAmount : null
     }).subscribe({
-      next: result => {
+      next: (result) => {
         this.request = result;
+        this.requestId = result.foreClosureId;
         this.loading = false;
-        this.message = 'Foreclosure request submitted.';
+        this.message = 'Foreclosure request submitted successfully.';
       },
-      error: err => {
+      error: (err) => {
         this.loading = false;
-        this.error = err?.error?.message || 'Unable to submit request.';
+        this.error =
+          err?.error?.message || 'Unable to submit foreclosure request.';
       }
     });
   }
 
   loadRequest(): void {
-    if (!this.requestId || this.requestId <= 0) {
+    if (this.loading) {
+      return;
+    }
+
+    this.error = '';
+    this.message = '';
+    this.request = null;
+
+    if (
+      this.requestId === null ||
+      !Number.isInteger(Number(this.requestId)) ||
+      this.requestId <= 0
+    ) {
       this.error = 'Enter a valid foreclosure request ID.';
       return;
     }
 
     this.loading = true;
-    this.error = '';
-    this.message = '';
-    this.request = null;
 
-    this.foreclosure.getCustomerRequest(this.requestId).subscribe({
-      next: result => {
+    this.foreclosure.getCustomerRequest(Number(this.requestId)).subscribe({
+      next: (result) => {
         this.request = result;
         this.loading = false;
       },
-      error: err => {
+      error: (err) => {
         this.loading = false;
-        this.error = err?.error?.message || 'Unable to load request.';
+        this.error =
+          err?.error?.message || 'Unable to load foreclosure request.';
       }
     });
   }
-
-  requestId: number | null = null;
 }

@@ -130,6 +130,15 @@ public class LoanClosureServiceImpl implements LoanClosureService {
         return toDto(closure);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<LoanClosureResponseDto> getClosureHistory() {
+        return loanClosureRepo.findAllByOrderByClosureDateDesc()
+                .stream()
+                .map(this::toDto)
+                .toList();
+    }
+
     private LoanAccount getLoan(Long loanAccountId) {
         return loanAccountRepository.findById(loanAccountId)
                 .orElseThrow(() -> new RuntimeException("Loan account not found"));

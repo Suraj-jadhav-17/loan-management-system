@@ -1,4 +1,3 @@
-
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -10,12 +9,15 @@ import {
   ForeClosurePayment
 } from '../models/foreclosure.model';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root'
+})
 export class Foreclosure {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = environment.apiUrl;
 
   // Customer APIs
+
   createRequest(
     request: ForeClosureCreateRequest
   ): Observable<ForeClosureResponse> {
@@ -49,6 +51,7 @@ export class Foreclosure {
   }
 
   // Loan Officer APIs
+
   getPendingRequests(): Observable<ForeClosureResponse[]> {
     return this.http.get<ForeClosureResponse[]>(
       `${this.baseUrl}/auth/v1/loan-office/foreclosure/requests/pending`
@@ -67,7 +70,10 @@ export class Foreclosure {
   ): Observable<ForeClosureResponse> {
     return this.http.post<ForeClosureResponse>(
       `${this.baseUrl}/auth/v1/loan-office/foreclosure/requests/${id}/approve`,
-      { foreClosureId: id, remarks }
+      {
+        foreClosureId: id,
+        remarks
+      }
     );
   }
 
@@ -77,7 +83,10 @@ export class Foreclosure {
   ): Observable<ForeClosureResponse> {
     return this.http.post<ForeClosureResponse>(
       `${this.baseUrl}/auth/v1/loan-office/foreclosure/requests/${id}/reject`,
-      { foreClosureId: id, remarks }
+      {
+        foreClosureId: id,
+        remarks
+      }
     );
   }
 }

@@ -1,13 +1,26 @@
-
 <div class="container py-4">
-  <h2>Loan Closure History</h2>
-
-  <div class="alert alert-info mt-3">
-    <h5 class="alert-heading">History API required</h5>
-    <p class="mb-0">
-      The backend currently provides closure details for an individual loan
-      account, but it does not provide a closure history list endpoint.
-      This page will show actual records once that endpoint is available.
+  <div class="mb-4">
+    <h2 class="mb-1">Loan Closure History</h2>
+    <p class="text-secondary mb-0">
+      View recorded loan closure activity.
     </p>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body p-4 p-md-5 text-center">
+      <div class="mb-3">
+        <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-light p-3">
+          <i class="bi bi-clock-history fs-2 text-secondary"></i>
+        </span>
+      </div>
+
+      <h5>Closure History Not Available</h5>
+
+      <p class="text-secondary mx-auto mb-0" style="max-width: 550px;">
+        The current backend provides closure details for an individual loan
+        account, but does not expose an endpoint to retrieve a list of closure
+        history records. History will be displayed here once that API is added.
+      </p>
+    </div>
   </div>
 </div>

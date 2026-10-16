@@ -3,7 +3,7 @@ import { RenderMode, ServerRoute } from '@angular/ssr';
 
 export const serverRoutes: ServerRoute[] = [
   {
-    path: 'foreclosure/detail/:id',
+    path: 'loan-officer/foreclosure/detail/:id',
     renderMode: RenderMode.Server
   },
   {
