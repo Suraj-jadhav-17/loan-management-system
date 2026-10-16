@@ -1,11 +1,9 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { Dashboard } from './layout/admin/dashboard/dashboard';
-import {Dashboard as CustomerDashboard } from './layout/customer/dashboard/dashboard';
-import { MyPenalties } from './features/penalties/pages/my-penalties/my-penalties';
+import {  Dashboard as CustomerLayout} from './layout/customer/dashboard/dashboard';
 
 @Component({
-  imports: [RouterOutlet, Dashboard, CustomerDashboard,MyPenalties,],
+  imports: [RouterOutlet, CustomerLayout],
   selector: 'app-root',
   styleUrl: './app.scss',
   templateUrl: './app.html',

@@ -1,0 +1,179 @@
+
+<div class="loan-deal-container">
+  <div class="page-header">
+    <div>
+      <h2>Apply for a Loan</h2>
+      <p>Enter your loan requirements and bank details.</p>
+    </div>
+  </div>
+
+  <div class="eligible-card">
+    <div class="eligible-info">
+      <span class="label">Maximum Eligible Loan Amount</span>
+
+      @if (isLoadingScoreCard) {
+        <h3>Loading...</h3>
+      } @else if (eligibleLoanAmount !== null) {
+        <h3>{{ eligibleLoanAmount | currency:'INR':'symbol':'1.0-2' }}</h3>
+      } @else {
+        <h3>Not available</h3>
+        <p>{{ scoreCardError || 'Your eligible loan amount could not be loaded.' }}</p>
+      }
+    </div>
+
+    <div class="eligible-icon">₹</div>
+  </div>
+
+  @if (errorMessage) {
+    <div class="alert error-alert">
+      {{ errorMessage }}
+    </div>
+  }
+
+  @if (successMessage) {
+    <div class="alert success-alert">
+      {{ successMessage }}
+    </div>
+  }
+
+  <form #loanForm="ngForm" (ngSubmit)="submitLoanDeal()">
+
+    <section class="form-section">
+      <h3>Loan Details</h3>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="loanType">Loan Type <span>*</span></label>
+          <select
+            id="loanType"
+            name="loanType"
+            [(ngModel)]="loanDeal.loanType"
+            (ngModelChange)="onLoanDetailsChange()"
+            required>
+            <option value="" disabled>Select loan type</option>
+            @for (type of loanTypes; track type.value) {
+              <option [value]="type.value">{{ type.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="amount">Requested Loan Amount (₹) <span>*</span></label>
+          <input
+            id="amount"
+            name="amount"
+            type="number"
+            [(ngModel)]="loanDeal.amount"
+            (ngModelChange)="onLoanDetailsChange()"
+            min="1"
+            [max]="eligibleLoanAmount "
+            placeholder="Enter amount"
+            required>
+          @if (eligibleLoanAmount !== null) {
+            <small>
+              Maximum allowed:
+              {{ eligibleLoanAmount | currency:'INR':'symbol':'1.0-2' }}
+            </small>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="tenureMonths">Tenure (Months) <span>*</span></label>
+          <input
+            id="tenureMonths"
+            name="tenureMonths"
+            type="number"
+            [(ngModel)]="loanDeal.tenureMonths"
+            (ngModelChange)="onLoanDetailsChange()"
+            min="1"
+            step="1"
+            placeholder="e.g. 120"
+            required>
+        </div>
+
+        <div class="form-group">
+          <label>Annual Interest Rate</label>
+          <input
+            type="text"
+            [value]="interestRate !== null ? interestRate + '%' : 'Select loan type'"
+            readonly>
+          <small>Indicative rate based on the backend loan type rules.</small>
+        </div>
+
+        <div class="form-group">
+          <label for="emiDay">Preferred EMI Day <span>*</span></label>
+          <select
+            id="emiDay"
+            name="emiDay"
+            [(ngModel)]="loanDeal.emiDay"
+            (ngModelChange)="onLoanDetailsChange()"
+            required>
+            <option [ngValue]="null" disabled>Select day</option>
+            @for (day of emiDays; track day) {
+              <option [ngValue]="day">{{ day }} of each month</option>
+            }
+          </select>
+          <small>Select a Eligible Day </small>
+        </div>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <h3>Bank Details</h3>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="bankName">Bank Name <span>*</span></label>
+          <input
+            id="bankName"
+            name="bankName"
+            type="text"
+            [(ngModel)]="loanDeal.bankName"
+            (ngModelChange)="onLoanDetailsChange()"
+            placeholder="Enter bank name"
+            required>
+        </div>
+
+        <div class="form-group">
+          <label for="bankAccountNumber">Bank Account Number <span>*</span></label>
+          <input
+            id="bankAccountNumber"
+            name="bankAccountNumber"
+            type="text"
+            inputmode="numeric"
+            [(ngModel)]="loanDeal.bankAccountNumber"
+            (ngModelChange)="onLoanDetailsChange()"
+            minlength="9"
+            maxlength="18"
+            pattern="[0-9]{9,18}"
+            placeholder="Enter account number"
+            required>
+        </div>
+
+        <div class="form-group">
+          <label for="ifscCode">IFSC Code <span>*</span></label>
+          <input
+            id="ifscCode"
+            name="ifscCode"
+            type="text"
+            [(ngModel)]="loanDeal.ifscCode"
+            (ngModelChange)="loanDeal.ifscCode = $event.toUpperCase(); onLoanDetailsChange()"
+            minlength="11"
+            maxlength="11"
+            pattern="[A-Z]{4}0[A-Z0-9]{6}"
+            placeholder="e.g. ABCD0123456"
+            required>
+        </div>
+      </div>
+    </section>
+
+    <div class="form-actions">
+      <button
+        type="submit"
+        [disabled]="isLoadingScoreCard || eligibleLoanAmount === null">
+        Submit Loan Application
+      </button>
+    </div>
+
+  </form>
+</div>

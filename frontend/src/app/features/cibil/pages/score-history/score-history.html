@@ -1,0 +1,106 @@
+
+<div class="container py-4">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+      <h2 class="mb-1">CIBIL Score History</h2>
+      <p class="text-secondary mb-0">
+        View previous scorecard records.
+      </p>
+    </div>
+
+    <button type="button" class="btn btn-outline-primary"
+      (click)="load()" [disabled]="loading">
+      <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+      Refresh
+    </button>
+  </div>
+
+  <div *ngIf="officerMode" class="card shadow-sm mb-4">
+    <div class="card-body">
+      <label for="historyCustomerId" class="form-label fw-semibold">
+        Customer ID
+      </label>
+      <div class="input-group">
+        <input #customerInput id="historyCustomerId" type="number" min="1"
+          class="form-control" placeholder="Enter customer ID"
+          [value]="customerId ?? ''"
+          (input)="setCustomerId(customerInput.value)">
+        <button type="button" class="btn btn-outline-primary"
+          (click)="searchCustomer()" [disabled]="loading || !customerId">
+          Search History
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="alert alert-info" role="status">
+    Loading score history...
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger" role="alert">
+    {{ error }}
+  </div>
+
+  <div class="card shadow-sm" *ngIf="data as d">
+    <div class="card-header bg-white py-3">
+      <h5 class="mb-0">Scorecard Records</h5>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-striped table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>ID</th>
+            <th>Applied Date</th>
+            <th>CIBIL Score</th>
+            <th>Risk Category</th>
+            <th>Status</th>
+            <th>Eligible Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let s of d.content">
+            <td>{{ s.scoreCardId }}</td>
+            <td>{{ s.appliedDate ? (s.appliedDate | date:'short') : 'N/A' }}</td>
+            <td><strong>{{ s.cibilScore ?? 'N/A' }}</strong></td>
+            <td>{{ s.riskCategory ?? 'N/A' }}</td>
+            <td>
+              <span class="badge text-bg-secondary">
+                {{ s.currentStatus }}
+              </span>
+            </td>
+            <td>
+              {{ s.eligibleLoanAmount == null ? 'N/A' :
+                (s.eligibleLoanAmount | currency:'INR':'symbol':'1.0-2') }}
+            </td>
+          </tr>
+
+          <tr *ngIf="d.content.length === 0">
+            <td colspan="6" class="text-center py-5 text-secondary">
+              No score history records found.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card-footer bg-white d-flex flex-wrap justify-content-between align-items-center gap-3">
+      <span class="text-secondary">
+        Page {{ d.number + 1 }} of {{ d.totalPages }}
+        <span class="mx-1">|</span>
+        Total records: {{ d.totalElements }}
+      </span>
+
+      <div class="btn-group" role="group">
+        <button type="button" class="btn btn-outline-secondary"
+          (click)="previous()" [disabled]="d.first || loading">
+          Previous
+        </button>
+        <button type="button" class="btn btn-outline-primary"
+          (click)="next()" [disabled]="d.last || loading">
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
