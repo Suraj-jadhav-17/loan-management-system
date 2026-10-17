@@ -1,0 +1,89 @@
+
+:host {
+  display: block;
+  height: 60px;
+  flex-shrink: 0;
+}
+
+.topbar {
+  position: fixed;
+  top: 0;
+  left: 250px;
+  right: 0;
+  z-index: 1000;
+
+  height: 60px;
+  width: auto;
+  box-sizing: border-box;
+  padding: 0 28px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  color: #fff;
+  background: linear-gradient(
+    90deg,
+    #1267ed 0%,
+    #0d58ba 60%,
+    #0646a0 100%
+  );
+
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+.topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.brand-icon {
+  font-size: 27px;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.notification-button {
+  position: relative;
+  width: 40px;
+  height: 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  border-radius: 50%;
+  color: white;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.2s ease;
+
+  i {
+    font-size: 20px;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.15);
+  }
+}
+
+.notification-dot {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff4d4f;
+  border: 1px solid white;
+}

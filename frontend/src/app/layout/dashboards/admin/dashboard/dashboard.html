@@ -1,0 +1,55 @@
+<app-navbar></app-navbar>
+
+<main class="page-content">
+  <h1>Loan Officer Dashboard</h1>
+  <p class="subtitle">Applications and customer reports</p>
+
+  <p *ngIf="loading">Loading dashboard...</p>
+  <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+  <div class="cards" *ngIf="!loading">
+    <section class="card">
+      <span>Total Applications</span>
+      <strong>{{ applications.totalApplications ?? 0 }}</strong>
+    </section>
+    <section class="card">
+      <span>Active Applications</span>
+      <strong>{{ applications.activeApplications ?? 0 }}</strong>
+    </section>
+    <section class="card">
+      <span>Closed Applications</span>
+      <strong>{{ applications.closedApplications ?? 0 }}</strong>
+    </section>
+    <section class="card">
+      <span>Pending Applications</span>
+      <strong>{{ applications.pandingApplication ?? applications.pendingApplication ?? 0 }}</strong>
+    </section>
+    <section class="card">
+      <span>CIBIL Report Records</span>
+      <strong>{{ cibilCount }}</strong>
+    </section>
+    <section class="card">
+      <span>Score Card Records</span>
+      <strong>{{ scoreCardCount }}</strong>
+    </section>
+  </div>
+
+  <section class="table-card">
+    <h2>Customers</h2>
+    <p *ngIf="!loading && customers.length === 0">No customer records found.</p>
+    <div class="table-wrap" *ngIf="customers.length > 0">
+      <table>
+        <thead>
+          <tr><th>Name</th><th>Email</th><th>Phone</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let customer of customers">
+            <td>{{ customer.fullName || customer.name || '—' }}</td>
+            <td>{{ customer.email || '—' }}</td>
+            <td>{{ customer.phoneNumber || customer.mobileNumber || '—' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>

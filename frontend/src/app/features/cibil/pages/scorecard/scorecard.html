@@ -1,0 +1,137 @@
+
+<div class="container py-4">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+      <h2 class="mb-1">CIBIL Scorecard</h2>
+      <p class="text-secondary mb-0">
+        View credit score and eligibility details.
+      </p>
+    </div>
+
+    <button type="button" class="btn btn-primary"
+      (click)="generate()" [disabled]="loading">
+      <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+      {{ loading ? 'Please wait...' : 'Generate Scorecard' }}
+    </button>
+  </div>
+
+  <div *ngIf="officerMode" class="card shadow-sm mb-4">
+    <div class="card-body">
+      <label for="scorecardCustomerId" class="form-label fw-semibold">
+        Customer ID
+      </label>
+      <div class="input-group">
+        <input #customerInput id="scorecardCustomerId" type="number"
+          min="1" class="form-control" placeholder="Enter customer ID"
+          [value]="customerId ?? ''"
+          (input)="setCustomerId(customerInput.value)">
+        <button type="button" class="btn btn-outline-primary"
+          (click)="load()" [disabled]="loading || !customerId">
+          Load Scorecard
+        </button>
+      </div>
+      <small class="text-secondary">
+        Enter the customer ID to view that customer's scorecard.
+      </small>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger" role="alert">
+    <strong>Error:</strong> {{ error }}
+  </div>
+
+  <div *ngIf="message" class="alert alert-success" role="status">
+    {{ message }}
+  </div>
+
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p class="text-secondary mt-3">Loading scorecard information...</p>
+  </div>
+
+  <ng-container *ngIf="!loading && score as s">
+    <div class="row g-3 mb-4">
+      <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <p class="text-secondary small">CIBIL Score</p>
+            <h2>{{ s.cibilScore ?? 'N/A' }}</h2>
+            <span class="badge text-bg-primary">
+              {{ s.riskCategory ?? 'Risk category unavailable' }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <p class="text-secondary small">Scorecard Status</p>
+            <h4>{{ s.currentStatus || 'N/A' }}</h4>
+            <p *ngIf="s.rejectionReason" class="text-danger small">
+              {{ s.rejectionReason }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <p class="text-secondary small">Eligible Loan Amount</p>
+            <h4>
+              {{ s.eligibleLoanAmount == null ? 'N/A' :
+                (s.eligibleLoanAmount | currency:'INR':'symbol':'1.0-2') }}
+            </h4>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <p class="text-secondary small">FOIR</p>
+            <h4>{{ s.foir ?? 'N/A' }}</h4>
+            <p class="text-secondary small">
+              Total Score: {{ s.totalScore ?? 'N/A' }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card shadow-sm">
+      <div class="card-header bg-white py-3">
+        <h5 class="mb-0">Scorecard Information</h5>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-12 col-md-4">
+            <p class="text-secondary small mb-1">Scorecard ID</p>
+            <p class="fw-semibold">{{ s.scoreCardId }}</p>
+          </div>
+          <div class="col-12 col-md-4">
+            <p class="text-secondary small mb-1">Customer ID</p>
+            <p class="fw-semibold">{{ s.customerId }}</p>
+          </div>
+          <div class="col-12 col-md-4">
+            <p class="text-secondary small mb-1">Applied Date</p>
+            <p class="fw-semibold">
+              {{ s.appliedDate ? (s.appliedDate | date:'medium') : 'N/A' }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <div *ngIf="!score && !loading && !error"
+    class="alert alert-warning mt-3">
+    <h5 class="alert-heading">No scorecard available</h5>
+    <p class="mb-0">
+      {{ officerMode
+        ? 'Enter a customer ID and load the scorecard.'
+        : 'Generate a scorecard to view your current credit score.' }}
+    </p>
+  </div>
+</div>

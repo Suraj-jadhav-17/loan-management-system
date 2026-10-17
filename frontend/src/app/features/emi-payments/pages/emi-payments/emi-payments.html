@@ -1,0 +1,129 @@
+
+<div class="payments-page">
+  <div class="page-heading">
+    <h2>EMI Payments</h2>
+    <p>View your EMI dues and payment details.</p>
+  </div>
+
+  <div class="summary-card">
+    <div>
+      <span>Total Payment Records</span>
+      <h3>{{ paymentService.paymentCount() }}</h3>
+    </div>
+
+    <div>
+      <span>Total Paid Amount</span>
+      <h3>
+        {{ paymentService.totalPaid() | currency:'INR':'symbol':'1.2-2' }}
+      </h3>
+    </div>
+  </div>
+
+  <div class="search-panel">
+    <div class="input-group">
+      <label for="loanId">Loan Account ID</label>
+      <input
+        id="loanId"
+        name="loanId"
+        type="number"
+        min="1"
+        [(ngModel)]="loanAccountId"
+        placeholder="Enter loan account ID"
+      />
+    </div>
+
+    <button
+      type="button"
+      class="primary-button"
+      (click)="viewPayments()"
+      [disabled]="paymentService.loading()"
+    >
+      {{ paymentService.loading() ? 'Loading...' : 'View Payments' }}
+    </button>
+  </div>
+
+  <div *ngIf="paymentService.loading()" class="message loading">
+    Loading payment details...
+  </div>
+
+  <div *ngIf="paymentService.errorMessage()" class="message error">
+    {{ paymentService.errorMessage() }}
+  </div>
+
+  <div *ngIf="successMessage" class="message success">
+    {{ successMessage }}
+  </div>
+
+  <section class="payment-section">
+    <h3>Payment Details</h3>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Loan No.</th>
+            <th>EMI Amount</th>
+            <th>Penalty</th>
+            <th>Total Payable</th>
+            <th>Due Date</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let payment of payments">
+            <td>{{ payment.loanAccountId }}</td>
+
+            <td>
+              {{ payment.emiAmount | currency:'INR':'symbol':'1.2-2' }}
+            </td>
+
+            <td>
+              {{ payment.penaltyAmount | currency:'INR':'symbol':'1.2-2' }}
+            </td>
+
+            <td>
+              {{ payment.totalAmount | currency:'INR':'symbol':'1.2-2' }}
+            </td>
+
+            <td>
+              {{ payment.dueDate ? (payment.dueDate | date:'dd MMM yyyy') : '-' }}
+            </td>
+
+            <td>
+              <span
+                class="status-badge"
+                [class.paid]="payment.status?.toUpperCase() === 'PAID'"
+                [class.pending]="payment.status?.toUpperCase() !== 'PAID'"
+              >
+                {{ payment.status || 'Pending' }}
+              </span>
+            </td>
+
+            <td>
+              <button
+                type="button"
+                class="pay-button"
+                (click)="payNow(payment)"
+                [disabled]="
+                  payment.status?.toUpperCase() === 'PAID' ||
+                  paymentService.loading()
+                "
+              >
+                {{ payment.status?.toUpperCase() === 'PAID' ? 'Paid' : 'Pay Now' }}
+              </button>
+            </td>
+          </tr>
+
+          <tr *ngIf="!paymentService.loading() && payments.length === 0">
+            <td colspan="7" class="empty-state">
+              No payment records to display. Enter a Loan Account ID and click
+              View Payments.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

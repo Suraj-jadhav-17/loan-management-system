@@ -1,0 +1,105 @@
+
+<div class="notifications-page">
+  <div class="page-heading">
+    <div>
+      <h1>Notifications</h1>
+      <p>Stay updated on your EMI schedules and payment reminders.</p>
+    </div>
+
+    <div class="notification-count">
+      <span>{{ notificationService.unreadCount() }}</span>
+      <small>Unread</small>
+    </div>
+  </div>
+
+  <div class="search-card">
+    <label for="loanAccountId">Loan Account ID</label>
+
+    <div class="search-row">
+      <input
+        id="loanAccountId"
+        type="number"
+        min="1"
+        [(ngModel)]="loanAccountId"
+        placeholder="Enter Loan Account ID"
+      />
+
+      <button
+        type="button"
+        (click)="loadNotifications()"
+        [disabled]="notificationService.loading()"
+      >
+        View Notifications
+      </button>
+
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="generateNotifications()"
+        [disabled]="notificationService.loading()"
+      >
+        Generate Notifications
+      </button>
+    </div>
+  </div>
+
+  <p class="message error" *ngIf="notificationService.errorMessage()">
+    {{ notificationService.errorMessage() }}
+  </p>
+
+  <div class="notification-list">
+    <p *ngIf="notificationService.loading()">Loading notifications...</p>
+
+    <div
+      class="notification-card"
+      *ngFor="let notification of notificationService.notifications()"
+      [class.unread]="!notification.readStatus"
+    >
+      <div class="notification-icon">
+        <span>{{ notification.readStatus ? '✓' : '!' }}</span>
+      </div>
+
+      <div class="notification-content">
+        <div class="notification-title-row">
+          <h2>{{ notification.title }}</h2>
+          <span class="status-badge">
+            {{ notification.readStatus ? 'Read' : 'Unread' }}
+          </span>
+        </div>
+
+        <p>{{ notification.message }}</p>
+
+        <div class="notification-meta">
+          <span>Type: {{ notification.notificationType }}</span>
+          <span>Loan ID: {{ notification.loanAccountId }}</span>
+          <span *ngIf="notification.dueDate">
+            Due: {{ notification.dueDate | date:'dd MMM yyyy' }}
+          </span>
+          <span>
+            {{ notification.createdAt | date:'dd MMM yyyy, h:mm a' }}
+          </span>
+        </div>
+
+        <button
+          *ngIf="!notification.readStatus"
+          type="button"
+          class="mark-read-button"
+          (click)="markAsRead(notification.notificationId)"
+        >
+          Mark as Read
+        </button>
+      </div>
+    </div>
+
+    <div
+      class="empty-state"
+      *ngIf="
+        !notificationService.loading() &&
+        notificationService.notifications().length === 0
+      "
+    >
+      <h2>No notifications yet</h2>
+      <p>Enter your Loan Account ID to view notifications.</p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,79 @@
+
+<div class="container py-4">
+  <h2>Loan Closure Details</h2>
+  <p class="text-secondary">Check your loan closure status and settlement details.</p>
+
+  <div class="card mb-4">
+    <div class="card-body">
+      <form class="row g-3 align-items-end" (ngSubmit)="loadClosure()">
+        <div class="col-md-8">
+          <label class="form-label" for="loanAccountId">Loan Account ID</label>
+          <input class="form-control" id="loanAccountId" name="loanAccountId"
+            type="number" min="1" [(ngModel)]="loanAccountId" required />
+        </div>
+        <div class="col-md-4">
+          <button class="btn btn-primary w-100" type="submit" [disabled]="loading">
+            {{ loading ? 'Loading...' : 'View Closure' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+  <div *ngIf="loading" class="alert alert-info">Loading closure details...</div>
+
+  <div *ngIf="closure as c" class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Closure #{{ c.loanClosureId }}</h5>
+      <span class="badge"
+        [ngClass]="{
+          'text-bg-success': c.closureStatus === 'CLOSED',
+          'text-bg-warning': c.closureStatus === 'PENDING',
+          'text-bg-danger': c.closureStatus === 'FAILED'
+        }">
+        {{ c.closureStatus }}
+      </span>
+    </div>
+
+    <div class="card-body">
+      <div class="row g-4">
+        <div class="col-md-6">
+          <div class="text-secondary">Loan Account ID</div>
+          <h5>{{ c.loanAccountId }}</h5>
+        </div>
+
+        <div class="col-md-6">
+          <div class="text-secondary">Closure Type</div>
+          <h5>{{ c.closureType }}</h5>
+        </div>
+
+        <div class="col-md-6">
+          <div class="text-secondary">Final Settlement Amount</div>
+          <h5>{{ c.finalSettlementAmount | currency:'INR':'symbol':'1.0-2' }}</h5>
+        </div>
+
+        <div class="col-md-6">
+          <div class="text-secondary">Closure Date</div>
+          <h5>{{ c.closureDate ? (c.closureDate | date:'medium') : 'N/A' }}</h5>
+        </div>
+
+        <div class="col-md-6">
+          <div class="text-secondary">NOC Generated</div>
+          <span class="badge"
+            [ngClass]="c.nocGenerated ? 'text-bg-success' : 'text-bg-secondary'">
+            {{ c.nocGenerated ? 'Yes' : 'No' }}
+          </span>
+        </div>
+
+        <div class="col-md-6">
+          <div class="text-secondary">CIBIL Updated</div>
+          <span class="badge"
+            [ngClass]="c.cibilUpdated ? 'text-bg-success' : 'text-bg-secondary'">
+            {{ c.cibilUpdated ? 'Yes' : 'No' }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

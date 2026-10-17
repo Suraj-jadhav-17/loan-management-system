@@ -1,0 +1,99 @@
+
+<div class="container py-4">
+  <h2>Foreclosure</h2>
+  <p class="text-secondary">Create a foreclosure request or check its status.</p>
+
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+  <div *ngIf="message" class="alert alert-success">{{ message }}</div>
+
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <div class="card h-100">
+        <div class="card-header"><h5 class="mb-0">New Request</h5></div>
+        <div class="card-body">
+          <form (ngSubmit)="submitRequest()">
+            <div class="mb-3">
+              <label class="form-label" for="loanAccountId">Loan Account ID</label>
+              <input class="form-control" id="loanAccountId"
+                name="loanAccountId" type="number" min="1"
+                [(ngModel)]="loanAccountId" required />
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label" for="type">Foreclosure Type</label>
+              <select class="form-select" id="type" name="type"
+                [(ngModel)]="type" required>
+                <option value="FULL">Full Foreclosure</option>
+                <option value="PARTIAL">Partial Foreclosure</option>
+              </select>
+            </div>
+
+            <div class="mb-3" *ngIf="type === 'PARTIAL'">
+              <label class="form-label" for="partialAmount">Partial Amount</label>
+              <input class="form-control" id="partialAmount"
+                name="partialAmount" type="number" min="1"
+                [(ngModel)]="partialAmount" required />
+            </div>
+
+            <button class="btn btn-primary w-100" type="submit" [disabled]="loading">
+              {{ loading ? 'Submitting...' : 'Submit Request' }}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card h-100">
+        <div class="card-header"><h5 class="mb-0">Check Request</h5></div>
+        <div class="card-body">
+          <form (ngSubmit)="loadRequest()">
+            <label class="form-label" for="requestId">Foreclosure Request ID</label>
+            <input class="form-control mb-3" id="requestId" name="requestId"
+              type="number" min="1" [(ngModel)]="requestId" required />
+            <button class="btn btn-outline-primary w-100" [disabled]="loading">
+              View Request
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="request as r" class="card mt-4">
+    <div class="card-header d-flex justify-content-between">
+      <h5 class="mb-0">Request #{{ r.foreClosureId }}</h5>
+      <span class="badge text-bg-primary">{{ r.status }}</span>
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-4"><strong>Loan Account:</strong> {{ r.loanAccountId }}</div>
+        <div class="col-md-4"><strong>Type:</strong> {{ r.foreClosureType }}</div>
+        <div class="col-md-4">
+          <strong>Amount:</strong>
+          {{ r.foreClosureAmount | currency:'INR':'symbol':'1.0-2' }}
+        </div>
+        <div class="col-md-4">
+          <strong>Outstanding Principal:</strong>
+          {{ r.outstandingPrincipal | currency:'INR':'symbol':'1.0-2' }}
+        </div>
+        <div class="col-md-4">
+          <strong>Accrued Interest:</strong>
+          {{ r.accruedInterest | currency:'INR':'symbol':'1.0-2' }}
+        </div>
+        <div class="col-md-4">
+          <strong>Foreclosure Fee:</strong>
+          {{ r.foreclosureFee | currency:'INR':'symbol':'1.0-2' }}
+        </div>
+        <div class="col-md-4"><strong>Paid:</strong> {{ r.isPaid ? 'Yes' : 'No' }}</div>
+        <div class="col-md-4">
+          <strong>Requested:</strong>
+          {{ r.requestedAt | date:'short' }}
+        </div>
+        <div class="col-md-4" *ngIf="r.remarks">
+          <strong>Remarks:</strong> {{ r.remarks }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

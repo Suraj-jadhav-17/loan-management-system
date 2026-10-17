@@ -1,0 +1,70 @@
+
+<div class="container py-4">
+  <a routerLink="/foreclosure/list" class="btn btn-link px-0 mb-3">
+    &larr; Back to pending requests
+  </a>
+
+  <h2>Foreclosure Request Details</h2>
+
+  <div *ngIf="loading" class="alert alert-info">Loading request...</div>
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+  <div *ngIf="message" class="alert alert-success">{{ message }}</div>
+
+  <div class="card" *ngIf="request as r">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Request #{{ r.foreClosureId }}</h5>
+      <span class="badge text-bg-primary">{{ r.status }}</span>
+    </div>
+
+    <div class="card-body">
+      <div class="row g-3 mb-4">
+        <div class="col-md-4"><strong>Loan Account:</strong> {{ r.loanAccountId }}</div>
+        <div class="col-md-4"><strong>Type:</strong> {{ r.foreClosureType }}</div>
+        <div class="col-md-4">
+          <strong>Amount:</strong>
+          {{ r.foreClosureAmount | currency:'INR':'symbol':'1.0-2' }}
+        </div>
+        <div class="col-md-4">
+          <strong>Outstanding Principal:</strong>
+          {{ r.outstandingPrincipal | currency:'INR':'symbol':'1.0-2' }}
+        </div>
+        <div class="col-md-4">
+          <strong>Accrued Interest:</strong>
+          {{ r.accruedInterest | currency:'INR':'symbol':'1.0-2' }}
+        </div>
+        <div class="col-md-4">
+          <strong>Overdue Dues:</strong>
+          {{ r.overdueDues | currency:'INR':'symbol':'1.0-2' }}
+        </div>
+        <div class="col-md-4">
+          <strong>Fee:</strong>
+          {{ r.foreclosureFee | currency:'INR':'symbol':'1.0-2' }}
+        </div>
+        <div class="col-md-4"><strong>Paid:</strong> {{ r.isPaid ? 'Yes' : 'No' }}</div>
+        <div class="col-md-4">
+          <strong>Requested At:</strong> {{ r.requestedAt | date:'short' }}
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label" for="remarks">Officer Remarks</label>
+        <textarea class="form-control" id="remarks" name="remarks"
+          rows="3" [(ngModel)]="remarks"
+          [disabled]="r.status !== 'PENDING'"></textarea>
+      </div>
+
+      <div *ngIf="r.status === 'PENDING'" class="d-flex gap-2">
+        <button class="btn btn-success" (click)="approve()" [disabled]="saving">
+          Approve
+        </button>
+        <button class="btn btn-danger" (click)="reject()" [disabled]="saving">
+          Reject
+        </button>
+      </div>
+
+      <div *ngIf="r.status !== 'PENDING'" class="alert alert-secondary mb-0">
+        This request has already been processed.
+      </div>
+    </div>
+  </div>
+</div>
