@@ -12,6 +12,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Locale;
 import java.util.Set;
 
 @Component
@@ -52,11 +53,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
         String token = authHeader.substring(7).trim();
-        if (!jwtService.isValidToken(token)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         if (token.isEmpty() || !jwtService.isValidToken(token)) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "JWT token is invalid or expired.");
             return;
@@ -69,7 +65,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        String normalizedRole = role.startsWith("ROLE_") ? role : "ROLE_" + role;
+        // Accept the role names used by existing database records and JWTs, such as
+        // LoanOfficer, LOAN_OFFICER, loan_officer, and ROLE_LoanOfficer.
+        String roleName = role.trim();
+        if (roleName.regionMatches(true, 0, "ROLE_", 0, 5)) {
+            roleName = roleName.substring(5);
+        }
+        String compactRole = roleName.replaceAll("[\\s_-]", "").toLowerCase(Locale.ROOT);
+        String normalizedRole;
+        if ("loanofficer".equals(compactRole)) {
+            normalizedRole = "ROLE_LoanOfficer";
+        } else if ("customer".equals(compactRole)) {
+            normalizedRole = "ROLE_Customer";
+        } else if ("admin".equals(compactRole)) {
+            normalizedRole = "ROLE_Admin";
+        } else {
+            normalizedRole = "ROLE_" + roleName;
+        }
         var authority = new SimpleGrantedAuthority(normalizedRole);
         var authentication = new UsernamePasswordAuthenticationToken(
                 email, null, Collections.singleton(authority));
