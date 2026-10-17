@@ -13,6 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/auth/v1/customer/support/tickets")
+@CrossOrigin("http://localhost:4200/")
 public class CustomerSupportTicketController {
     private final CustomerSupportTicketService service;
     public CustomerSupportTicketController(CustomerSupportTicketService service) { this.service = service; }

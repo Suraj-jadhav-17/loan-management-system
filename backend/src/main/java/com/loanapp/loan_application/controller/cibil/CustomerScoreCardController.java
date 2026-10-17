@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/auth/v1/customer/scorecards")
 @RequiredArgsConstructor
+@CrossOrigin("http://localhost:4200/")
 public class CustomerScoreCardController {
 
     private final ScoreCardService scoreCardService;

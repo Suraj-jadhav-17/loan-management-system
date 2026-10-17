@@ -1,13 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Navbar } from '../../../shared/components/customer/navbar/navbar';
-import { Topbar } from '../../../shared/components/customer/topbar/topbar';
-import { CustomerService } from '../../../features/registration/services/customer/customer';
+import { CustomerService } from '../customer.service';
+
 
 @Component({
   selector: 'app-customer-dashboard',
   standalone: true,
-  imports: [CommonModule, Navbar, Topbar],
+  imports: [CommonModule],
   styleUrl: './dashboard.scss',
   templateUrl: './dashboard.html'
 })

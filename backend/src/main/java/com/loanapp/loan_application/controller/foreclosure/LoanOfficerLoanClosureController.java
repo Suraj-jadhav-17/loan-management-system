@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/auth/v1/loan-office/loan-closure")
 @RequiredArgsConstructor
+@CrossOrigin("http://localhost:4200/")
 public class LoanOfficerLoanClosureController {
     private final LoanClosureService loanClosureService;
     private final UserRepository userRepository;

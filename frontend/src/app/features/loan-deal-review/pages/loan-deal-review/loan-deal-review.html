@@ -1,0 +1,331 @@
+
+<div class="deal-review-page">
+  <div class="page-header">
+    <div>
+      <h2>Deal Review</h2>
+      <p>Review loan applications and make approval decisions.</p>
+    </div>
+
+    <button
+      type="button"
+      class="refresh-btn"
+      (click)="loadPendingDeals()"
+      [disabled]="isLoading">
+      {{ isLoading ? 'Loading...' : 'Refresh' }}
+    </button>
+  </div>
+
+  <div class="filter-card">
+    <div class="filter-grid">
+      <div class="form-group">
+        <label for="searchText">Search</label>
+        <input
+          id="searchText"
+          type="text"
+          [(ngModel)]="searchText"
+          placeholder="Customer name or loan type">
+      </div>
+
+      <div class="form-group">
+        <label for="loanType">Loan Type</label>
+        <select id="loanType" [(ngModel)]="selectedLoanType">
+          <option value="">All Loan Types</option>
+          <option *ngFor="let type of loanTypes" [value]="type">
+            {{ type }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="minAmount">Minimum Amount</label>
+        <input
+          id="minAmount"
+          type="number"
+          min="0"
+          [(ngModel)]="minAmount"
+          placeholder="Minimum amount">
+      </div>
+
+      <div class="form-group">
+        <label for="maxAmount">Maximum Amount</label>
+        <input
+          id="maxAmount"
+          type="number"
+          min="0"
+          [(ngModel)]="maxAmount"
+          placeholder="Maximum amount">
+      </div>
+
+      <div class="form-group">
+        <label for="startDate">Applied From</label>
+        <input
+          id="startDate"
+          type="date"
+          [(ngModel)]="startDate">
+      </div>
+
+      <div class="form-group">
+        <label for="endDate">Applied To</label>
+        <input
+          id="endDate"
+          type="date"
+          [(ngModel)]="endDate">
+      </div>
+    </div>
+
+    <div class="filter-actions">
+      <button
+        type="button"
+        class="clear-btn"
+        (click)="clearFilters()">
+        Clear Filters
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-error" role="alert">
+    <span>{{ errorMessage }}</span>
+    <button type="button" (click)="loadPendingDeals()">Retry</button>
+  </div>
+
+  <div *ngIf="actionMessage" class="alert alert-success" role="status">
+    {{ actionMessage }}
+  </div>
+
+  <div class="table-card">
+    <div class="table-toolbar">
+      <div>
+        <label for="pageSize">Show</label>
+        <select
+          id="pageSize"
+          [ngModel]="pageSize"
+          (ngModelChange)="changePageSize($event)">
+          <option *ngFor="let size of pageSizes" [value]="size">
+            {{ size }}
+          </option>
+        </select>
+        <span>entries</span>
+      </div>
+
+      <span class="total-count">
+        Total pending reviews: {{ totalElements }}
+      </span>
+    </div>
+
+    <div *ngIf="isLoading" class="loading-state">
+      Loading deal reviews...
+    </div>
+
+    <div *ngIf="!isLoading" class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Customer Name</th>
+            <th>Loan Type</th>
+            <th>Loan Amount</th>
+            <th>Status</th>
+            <th>Applied Date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let review of filteredReviews">
+            <td>
+              {{ review.loanDeal?.customer?.firstName || '' }}
+              {{ review.loanDeal?.customer?.lastName || '' }}
+
+              <span
+                *ngIf="
+                  !review.loanDeal?.customer?.firstName &&
+                  !review.loanDeal?.customer?.lastName
+                ">
+                Customer #{{ review.loanDeal?.customer?.customerId ?? '—' }}
+              </span>
+            </td>
+
+            <td>{{ review.loanDeal?.loanType || '—' }}</td>
+
+            <td>
+              {{ review.loanDeal?.amount | currency:'INR':'symbol':'1.0-2' }}
+            </td>
+
+            <td>
+              <span class="status-badge">
+                {{ review.status }}
+              </span>
+            </td>
+
+            <td>
+              {{
+                review.loanDeal?.appliedDate ||
+                review.loanDeal?.createdAt
+                  ? (review.loanDeal?.appliedDate ||
+                     review.loanDeal?.createdAt | date:'dd MMM yyyy')
+                  : '—'
+              }}
+            </td>
+
+            <td>
+              <button
+                type="button"
+                class="view-btn"
+                (click)="openReview(review)">
+                Review
+              </button>
+            </td>
+          </tr>
+
+          <tr *ngIf="filteredReviews.length === 0">
+            <td colspan="6" class="empty-state">
+              {{
+                reviews.length === 0
+                  ? 'No pending deal reviews found.'
+                  : 'No deals match your filters.'
+              }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      <span>
+        Showing {{ firstEntry }} to {{ lastEntry }}
+        of {{ totalElements }} entries
+      </span>
+
+      <div class="pagination-buttons">
+        <button
+          type="button"
+          (click)="previousPage()"
+          [disabled]="page === 0 || isLoading">
+          Previous
+        </button>
+
+        <span>
+          Page {{ totalPages === 0 ? 0 : page + 1 }} of {{ totalPages }}
+        </span>
+
+        <button
+          type="button"
+          (click)="nextPage()"
+          [disabled]="page + 1 >= totalPages || isLoading">
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div
+    *ngIf="selectedReview"
+    class="modal-backdrop"
+    (click)="closeReview()">
+
+    <section
+      class="review-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="review-title"
+      (click)="$event.stopPropagation()">
+
+      <div class="modal-header">
+        <div>
+          <h3 id="review-title">Review Loan Deal</h3>
+          <p>Check the application details before making a decision.</p>
+        </div>
+
+        <button
+          type="button"
+          class="close-btn"
+          aria-label="Close review"
+          (click)="closeReview()"
+          [disabled]="isUpdating">
+          &times;
+        </button>
+      </div>
+
+      <div class="review-details">
+        <div class="detail-item">
+          <span>Review ID</span>
+          <strong>{{ selectedReview.reviewId }}</strong>
+        </div>
+
+        <div class="detail-item">
+          <span>Customer</span>
+          <strong>
+            {{
+              (
+                (selectedReview.loanDeal?.customer?.firstName || '') + ' ' +
+                (selectedReview.loanDeal?.customer?.lastName || '')
+              ).trim() || 'Customer'
+            }}
+          </strong>
+        </div>
+
+        <div class="detail-item">
+          <span>Loan Type</span>
+          <strong>{{ selectedReview.loanDeal?.loanType || '—' }}</strong>
+        </div>
+
+        <div class="detail-item">
+          <span>Requested Amount</span>
+          <strong>
+            {{
+              selectedReview.loanDeal?.amount
+                | currency:'INR':'symbol':'1.0-2'
+            }}
+          </strong>
+        </div>
+
+        <div class="detail-item">
+          <span>Applied Date</span>
+          <strong>
+            {{
+              selectedReview.loanDeal?.appliedDate ||
+              selectedReview.loanDeal?.createdAt
+                ? (selectedReview.loanDeal?.appliedDate ||
+                   selectedReview.loanDeal?.createdAt | date:'dd MMM yyyy')
+                : '—'
+            }}
+          </strong>
+        </div>
+
+        <div class="detail-item">
+          <span>Review Status</span>
+          <strong>{{ selectedReview.status }}</strong>
+        </div>
+      </div>
+
+      <div class="modal-error" *ngIf="errorMessage" role="alert">
+        {{ errorMessage }}
+      </div>
+
+      <div class="modal-actions">
+        <button
+          type="button"
+          class="cancel-btn"
+          (click)="closeReview()"
+          [disabled]="isUpdating">
+          Cancel
+        </button>
+
+        <button
+          type="button"
+          class="reject-btn"
+          (click)="updateReviewStatus('REJECTED')"
+          [disabled]="isUpdating || selectedReview.status !== 'PENDING'">
+          {{ isUpdating ? 'Processing...' : 'Reject' }}
+        </button>
+
+        <button
+          type="button"
+          class="approve-btn"
+          (click)="updateReviewStatus('APPROVED')"
+          [disabled]="isUpdating || selectedReview.status !== 'PENDING'">
+          {{ isUpdating ? 'Processing...' : 'Approve' }}
+        </button>
+      </div>
+    </section>
+  </div>
+</div>

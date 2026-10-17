@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/auth/v1/customer/foreclosure")
 @RequiredArgsConstructor
+@CrossOrigin("http://localhost:4200/")
 public class CustomerForeClosureController {
     private final ForeClosureService foreClosureService;
     private final LoanAccountRepository loanAccountRepository;

@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 @RestController
 @RequestMapping("/v1/disbursement")
 @RequiredArgsConstructor
+@CrossOrigin("http://localhost:4200/")
 public class DisbursementController {
 
     private final DisbursementService disbursementService;
