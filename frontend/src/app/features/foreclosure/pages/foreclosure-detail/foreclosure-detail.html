@@ -1,6 +1,6 @@
 
 <div class="container py-4">
-  <a routerLink="/foreclosure/list" class="btn btn-link px-0 mb-3">
+  <a routerLink="/loan-officer/foreclosure" class="btn btn-link px-0 mb-3">
     &larr; Back to pending requests
   </a>
 
@@ -25,10 +25,7 @@
   </div>
 
   <div *ngIf="loading && !request" class="alert alert-info">
-    <span
-      class="spinner-border spinner-border-sm me-2"
-      aria-hidden="true">
-    </span>
+    <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
     Loading request...
   </div>
 
@@ -77,45 +74,35 @@
         <div class="col-12 col-md-4">
           <div class="border rounded p-3 h-100">
             <div class="text-muted small mb-1">Foreclosure Amount</div>
-            <strong>
-              {{ r.foreClosureAmount | currency:'INR':'symbol':'1.0-2' }}
-            </strong>
+            <strong>{{ r.foreClosureAmount | currency:'INR':'symbol':'1.0-2' }}</strong>
           </div>
         </div>
 
         <div class="col-12 col-md-4">
           <div class="border rounded p-3 h-100">
             <div class="text-muted small mb-1">Outstanding Principal</div>
-            <strong>
-              {{ r.outstandingPrincipal | currency:'INR':'symbol':'1.0-2' }}
-            </strong>
+            <strong>{{ r.outstandingPrincipal | currency:'INR':'symbol':'1.0-2' }}</strong>
           </div>
         </div>
 
         <div class="col-12 col-md-4">
           <div class="border rounded p-3 h-100">
             <div class="text-muted small mb-1">Accrued Interest</div>
-            <strong>
-              {{ r.accruedInterest | currency:'INR':'symbol':'1.0-2' }}
-            </strong>
+            <strong>{{ r.accruedInterest | currency:'INR':'symbol':'1.0-2' }}</strong>
           </div>
         </div>
 
         <div class="col-12 col-md-4">
           <div class="border rounded p-3 h-100">
             <div class="text-muted small mb-1">Overdue Dues</div>
-            <strong>
-              {{ r.overdueDues | currency:'INR':'symbol':'1.0-2' }}
-            </strong>
+            <strong>{{ r.overdueDues | currency:'INR':'symbol':'1.0-2' }}</strong>
           </div>
         </div>
 
         <div class="col-12 col-md-4">
           <div class="border rounded p-3 h-100">
             <div class="text-muted small mb-1">Foreclosure Fee</div>
-            <strong>
-              {{ r.foreclosureFee | currency:'INR':'symbol':'1.0-2' }}
-            </strong>
+            <strong>{{ r.foreclosureFee | currency:'INR':'symbol':'1.0-2' }}</strong>
           </div>
         </div>
 
@@ -170,9 +157,7 @@
           [disabled]="r.status !== 'PENDING' || saving">
         </textarea>
 
-        <div class="form-text">
-          Remarks are optional.
-        </div>
+        <div class="form-text">Remarks are optional.</div>
       </div>
 
       <div *ngIf="r.status === 'PENDING'" class="d-flex flex-wrap gap-2">
@@ -181,13 +166,11 @@
           class="btn btn-success"
           (click)="approve()"
           [disabled]="saving || loading">
-
           <span
             *ngIf="saving"
             class="spinner-border spinner-border-sm me-2"
             aria-hidden="true">
           </span>
-
           {{ saving ? 'Processing...' : 'Approve Request' }}
         </button>
 

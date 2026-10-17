@@ -13,4 +13,5 @@ public interface LoanClosureRepo extends JpaRepository<LoanClosure, Long> {
     Optional<LoanClosure> findByLoanAccountLoanAccountId(Long loanAccountId);
     boolean existsByLoanAccountLoanAccountId(Long loanAccountId);
     List<LoanClosure> findAllByOrderByClosureDateDesc();
+    List<LoanClosure> findAllByLoanAccount_Customer_CustomerIdOrderByClosureDateDesc(Long customerId);
 }

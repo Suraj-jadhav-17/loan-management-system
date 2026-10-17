@@ -1,20 +1,196 @@
+
 :host {
   display: block;
   min-width: 0;
+  color: #172033;
 }
 
 .container {
-  max-width: 1200px;
+  max-width: 1400px;
 }
 
-.card {
-  border-color: #e5e7eb;
-  border-radius: 0.75rem;
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+
+  h2 {
+    font-size: 1.8rem;
+    font-weight: 650;
+    color: #172033;
+  }
+
+  p {
+    font-size: 0.95rem;
+  }
+}
+
+.refresh-btn {
+  border-radius: 8px;
+  white-space: nowrap;
+}
+
+.state-card,
+.history-card {
+  background: #fff;
+  border: 1px solid #e5eaf2;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgb(15 23 42 / 5%);
+}
+
+.state-card {
+  padding: 48px 24px;
+
+  h5 {
+    font-size: 1.1rem;
+    font-weight: 650;
+    margin-bottom: 10px;
+  }
+
+  p {
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+  }
+}
+
+.empty-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 66px;
+  height: 66px;
+  margin-bottom: 18px;
+  border-radius: 50%;
+  background: #eef4ff;
+  color: #2459b3;
+  font-size: 1.8rem;
+}
+
+.history-heading {
+  padding: 22px 24px;
+  border-bottom: 1px solid #e9edf4;
+
+  h5 {
+    font-weight: 650;
+    font-size: 1.05rem;
+  }
+
+  p {
+    font-size: 0.88rem;
+  }
+}
+
+.history-table {
+  min-width: 900px;
+
+  thead th {
+    padding: 15px 18px;
+    background: #f7f9fc;
+    color: #526078;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.035em;
+    white-space: nowrap;
+    border-bottom: 1px solid #e5eaf2;
+  }
+
+  tbody td {
+    padding: 17px 18px;
+    color: #344054;
+    font-size: 0.9rem;
+    border-bottom: 1px solid #edf0f5;
+  }
+
+  tbody tr:last-child td {
+    border-bottom: 0;
+  }
+
+  tbody tr:hover {
+    background: #fafcff;
+  }
+}
+
+.account-id {
+  color: #2459b3;
+  font-weight: 650;
+}
+
+.type-label {
+  display: inline-block;
+  padding: 5px 9px;
+  border-radius: 6px;
+  background: #eef4ff;
+  color: #2459b3;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.amount {
+  font-weight: 600;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.status-closed {
+  background: #e7f7ed;
+  color: #187344;
+}
+
+.status-pending {
+  background: #fff4d6;
+  color: #8b6508;
+}
+
+.status-failed {
+  background: #fdeaea;
+  color: #b42318;
+}
+
+.flag {
+  color: #8b6508;
+  font-size: 0.83rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.flag-yes {
+  color: #187344;
+}
+
+.alert {
+  border-radius: 10px;
 }
 
 @media (max-width: 576px) {
   .container {
     padding-left: 12px;
     padding-right: 12px;
+  }
+
+  .page-header h2 {
+    font-size: 1.45rem;
+  }
+
+  .state-card {
+    padding: 32px 16px;
+  }
+
+  .history-heading {
+    padding: 18px 16px;
   }
 }

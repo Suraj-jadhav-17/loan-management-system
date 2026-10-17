@@ -22,6 +22,15 @@ export class LoanClosureService {
   }
 
   /**
+   * Customer: get closure history for the logged-in customer.
+   */
+  getCustomerClosureHistory(): Observable<LoanClosure[]> {
+    return this.http.get<LoanClosure[]>(
+      `${this.baseUrl}/auth/v1/customer/loan-closure/history`
+    );
+  }
+
+  /**
    * Loan officer: get closure details for a loan account.
    */
   getOfficerClosure(loanAccountId: number): Observable<LoanClosure> {

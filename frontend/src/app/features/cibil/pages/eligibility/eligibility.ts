@@ -20,14 +20,20 @@ export class Eligibility implements OnInit {
   result: EligibilityResult | null = null;
   customerId: number | null = null;
   officerMode = false;
+
   loading = false;
   checking = false;
+  reviewing = false;
+
   error = '';
   message = '';
 
   ngOnInit(): void {
     this.officerMode = this.router.url.startsWith('/loan-officer/');
-    const id = Number(this.route.snapshot.queryParamMap.get('customerId'));
+
+    const id = Number(
+      this.route.snapshot.queryParamMap.get('customerId')
+    );
 
     if (this.officerMode) {
       if (Number.isInteger(id) && id > 0) {
@@ -43,6 +49,10 @@ export class Eligibility implements OnInit {
   }
 
   loadLatest(): void {
+    if (this.loading || this.checking || this.reviewing) {
+      return;
+    }
+
     if (this.officerMode && (!this.customerId || this.customerId <= 0)) {
       this.error = 'Enter a valid customer ID.';
       return;
@@ -50,6 +60,7 @@ export class Eligibility implements OnInit {
 
     this.loading = true;
     this.error = '';
+    this.message = '';
 
     const request = this.officerMode
       ? this.cibil.getCustomerEligibility(this.customerId!)
@@ -64,13 +75,16 @@ export class Eligibility implements OnInit {
         this.result = null;
         this.loading = false;
         this.error =
-          err?.error?.message || 'Unable to load the eligibility result.';
+          err?.error?.message ||
+          'Unable to load the eligibility result.';
       }
     });
   }
 
   check(): void {
-    if (this.checking) return;
+    if (this.checking || this.loading || this.reviewing) {
+      return;
+    }
 
     if (this.officerMode && (!this.customerId || this.customerId <= 0)) {
       this.error = 'Enter a valid customer ID.';
@@ -99,8 +113,59 @@ export class Eligibility implements OnInit {
     });
   }
 
+  review(decision: 'APPROVE' | 'REJECT'): void {
+    if (this.reviewing || this.loading || this.checking) {
+      return;
+    }
+
+    if (!this.officerMode) {
+      this.error = 'Only a loan officer can review eligibility.';
+      return;
+    }
+
+    if (!this.customerId || this.customerId <= 0) {
+      this.error = 'Enter a valid customer ID.';
+      return;
+    }
+
+    if (!this.result) {
+      this.error = 'Load an eligibility result before reviewing it.';
+      return;
+    }
+
+    this.reviewing = true;
+    this.error = '';
+    this.message = '';
+
+    this.cibil.reviewCustomerEligibility(
+      this.customerId,
+      decision
+    ).subscribe({
+      next: data => {
+        this.result = data;
+        this.reviewing = false;
+        this.message =
+          decision === 'APPROVE'
+            ? 'Eligibility approved successfully.'
+            : 'Eligibility rejected successfully.';
+      },
+      error: err => {
+        this.reviewing = false;
+        this.error =
+          err?.error?.message ||
+          `Unable to ${decision.toLowerCase()} eligibility.`;
+      }
+    });
+  }
+
   setCustomerId(value: string): void {
     const id = Number(value);
-    this.customerId = Number.isInteger(id) && id > 0 ? id : null;
+
+    this.customerId =
+      Number.isInteger(id) && id > 0 ? id : null;
+
+    this.result = null;
+    this.error = '';
+    this.message = '';
   }
 }

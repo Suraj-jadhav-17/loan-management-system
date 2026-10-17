@@ -1,8 +1,9 @@
+
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Navbar } from '../../../shared/components/customer/navbar/navbar';
-import { Topbar } from '../../../shared/components/customer/topbar/topbar';
-import { CustomerService } from '../../../features/registration/services/customer/customer';
+import { Navbar } from '../../../../shared/components/customer/navbar/navbar';
+import { Topbar } from '../../../../shared/components/customer/topbar/topbar';
+import { CustomerDashboardService } from '../services/customer-dashboard.service';
 
 @Component({
   selector: 'app-customer-dashboard',
@@ -16,7 +17,9 @@ export class Dashboard implements OnInit {
   loading = true;
   errorMessage = '';
 
-  constructor(private customerService: CustomerService) {}
+  constructor(
+    private customerService: CustomerDashboardService
+  ) {}
 
   ngOnInit(): void {
     this.customerService.getDashboard().subscribe({
@@ -25,7 +28,9 @@ export class Dashboard implements OnInit {
         this.loading = false;
       },
       error: (error: any) => {
-        this.errorMessage = error?.error?.message || 'Dashboard data could not be loaded.';
+        this.errorMessage =
+          error?.error?.message ||
+          'Dashboard data could not be loaded.';
         this.loading = false;
       }
     });

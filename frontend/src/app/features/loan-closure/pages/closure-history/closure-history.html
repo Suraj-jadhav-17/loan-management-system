@@ -1,26 +1,179 @@
+
 <div class="container py-4">
-  <div class="mb-4">
-    <h2 class="mb-1">Loan Closure History</h2>
+  <div class="page-header mb-4">
+    <div>
+      <h2 class="mb-1">Loan Closure History</h2>
+      <p class="text-secondary mb-0">
+        View your recorded loan closure activity.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      class="btn btn-outline-primary refresh-btn"
+      [disabled]="loading"
+      (click)="loadHistory()"
+    >
+      <i class="bi bi-arrow-clockwise me-1"></i>
+      {{ loading ? 'Loading...' : 'Refresh' }}
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div
+    *ngIf="loading"
+    class="state-card text-center"
+    role="status"
+    aria-live="polite"
+  >
+    <div class="spinner-border text-primary mb-3" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <h5>Loading closure history</h5>
     <p class="text-secondary mb-0">
-      View recorded loan closure activity.
+      Please wait while we retrieve your records.
     </p>
   </div>
 
-  <div class="card shadow-sm">
-    <div class="card-body p-4 p-md-5 text-center">
-      <div class="mb-3">
-        <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-light p-3">
-          <i class="bi bi-clock-history fs-2 text-secondary"></i>
-        </span>
+  <!-- Error -->
+  <div
+    *ngIf="!loading && errorMessage"
+    class="alert alert-danger"
+    role="alert"
+  >
+    <div class="d-flex align-items-start gap-2">
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      <div class="flex-grow-1">
+        <strong>Unable to load history</strong>
+        <p class="mb-2">{{ errorMessage }}</p>
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-danger"
+          (click)="loadHistory()"
+        >
+          Try Again
+        </button>
       </div>
+    </div>
+  </div>
 
-      <h5>Closure History Not Available</h5>
+  <!-- Empty state -->
+  <div
+    *ngIf="!loading && !errorMessage && closures.length === 0"
+    class="state-card text-center"
+  >
+    <div class="empty-icon">
+      <i class="bi bi-clock-history"></i>
+    </div>
 
-      <p class="text-secondary mx-auto mb-0" style="max-width: 550px;">
-        The current backend provides closure details for an individual loan
-        account, but does not expose an endpoint to retrieve a list of closure
-        history records. History will be displayed here once that API is added.
-      </p>
+    <h5>No Loan Closure Records</h5>
+
+    <p class="text-secondary mb-0">
+      You don't have any recorded loan closures yet. Once a loan is closed,
+      its details will appear here.
+    </p>
+  </div>
+
+  <!-- History records -->
+  <div
+    *ngIf="!loading && !errorMessage && closures.length > 0"
+    class="history-card"
+  >
+    <div class="history-heading">
+      <div>
+        <h5 class="mb-1">Your Closure Records</h5>
+        <p class="text-secondary mb-0">
+          {{ closures.length }}
+          {{ closures.length === 1 ? 'record' : 'records' }} found
+        </p>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table history-table align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Loan Account ID</th>
+            <th>Closure Date</th>
+            <th>Closure Type</th>
+            <th>Settlement Amount</th>
+            <th>Status</th>
+            <th>NOC</th>
+            <th>CIBIL Updated</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr
+            *ngFor="
+              let closure of closures;
+              trackBy: trackByClosureId
+            "
+          >
+            <td>
+              <span class="account-id">
+                #{{ closure.loanAccountId }}
+              </span>
+            </td>
+
+            <td>
+              {{
+                closure.closureDate
+                  ? (closure.closureDate | date: 'dd MMM yyyy, hh:mm a')
+                  : '—'
+              }}
+            </td>
+
+            <td>
+              <span class="type-label">
+                {{
+                  closure.closureType === 'FORECLOSURE'
+                    ? 'Foreclosure'
+                    : 'Normal'
+                }}
+              </span>
+            </td>
+
+            <td class="amount">
+              {{
+                closure.finalSettlementAmount
+                  | currency: 'INR' : 'symbol' : '1.2-2'
+              }}
+            </td>
+
+            <td>
+              <span
+                class="status-badge"
+                [ngClass]="{
+                  'status-closed': closure.closureStatus === 'CLOSED',
+                  'status-pending': closure.closureStatus === 'PENDING',
+                  'status-failed': closure.closureStatus === 'FAILED'
+                }"
+              >
+                {{ closure.closureStatus }}
+              </span>
+            </td>
+
+            <td>
+              <span
+                class="flag"
+                [class.flag-yes]="closure.nocGenerated"
+              >
+                {{ closure.nocGenerated ? 'Generated' : 'Pending' }}
+              </span>
+            </td>
+
+            <td>
+              <span
+                class="flag"
+                [class.flag-yes]="closure.cibilUpdated"
+              >
+                {{ closure.cibilUpdated ? 'Yes' : 'No' }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </div>

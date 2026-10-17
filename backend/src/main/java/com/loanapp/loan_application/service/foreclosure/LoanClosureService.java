@@ -13,4 +13,5 @@ public interface LoanClosureService {
     LoanClosureResponseDto getClosure(Long loanAccountId);
 
     List<LoanClosureResponseDto> getClosureHistory();
+    List<LoanClosureResponseDto> getCustomerClosureHistory(Long customerId);
 }

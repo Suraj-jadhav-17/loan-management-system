@@ -1,7 +1,8 @@
+
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Navbar } from '../../../shared/components/admin/navbar/navbar';
-import { ReportService } from '../../../features/reports/services/report.service';
+import { Navbar } from '../../../../shared/components/admin/navbar/navbar';
+import { ReportService } from '../../../../features/reports/services/report.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -25,44 +26,53 @@ export class Dashboard implements OnInit {
   }
 
   private loadDashboard(): void {
-    let completed = 0;
-    const finish = () => {
-      completed++;
-      if (completed === 4) this.loading = false;
-    };
+    this.loading = true;
+    this.errorMessage = '';
 
-    this.reportService.getTotalApplications().subscribe({
-      next: (response: any) => this.applications = response?.data ?? response ?? {},
-      error: () => { this.errorMessage = 'Some report data could not be loaded.'; finish(); },
-      complete: finish
-    });
-    this.reportService.getCibilReport().subscribe({
-      next: (response: any) => this.cibilReport = response?.data ?? response ?? {},
-      error: () => { this.errorMessage = 'Some report data could not be loaded.'; finish(); },
-      complete: finish
-    });
-    this.reportService.getScoreCardReport().subscribe({
-      next: (response: any) => this.scoreCardReport = response?.data ?? response ?? {},
-      error: () => { this.errorMessage = 'Some report data could not be loaded.'; finish(); },
-      complete: finish
-    });
-    this.reportService.getCustomers().subscribe({
+    this.reportService.getReports().subscribe({
       next: (response: any) => {
-        const data = response?.data ?? response;
-        this.customers = Array.isArray(data) ? data : [];
+        this.applications = response?.applications?.data
+          ?? response?.applications
+          ?? {};
+
+        this.cibilReport = response?.cibil?.data
+          ?? response?.cibil
+          ?? {};
+
+        this.scoreCardReport = response?.scoreCards?.data
+          ?? response?.scoreCards
+          ?? {};
+
+        this.loading = false;
       },
-      error: () => { this.errorMessage = 'Customer list could not be loaded.'; finish(); },
-      complete: finish
+      error: () => {
+        this.errorMessage = 'Dashboard reports could not be loaded.';
+        this.loading = false;
+      }
     });
   }
 
   get cibilCount(): number {
-    if (Array.isArray(this.cibilReport)) return this.cibilReport.length;
-    return Number(this.cibilReport?.totalCibil ?? this.cibilReport?.total ?? 0);
+    if (Array.isArray(this.cibilReport)) {
+      return this.cibilReport.length;
+    }
+
+    return Number(
+      this.cibilReport?.totalCibil ??
+      this.cibilReport?.total ??
+      0
+    );
   }
 
   get scoreCardCount(): number {
-    if (Array.isArray(this.scoreCardReport)) return this.scoreCardReport.length;
-    return Number(this.scoreCardReport?.totalScoreCard ?? this.scoreCardReport?.total ?? 0);
+    if (Array.isArray(this.scoreCardReport)) {
+      return this.scoreCardReport.length;
+    }
+
+    return Number(
+      this.scoreCardReport?.totalScoreCard ??
+      this.scoreCardReport?.total ??
+      0
+    );
   }
 }

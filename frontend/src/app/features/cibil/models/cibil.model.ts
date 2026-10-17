@@ -1,3 +1,4 @@
+
 export interface ScoreCard {
   scoreCardId: number;
   customerId: number;
@@ -21,6 +22,14 @@ export interface EligibilityResult {
   borrowingLimit: string | null;
   loanAmount: number | null;
   rejectionReason: string | null;
+}
+
+export interface CibilReport {
+  id: number;
+  customerId: number;
+  panNo: string | null;
+  cibilScore: number | null;
+  checkDate: string | null;
 }
 
 export interface PageResponse<T> {
