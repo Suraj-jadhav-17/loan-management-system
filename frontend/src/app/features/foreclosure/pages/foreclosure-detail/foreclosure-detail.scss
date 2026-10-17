@@ -1,0 +1,38 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.container {
+  max-width: 1200px;
+}
+
+.card {
+  border-color: #e5e7eb;
+  border-radius: 0.75rem;
+}
+
+.card-header {
+  border-bottom-color: #e5e7eb;
+}
+
+textarea {
+  resize: vertical;
+}
+
+dl,
+p,
+h5 {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 576px) {
+  .container {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}

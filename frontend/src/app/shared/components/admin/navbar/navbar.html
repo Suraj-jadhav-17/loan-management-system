@@ -13,6 +13,7 @@
       <span>Dashboard</span>
     </a>
 
+    <!-- Customer Management -->
     <button class="menu-link menu-toggle"
             type="button"
             (click)="toggleMenu('customers')">
@@ -37,19 +38,24 @@
         KYC Verification
       </a>
 
-      <a routerLink="/loan-officer/eligibility"
+      <a routerLink="/loan-officer/cibil/eligibility"
          routerLinkActive="selected">
-        Eligibility Check
+        CIBIL Eligibility
       </a>
 
-      <a routerLink="/loan-officer/score-card"
+      <a routerLink="/loan-officer/cibil/scorecard"
          routerLinkActive="selected">
-        Score Cards
+        CIBIL Scorecard
+      </a>
+
+      <a routerLink="/loan-officer/cibil/history"
+         routerLinkActive="selected">
+        CIBIL History
       </a>
 
     </div>
 
-    
+    <!-- Loan Processing -->
     <button class="menu-link menu-toggle"
             type="button"
             (click)="toggleMenu('loans')">
@@ -88,7 +94,21 @@
 
       <a routerLink="/loan-officer/emi-schedules">EMI Schedules</a>
       <a routerLink="/loan-officer/payments">Loan Payments</a>
-      <a routerLink="/loan-officer/foreclosure">Foreclosure Requests</a>
+
+      <a routerLink="/loan-officer/foreclosure"
+         routerLinkActive="selected">
+        Foreclosure Requests
+      </a>
+
+      <a routerLink="/loan-officer/loan-closure"
+         routerLinkActive="selected">
+        Loan Closure
+      </a>
+
+      <a routerLink="/loan-officer/loan-closure/history"
+         routerLinkActive="selected">
+        Loan Closure History
+      </a>
 
     </div>
 

@@ -1,41 +1,87 @@
-
 <div class="container py-4">
-  <h2>Foreclosure</h2>
-  <p class="text-secondary">Create a foreclosure request or check its status.</p>
+  <div class="mb-4">
+    <h2 class="mb-1">Foreclosure</h2>
+    <p class="text-secondary mb-0">
+      Submit a foreclosure request or check its status.
+    </p>
+  </div>
 
-  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
-  <div *ngIf="message" class="alert alert-success">{{ message }}</div>
+  <div *ngIf="error" class="alert alert-danger" role="alert">
+    {{ error }}
+  </div>
+
+  <div *ngIf="message" class="alert alert-success" role="alert">
+    {{ message }}
+  </div>
 
   <div class="row g-4">
-    <div class="col-lg-6">
-      <div class="card h-100">
-        <div class="card-header"><h5 class="mb-0">New Request</h5></div>
+    <div class="col-12 col-lg-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-white py-3">
+          <h5 class="mb-0">New Foreclosure Request</h5>
+        </div>
+
         <div class="card-body">
           <form (ngSubmit)="submitRequest()">
             <div class="mb-3">
-              <label class="form-label" for="loanAccountId">Loan Account ID</label>
-              <input class="form-control" id="loanAccountId"
-                name="loanAccountId" type="number" min="1"
-                [(ngModel)]="loanAccountId" required />
+              <label class="form-label" for="loanAccountId">
+                Loan Account ID
+              </label>
+              <input
+                class="form-control"
+                id="loanAccountId"
+                name="loanAccountId"
+                type="number"
+                min="1"
+                step="1"
+                [(ngModel)]="loanAccountId"
+                placeholder="Enter loan account ID"
+                required>
             </div>
 
             <div class="mb-3">
-              <label class="form-label" for="type">Foreclosure Type</label>
-              <select class="form-select" id="type" name="type"
-                [(ngModel)]="type" required>
+              <label class="form-label" for="type">
+                Foreclosure Type
+              </label>
+              <select
+                class="form-select"
+                id="type"
+                name="type"
+                [(ngModel)]="type"
+                required>
                 <option value="FULL">Full Foreclosure</option>
                 <option value="PARTIAL">Partial Foreclosure</option>
               </select>
             </div>
 
             <div class="mb-3" *ngIf="type === 'PARTIAL'">
-              <label class="form-label" for="partialAmount">Partial Amount</label>
-              <input class="form-control" id="partialAmount"
-                name="partialAmount" type="number" min="1"
-                [(ngModel)]="partialAmount" required />
+              <label class="form-label" for="partialAmount">
+                Partial Amount (₹)
+              </label>
+              <input
+                class="form-control"
+                id="partialAmount"
+                name="partialAmount"
+                type="number"
+                min="0.01"
+                step="0.01"
+                [(ngModel)]="partialAmount"
+                placeholder="Enter partial amount"
+                [required]="type === 'PARTIAL'">
+              <div class="form-text">
+                Enter the amount you want to pay towards partial foreclosure.
+              </div>
             </div>
 
-            <button class="btn btn-primary w-100" type="submit" [disabled]="loading">
+            <button
+              class="btn btn-primary w-100"
+              type="submit"
+              [disabled]="loading">
+              <span
+                *ngIf="loading"
+                class="spinner-border spinner-border-sm me-2"
+                aria-hidden="true">
+              </span>
               {{ loading ? 'Submitting...' : 'Submit Request' }}
             </button>
           </form>
@@ -43,16 +89,35 @@
       </div>
     </div>
 
-    <div class="col-lg-6">
-      <div class="card h-100">
-        <div class="card-header"><h5 class="mb-0">Check Request</h5></div>
+    <div class="col-12 col-lg-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-white py-3">
+          <h5 class="mb-0">Check Existing Request</h5>
+        </div>
+
         <div class="card-body">
           <form (ngSubmit)="loadRequest()">
-            <label class="form-label" for="requestId">Foreclosure Request ID</label>
-            <input class="form-control mb-3" id="requestId" name="requestId"
-              type="number" min="1" [(ngModel)]="requestId" required />
-            <button class="btn btn-outline-primary w-100" [disabled]="loading">
-              View Request
+            <div class="mb-3">
+              <label class="form-label" for="requestId">
+                Foreclosure Request ID
+              </label>
+              <input
+                class="form-control"
+                id="requestId"
+                name="requestId"
+                type="number"
+                min="1"
+                step="1"
+                [(ngModel)]="requestId"
+                placeholder="Enter foreclosure request ID"
+                required>
+            </div>
+
+            <button
+              class="btn btn-outline-primary w-100"
+              type="submit"
+              [disabled]="loading">
+              {{ loading ? 'Please wait...' : 'View Request' }}
             </button>
           </form>
         </div>
@@ -60,38 +125,168 @@
     </div>
   </div>
 
-  <div *ngIf="request as r" class="card mt-4">
-    <div class="card-header d-flex justify-content-between">
+  <div *ngIf="request as r" class="card shadow-sm mt-4">
+    <div
+      class="card-header bg-white d-flex flex-wrap
+             justify-content-between align-items-center gap-2 py-3">
       <h5 class="mb-0">Request #{{ r.foreClosureId }}</h5>
-      <span class="badge text-bg-primary">{{ r.status }}</span>
+
+      <span
+        class="badge"
+        [ngClass]="{
+          'text-bg-warning': r.status === 'PENDING',
+          'text-bg-success': r.status === 'APPROVED' || r.status === 'PAID',
+          'text-bg-danger': r.status === 'REJECTED',
+          'text-bg-secondary': r.status === 'CANCELLED'
+        }">
+        {{ r.status }}
+      </span>
     </div>
+
     <div class="card-body">
       <div class="row g-3">
-        <div class="col-md-4"><strong>Loan Account:</strong> {{ r.loanAccountId }}</div>
-        <div class="col-md-4"><strong>Type:</strong> {{ r.foreClosureType }}</div>
-        <div class="col-md-4">
-          <strong>Amount:</strong>
-          {{ r.foreClosureAmount | currency:'INR':'symbol':'1.0-2' }}
+        <div class="col-12 col-md-6 col-xl-4">
+          <div class="border rounded p-3 h-100">
+            <div class="text-secondary small">Loan Account</div>
+            <strong>{{ r.loanAccountId }}</strong>
+          </div>
         </div>
-        <div class="col-md-4">
-          <strong>Outstanding Principal:</strong>
-          {{ r.outstandingPrincipal | currency:'INR':'symbol':'1.0-2' }}
+
+        <div class="col-12 col-md-6 col-xl-4">
+          <div class="border rounded p-3 h-100">
+            <div class="text-secondary small">Foreclosure Type</div>
+            <strong>{{ r.foreClosureType }}</strong>
+          </div>
         </div>
-        <div class="col-md-4">
-          <strong>Accrued Interest:</strong>
-          {{ r.accruedInterest | currency:'INR':'symbol':'1.0-2' }}
+
+        <div class="col-12 col-md-6 col-xl-4">
+          <div class="border rounded p-3 h-100">
+            <div class="text-secondary small">Foreclosure Amount</div>
+            <strong>
+              {{ r.foreClosureAmount | currency:'INR':'symbol':'1.0-2' }}
+            </strong>
+          </div>
         </div>
-        <div class="col-md-4">
-          <strong>Foreclosure Fee:</strong>
-          {{ r.foreclosureFee | currency:'INR':'symbol':'1.0-2' }}
+
+        <div class="col-12 col-md-6 col-xl-4">
+          <div class="border rounded p-3 h-100">
+            <div class="text-secondary small">Outstanding Principal</div>
+            <strong>
+              {{ r.outstandingPrincipal | currency:'INR':'symbol':'1.0-2' }}
+            </strong>
+          </div>
         </div>
-        <div class="col-md-4"><strong>Paid:</strong> {{ r.isPaid ? 'Yes' : 'No' }}</div>
-        <div class="col-md-4">
-          <strong>Requested:</strong>
-          {{ r.requestedAt | date:'short' }}
+
+        <div class="col-12 col-md-6 col-xl-4">
+          <div class="border rounded p-3 h-100">
+            <div class="text-secondary small">Accrued Interest</div>
+            <strong>
+              {{ r.accruedInterest | currency:'INR':'symbol':'1.0-2' }}
+            </strong>
+          </div>
         </div>
-        <div class="col-md-4" *ngIf="r.remarks">
-          <strong>Remarks:</strong> {{ r.remarks }}
+
+        <div class="col-12 col-md-6 col-xl-4">
+          <div class="border rounded p-3 h-100">
+            <div class="text-secondary small">Overdue Dues</div>
+            <strong>
+              {{ r.overdueDues | currency:'INR':'symbol':'1.0-2' }}
+            </strong>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-xl-4">
+          <div class="border rounded p-3 h-100">
+            <div class="text-secondary small">Foreclosure Fee</div>
+            <strong>
+              {{ r.foreclosureFee | currency:'INR':'symbol':'1.0-2' }}
+            </strong>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-xl-4">
+          <div class="border rounded p-3 h-100">
+            <div class="text-secondary small">Payment Status</div>
+            <span
+              class="badge"
+              [ngClass]="r.isPaid ? 'text-bg-success' : 'text-bg-secondary'">
+              {{ r.isPaid ? 'Paid' : 'Not Paid' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-xl-4">
+          <div class="border rounded p-3 h-100">
+            <div class="text-secondary small">Requested At</div>
+            <strong>{{ r.requestedAt | date:'medium' }}</strong>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-xl-4" *ngIf="r.approvedAt">
+          <div class="border rounded p-3 h-100">
+            <div class="text-secondary small">Approved At</div>
+            <strong>{{ r.approvedAt | date:'medium' }}</strong>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-xl-4" *ngIf="r.paymentDate">
+          <div class="border rounded p-3 h-100">
+            <div class="text-secondary small">Payment Date</div>
+            <strong>{{ r.paymentDate | date:'medium' }}</strong>
+          </div>
+        </div>
+
+        <div class="col-12" *ngIf="r.remarks">
+          <div class="alert alert-secondary mb-0">
+            <strong>Remarks:</strong> {{ r.remarks }}
+          </div>
+        </div>
+
+        <div class="col-12" *ngIf="r.status === 'APPROVED' && !r.isPaid">
+          <div class="border rounded p-3">
+            <div class="d-flex flex-column flex-md-row
+                        justify-content-between align-items-md-center gap-3">
+              <div>
+                <h6 class="mb-1">Complete Foreclosure Payment</h6>
+                <p class="text-secondary small mb-0">
+                  Pay the approved settlement amount using Razorpay Checkout.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                class="btn btn-success"
+                [disabled]="loading"
+                (click)="payRequest()">
+                <span
+                  *ngIf="loading"
+                  class="spinner-border spinner-border-sm me-2"
+                  aria-hidden="true">
+                </span>
+                {{ loading ? 'Processing...' : 'Pay Now' }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12" *ngIf="r.isPaid || r.status === 'PAID'">
+          <div class="alert alert-success mb-0" role="status">
+            <strong>Payment completed.</strong>
+            This foreclosure request is marked as paid.
+          </div>
+        </div>
+
+        <div class="col-12" *ngIf="r.status === 'PENDING'">
+          <div class="alert alert-warning mb-0">
+            Payment will be available after the loan officer approves
+            the foreclosure request.
+          </div>
+        </div>
+
+        <div class="col-12" *ngIf="r.status === 'REJECTED'">
+          <div class="alert alert-danger mb-0">
+            This foreclosure request was rejected. Payment is unavailable.
+          </div>
         </div>
       </div>
     </div>

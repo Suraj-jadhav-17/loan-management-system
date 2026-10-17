@@ -1,0 +1,35 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.container {
+  max-width: 1200px;
+}
+
+.card {
+  border-color: #e5e7eb;
+  border-radius: 0.75rem;
+}
+
+.card-header {
+  border-bottom-color: #e5e7eb;
+}
+
+.form-control,
+.btn {
+  min-height: 38px;
+}
+
+h5,
+h6,
+p {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 576px) {
+  .container {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}

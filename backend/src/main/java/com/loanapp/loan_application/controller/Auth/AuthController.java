@@ -1,12 +1,12 @@
 package com.loanapp.loan_application.controller.Auth;
 
+import com.loanapp.loan_application.dto.register.AuthFlowResponse;
 import com.loanapp.loan_application.dto.register.LoginDto;
 import com.loanapp.loan_application.dto.register.RegistrationRequest;
 import com.loanapp.loan_application.dto.register.VerifyOtpRequest;
 import com.loanapp.loan_application.entity.register.User;
 import com.loanapp.loan_application.response.ApiResponse;
 import com.loanapp.loan_application.response.LoginResponse;
-import com.loanapp.loan_application.service.jwt.JwtService;
 import com.loanapp.loan_application.service.registration.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -16,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth/v1")
@@ -24,27 +26,40 @@ import java.time.LocalDateTime;
         allowCredentials = "true"
 )
 public class AuthController {
-    private final JwtService jwtService;
+
     private final AuthService authService;
 
-    public AuthController(JwtService jwtService, AuthService authService) {
-        this.jwtService = jwtService;
+    public AuthController(AuthService authService) {
         this.authService = authService;
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<User>> register(@Valid @RequestBody RegistrationRequest registrationRequest, HttpSession session, HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<Map<String, Object>>> register(
+            @Valid @RequestBody RegistrationRequest request,
+            HttpSession session,
+            HttpServletRequest httpRequest) {
 
-        User savedUser = authService.register(registrationRequest);
+        User savedUser = authService.register(request);
 
         session.setAttribute("registrationDone", true);
-        session.setAttribute("email", registrationRequest.getEmail());
+        session.setAttribute("email", request.getEmail());
 
-        ApiResponse<User> response = new ApiResponse<>("200", true, "Registration successful", savedUser, LocalDateTime.now(), request.getRequestURI(), null);
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("userId", savedUser.getUserId());
+        data.put("email", savedUser.getEmail());
+
+        ApiResponse<Map<String, Object>> response = new ApiResponse<>(
+                "201",
+                true,
+                "Registration successful. Verify the OTP sent to your email.",
+                data,
+                LocalDateTime.now(),
+                httpRequest.getRequestURI(),
+                null
+        );
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
-
 
     @PostMapping("/verified-otp")
     public ResponseEntity<?> verifiedEmailOtp(
@@ -54,22 +69,21 @@ public class AuthController {
         Boolean registrationDone =
                 (Boolean) session.getAttribute("registrationDone");
 
-        String customerEmail =
-                (String) session.getAttribute("email");
+        String email = (String) session.getAttribute("email");
 
-        if (registrationDone == null || !registrationDone) {
+        if (!Boolean.TRUE.equals(registrationDone)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body("Please complete registration first.");
         }
 
-        if (customerEmail == null) {
+        if (email == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Registration session expired. Please register again.");
         }
 
-        boolean verifiedOtp = authService.checkOtp(customerEmail, request);
+        boolean verified = authService.checkOtp(email, request);
 
-        if (!verifiedOtp) {
+        if (!verified) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Invalid or expired OTP.");
         }
@@ -80,16 +94,70 @@ public class AuthController {
         return ResponseEntity.ok("Email verified successfully.");
     }
 
-
-
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginDto loginDto, HttpServletRequest request) {
+    public ResponseEntity<AuthFlowResponse> login(
+            @Valid @RequestBody LoginDto request) {
 
-        LoginResponse loginUser = authService.login(loginDto);
-        ApiResponse<LoginResponse> response = new ApiResponse<>("200", true, "User Login Successfully", loginUser, LocalDateTime.now(), request.getRequestURI(), null);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(authService.login(request));
     }
 
+    @PostMapping("/authenticator/setup")
+    public ResponseEntity<AuthFlowResponse> setupAuthenticator(
+            @RequestHeader("X-Verification-Token") String token) {
 
+        return ResponseEntity.ok(
+                authService.setupAuthenticator(token)
+        );
+    }
+
+    @PostMapping("/authenticator/verify-setup")
+    public ResponseEntity<LoginResponse> verifyAuthenticatorSetup(
+            @RequestHeader("X-Verification-Token") String token,
+            @RequestBody Map<String, String> request) {
+
+        return ResponseEntity.ok(
+                authService.verifyAuthenticatorSetup(
+                        token,
+                        request.get("otp")
+                )
+        );
+    }
+
+    @PostMapping("/authenticator/verify-login")
+    public ResponseEntity<LoginResponse> verifyAuthenticatorLogin(
+            @RequestHeader("X-Verification-Token") String token,
+            @RequestBody Map<String, String> request) {
+
+        return ResponseEntity.ok(
+                authService.verifyAuthenticatorLogin(
+                        token,
+                        request.get("otp")
+                )
+        );
+    }
+
+    @PostMapping("/recovery/request")
+    public ResponseEntity<Map<String, String>> requestRecovery(
+            @RequestHeader("X-Verification-Token") String token) {
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "message",
+                        authService.requestRecoveryOtp(token)
+                )
+        );
+    }
+
+    @PostMapping("/recovery/verify")
+    public ResponseEntity<AuthFlowResponse> verifyRecovery(
+            @RequestHeader("X-Verification-Token") String token,
+            @RequestBody Map<String, String> request) {
+
+        return ResponseEntity.ok(
+                authService.verifyRecoveryOtp(
+                        token,
+                        request.get("otp")
+                )
+        );
+    }
 }

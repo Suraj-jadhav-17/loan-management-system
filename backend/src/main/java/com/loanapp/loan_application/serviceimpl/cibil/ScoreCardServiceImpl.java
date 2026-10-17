@@ -278,7 +278,7 @@ public class ScoreCardServiceImpl implements ScoreCardService {
             );
         }
 
-        if (cibilScore >= 810) {
+        if (cibilScore >= 800) {
             return BigDecimal.valueOf(10_000_000);
         }
 
@@ -286,11 +286,11 @@ public class ScoreCardServiceImpl implements ScoreCardService {
             return BigDecimal.valueOf(7_500_000);
         }
 
-        if (cibilScore >= 690) {
+        if (cibilScore >= 700) {
             return BigDecimal.valueOf(5_000_000);
         }
 
-        if (cibilScore >= 630) {
+        if (cibilScore >= 650) {
             return BigDecimal.valueOf(2_500_000);
         }
 

@@ -8,9 +8,9 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   templateUrl: './navbar.html',
 })
 export class Navbar {
-  openMenu: string | null ='';
+  openMenu: string | null = '';
 
-  toggleMenu(menu:string):void{
+  toggleMenu(menu: string): void {
     this.openMenu = this.openMenu === menu ? null : menu;
   }
 }

@@ -18,6 +18,7 @@ export class ForeclosureDetail implements OnInit {
   private readonly route = inject(ActivatedRoute);
 
   request: ForeClosureResponse | null = null;
+
   remarks = '';
   loading = false;
   saving = false;
@@ -27,7 +28,7 @@ export class ForeclosureDetail implements OnInit {
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
 
-    if (!id || id <= 0) {
+    if (!Number.isInteger(id) || id <= 0) {
       this.error = 'Invalid foreclosure request ID.';
       return;
     }
@@ -36,8 +37,18 @@ export class ForeclosureDetail implements OnInit {
   }
 
   load(id: number): void {
+    if (this.loading || this.saving) {
+      return;
+    }
+
+    if (!Number.isInteger(id) || id <= 0) {
+      this.error = 'Invalid foreclosure request ID.';
+      return;
+    }
+
     this.loading = true;
     this.error = '';
+    this.message = '';
 
     this.foreclosure.getOfficerRequest(id).subscribe({
       next: data => {
@@ -47,50 +58,72 @@ export class ForeclosureDetail implements OnInit {
       },
       error: err => {
         this.loading = false;
-        this.error = err?.error?.message || 'Unable to load request details.';
+        this.error =
+          err?.error?.message ||
+          'Unable to load foreclosure request details.';
       }
     });
   }
 
   approve(): void {
-    if (!this.request) return;
+    if (
+      !this.request ||
+      this.request.status !== 'PENDING' ||
+      this.saving ||
+      this.loading
+    ) {
+      return;
+    }
+
     this.saving = true;
     this.error = '';
     this.message = '';
 
-    this.foreclosure.approveRequest(
-      this.request.foreClosureId, this.remarks
-    ).subscribe({
-      next: data => {
-        this.request = data;
-        this.saving = false;
-        this.message = 'Foreclosure request approved.';
-      },
-      error: err => {
-        this.saving = false;
-        this.error = err?.error?.message || 'Unable to approve request.';
-      }
-    });
+    this.foreclosure
+      .approveRequest(this.request.foreClosureId, this.remarks)
+      .subscribe({
+        next: data => {
+          this.request = data;
+          this.remarks = data.remarks ?? this.remarks;
+          this.saving = false;
+          this.message = 'Foreclosure request approved.';
+        },
+        error: err => {
+          this.saving = false;
+          this.error =
+            err?.error?.message || 'Unable to approve request.';
+        }
+      });
   }
 
   reject(): void {
-    if (!this.request) return;
+    if (
+      !this.request ||
+      this.request.status !== 'PENDING' ||
+      this.saving ||
+      this.loading
+    ) {
+      return;
+    }
+
     this.saving = true;
     this.error = '';
     this.message = '';
 
-    this.foreclosure.rejectRequest(
-      this.request.foreClosureId, this.remarks
-    ).subscribe({
-      next: data => {
-        this.request = data;
-        this.saving = false;
-        this.message = 'Foreclosure request rejected.';
-      },
-      error: err => {
-        this.saving = false;
-        this.error = err?.error?.message || 'Unable to reject request.';
-      }
-    });
+    this.foreclosure
+      .rejectRequest(this.request.foreClosureId, this.remarks)
+      .subscribe({
+        next: data => {
+          this.request = data;
+          this.remarks = data.remarks ?? this.remarks;
+          this.saving = false;
+          this.message = 'Foreclosure request rejected.';
+        },
+        error: err => {
+          this.saving = false;
+          this.error =
+            err?.error?.message || 'Unable to reject request.';
+        }
+      });
   }
 }

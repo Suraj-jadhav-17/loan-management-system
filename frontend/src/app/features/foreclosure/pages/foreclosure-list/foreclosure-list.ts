@@ -29,12 +29,14 @@ export class ForeclosureList implements OnInit {
 
     this.foreclosure.getPendingRequests().subscribe({
       next: result => {
-        this.requests = result;
+        this.requests = Array.isArray(result) ? result : [];
         this.loading = false;
       },
       error: err => {
+        this.requests = [];
         this.loading = false;
-        this.error = err?.error?.message || 'Unable to load pending requests.';
+        this.error =
+          err?.error?.message || 'Unable to load pending foreclosure requests.';
       }
     });
   }
