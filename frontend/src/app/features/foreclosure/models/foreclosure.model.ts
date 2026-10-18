@@ -1,4 +1,3 @@
-
 export type ForeClosureType = 'FULL' | 'PARTIAL';
 
 export type ForeClosureStatus =

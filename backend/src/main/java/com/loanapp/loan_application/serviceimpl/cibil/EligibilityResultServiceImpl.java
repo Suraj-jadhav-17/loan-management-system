@@ -164,7 +164,7 @@ public class EligibilityResultServiceImpl implements EligibilityResultService {
             );
         }
 
-        if (score >= 810) {
+        if (score >= 800) {
             return new Decision(EligibilityStatus.ELIGIBLE, "AUTO_APPROVE", "LOW", "Above 75 Lakh", BigDecimal.valueOf(10_000_000), null);
         }
 
@@ -172,11 +172,11 @@ public class EligibilityResultServiceImpl implements EligibilityResultService {
             return new Decision(EligibilityStatus.ELIGIBLE, "MANUAL_REVIEW", "LOW", "50 Lakh to 75 Lakh", BigDecimal.valueOf(7_500_000), "Manual officer review required.");
         }
 
-        if (score >= 690) {
+        if (score >= 700) {
             return new Decision(EligibilityStatus.UNDER_REVIEW, "MANUAL_REVIEW", "MEDIUM", "25 Lakh to 50 Lakh", BigDecimal.valueOf(5_000_000), "Manual officer review required.");
         }
 
-        if (score >= 630) {
+        if (score >= 650) {
             return new Decision(EligibilityStatus.UNDER_REVIEW, "MANUAL_REVIEW", "MEDIUM", "10 Lakh to 25 Lakh", BigDecimal.valueOf(2_500_000), "Manual officer review required.");
         }
 

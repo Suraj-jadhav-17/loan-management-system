@@ -14,6 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/auth/v1/customer/kyc")
+@CrossOrigin("http://localhost:4200/")
 public class CustomerKycDocumentController {
     private final CustomerKycDocumentService service;
     public CustomerKycDocumentController(CustomerKycDocumentService service) { this.service = service; }

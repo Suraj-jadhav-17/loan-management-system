@@ -16,6 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("v1/loandeal")
 @RequiredArgsConstructor
+@CrossOrigin("http://localhost:4200")
 public class LoanDealController {
 
     private final LoanDealService loanDealService;

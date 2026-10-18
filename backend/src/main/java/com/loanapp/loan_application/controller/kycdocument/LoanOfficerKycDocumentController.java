@@ -14,6 +14,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/auth/v1/loan-office/kyc")
+@CrossOrigin("http://localhost:4200/")
 public class LoanOfficerKycDocumentController {
     private final LoanOfficerKycDocumentService service;
     public LoanOfficerKycDocumentController(LoanOfficerKycDocumentService service) { this.service = service; }

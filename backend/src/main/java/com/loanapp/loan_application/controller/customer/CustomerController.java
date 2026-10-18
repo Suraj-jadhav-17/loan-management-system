@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("auth/v1/customer/")
+@CrossOrigin("http://localhost:4200/")
 public class CustomerController {
 
     private final UserService userService;

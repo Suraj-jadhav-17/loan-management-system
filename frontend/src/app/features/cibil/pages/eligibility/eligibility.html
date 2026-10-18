@@ -1,73 +1,193 @@
 
 <div class="container py-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
     <div>
-      <h2>Loan Eligibility</h2>
-      <p class="text-secondary mb-0">Check your loan eligibility result</p>
+      <h2 class="mb-1">Loan Eligibility</h2>
+      <p class="text-secondary mb-0">
+        Check eligibility using available credit information.
+      </p>
     </div>
-    <button class="btn btn-primary" (click)="check()" [disabled]="checking">
+
+    <button
+      type="button"
+      class="btn btn-primary"
+      (click)="check()"
+      [disabled]="checking || loading || reviewing">
+      <span
+        *ngIf="checking"
+        class="spinner-border spinner-border-sm me-2">
+      </span>
       {{ checking ? 'Checking...' : 'Check Eligibility' }}
     </button>
   </div>
 
-  <div *ngIf="loading" class="alert alert-info">Loading eligibility...</div>
-  <div *ngIf="error" class="alert alert-warning">{{ error }}</div>
-  <div *ngIf="message" class="alert alert-success">{{ message }}</div>
+  <div *ngIf="officerMode" class="card shadow-sm mb-4">
+    <div class="card-body">
+      <label
+        for="eligibilityCustomerId"
+        class="form-label fw-semibold">
+        Customer ID
+      </label>
 
-  <div *ngIf="result as r" class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
+      <div class="input-group">
+        <input
+          #customerInput
+          id="eligibilityCustomerId"
+          type="number"
+          min="1"
+          class="form-control"
+          placeholder="Enter customer ID"
+          [value]="customerId ?? ''"
+          (input)="setCustomerId(customerInput.value)">
+
+        <button
+          type="button"
+          class="btn btn-outline-primary"
+          (click)="loadLatest()"
+          [disabled]="loading || checking || reviewing || !customerId">
+          Load Eligibility
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="alert alert-info" role="status">
+    Loading eligibility result...
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger" role="alert">
+    {{ error }}
+  </div>
+
+  <div *ngIf="message" class="alert alert-success" role="status">
+    {{ message }}
+  </div>
+
+  <div *ngIf="result as r" class="card shadow-sm">
+    <div class="card-header bg-white d-flex flex-wrap justify-content-between align-items-center gap-2 py-3">
       <h5 class="mb-0">Eligibility Result #{{ r.id }}</h5>
-      <span class="badge text-bg-info">
+
+      <span
+        class="badge"
+        [ngClass]="{
+          'text-bg-success': r.eligibilityStatus === 'ELIGIBLE',
+          'text-bg-danger': r.eligibilityStatus === 'INELIGIBLE' || r.eligibilityStatus === 'REJECTED',
+          'text-bg-warning': !r.eligibilityStatus || r.eligibilityStatus === 'PENDING',
+          'text-bg-info': r.eligibilityStatus !== 'ELIGIBLE' && r.eligibilityStatus !== 'INELIGIBLE' && r.eligibilityStatus !== 'REJECTED' && r.eligibilityStatus !== 'PENDING'
+        }">
         {{ r.eligibilityStatus ?? 'Unknown' }}
       </span>
     </div>
 
     <div class="card-body">
       <div class="row g-3">
-        <div class="col-md-6">
-          <label class="form-label text-secondary">Customer ID</label>
-          <p class="fw-semibold">{{ r.customerId }}</p>
+        <div class="col-12 col-md-6">
+          <div class="border rounded p-3 h-100">
+            <div class="text-secondary small mb-1">Customer ID</div>
+            <h5>{{ r.customerId }}</h5>
+          </div>
         </div>
 
-        <div class="col-md-6">
-          <label class="form-label text-secondary">CIBIL Score</label>
-          <p class="fw-semibold">{{ r.cibilScore ?? 'N/A' }}</p>
+        <div class="col-12 col-md-6">
+          <div class="border rounded p-3 h-100">
+            <div class="text-secondary small mb-1">CIBIL Score</div>
+            <h5>{{ r.cibilScore ?? 'N/A' }}</h5>
+          </div>
         </div>
 
-        <div class="col-md-6">
-          <label class="form-label text-secondary">Decision</label>
-          <p class="fw-semibold">{{ r.decision ?? 'Pending' }}</p>
+        <div class="col-12 col-md-6">
+          <div class="border rounded p-3 h-100">
+            <div class="text-secondary small mb-1">Decision</div>
+            <h5>{{ r.decision ?? 'Pending' }}</h5>
+          </div>
         </div>
 
-        <div class="col-md-6">
-          <label class="form-label text-secondary">Risk Category</label>
-          <p class="fw-semibold">{{ r.riskCategory ?? 'N/A' }}</p>
+        <div class="col-12 col-md-6">
+          <div class="border rounded p-3 h-100">
+            <div class="text-secondary small mb-1">Risk Category</div>
+            <h5>{{ r.riskCategory ?? 'N/A' }}</h5>
+          </div>
         </div>
 
-        <div class="col-md-6">
-          <label class="form-label text-secondary">Loan Amount</label>
-          <p class="fw-semibold">
-            {{ r.loanAmount == null
-              ? 'N/A'
-              : (r.loanAmount | currency:'INR':'symbol':'1.0-2') }}
-          </p>
+        <div class="col-12 col-md-6">
+          <div class="border rounded p-3 h-100">
+            <div class="text-secondary small mb-1">Loan Amount</div>
+            <h5>
+              {{ r.loanAmount == null
+                ? 'N/A'
+                : (r.loanAmount | currency:'INR':'symbol':'1.0-2') }}
+            </h5>
+          </div>
         </div>
 
-        <div class="col-md-6">
-          <label class="form-label text-secondary">Borrowing Limit</label>
-          <p class="fw-semibold">{{ r.borrowingLimit ?? 'N/A' }}</p>
+        <div class="col-12 col-md-6">
+          <div class="border rounded p-3 h-100">
+            <div class="text-secondary small mb-1">Borrowing Limit</div>
+            <h5>{{ r.borrowingLimit ?? 'N/A' }}</h5>
+          </div>
         </div>
 
         <div class="col-12" *ngIf="r.rejectionReason">
           <div class="alert alert-danger mb-0">
-            <strong>Reason:</strong> {{ r.rejectionReason }}
+            <h6>Reason</h6>
+            {{ r.rejectionReason }}
           </div>
         </div>
+      </div>
+
+      <div
+        *ngIf="officerMode"
+        class="border-top mt-4 pt-4">
+        <h6 class="mb-3">Loan Officer Review</h6>
+
+        <div class="d-flex flex-wrap gap-2">
+          <button
+            type="button"
+            class="btn btn-success"
+            (click)="review('APPROVE')"
+            [disabled]="reviewing || loading || checking">
+            <span
+              *ngIf="reviewing"
+              class="spinner-border spinner-border-sm me-2">
+            </span>
+            Approve
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-danger"
+            (click)="review('REJECT')"
+            [disabled]="reviewing || loading || checking">
+            Reject
+          </button>
+        </div>
+
+        <small class="text-secondary d-block mt-2">
+          The review is submitted to the backend for this customer.
+        </small>
       </div>
     </div>
   </div>
 
-  <div *ngIf="!result && !loading" class="alert alert-secondary">
-    No previous eligibility result. Click Check Eligibility to proceed.
+  <div
+    *ngIf="!result && !loading && !error"
+    class="card shadow-sm">
+    <div class="card-body text-center py-5">
+      <h5>No Eligibility Result</h5>
+
+      <p class="text-secondary">
+        {{ officerMode
+          ? 'Enter a customer ID to load or check eligibility.'
+          : 'Click Check Eligibility to request a new result.' }}
+      </p>
+
+      <button
+        type="button"
+        class="btn btn-primary"
+        (click)="check()"
+        [disabled]="checking || loading || reviewing">
+        Check Eligibility
+      </button>
+    </div>
   </div>
 </div>

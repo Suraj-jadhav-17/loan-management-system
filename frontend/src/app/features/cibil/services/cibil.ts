@@ -1,21 +1,55 @@
 
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+
 import { environment } from '../../../../environments/environment';
 
 import {
+  CibilReport,
   ScoreCard,
   EligibilityResult,
   PageResponse
 } from '../models/cibil.model';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root'
+})
 export class Cibil {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = environment.apiUrl;
 
+  // Customer CIBIL report APIs
+
+  createCibilReport(): Observable<CibilReport> {
+    return this.http.post<CibilReport>(
+      `${this.baseUrl}/auth/v1/customer/cibil-reports`,
+      {}
+    );
+  }
+
+  getLatestCibilReport(): Observable<CibilReport> {
+    return this.http.get<CibilReport>(
+      `${this.baseUrl}/auth/v1/customer/cibil-reports/latest`
+    );
+  }
+
+  getCibilReportHistory(
+    page = 0,
+    size = 10
+  ): Observable<PageResponse<CibilReport>> {
+    const params = new HttpParams()
+      .set('page', page)
+      .set('size', size);
+
+    return this.http.get<PageResponse<CibilReport>>(
+      `${this.baseUrl}/auth/v1/customer/cibil-reports/history`,
+      { params }
+    );
+  }
+
   // Customer scorecard APIs
+
   createScoreCard(): Observable<ScoreCard> {
     return this.http.post<ScoreCard>(
       `${this.baseUrl}/auth/v1/customer/scorecards`,
@@ -33,13 +67,18 @@ export class Cibil {
     page = 0,
     size = 10
   ): Observable<PageResponse<ScoreCard>> {
+    const params = new HttpParams()
+      .set('page', page)
+      .set('size', size);
+
     return this.http.get<PageResponse<ScoreCard>>(
       `${this.baseUrl}/auth/v1/customer/scorecards/history`,
-      { params: { page, size } }
+      { params }
     );
   }
 
   // Customer eligibility APIs
+
   checkEligibility(): Observable<EligibilityResult> {
     return this.http.post<EligibilityResult>(
       `${this.baseUrl}/auth/v1/customer/eligibility/check`,
@@ -57,13 +96,18 @@ export class Cibil {
     page = 0,
     size = 10
   ): Observable<PageResponse<EligibilityResult>> {
+    const params = new HttpParams()
+      .set('page', page)
+      .set('size', size);
+
     return this.http.get<PageResponse<EligibilityResult>>(
       `${this.baseUrl}/auth/v1/customer/eligibility/history`,
-      { params: { page, size } }
+      { params }
     );
   }
 
-  // Loan Officer scorecard APIs
+  // Loan officer scorecard APIs
+
   createCustomerScoreCard(customerId: number): Observable<ScoreCard> {
     return this.http.post<ScoreCard>(
       `${this.baseUrl}/auth/v1/loan-office/scorecards/${customerId}`,
@@ -82,13 +126,18 @@ export class Cibil {
     page = 0,
     size = 10
   ): Observable<PageResponse<ScoreCard>> {
+    const params = new HttpParams()
+      .set('page', page)
+      .set('size', size);
+
     return this.http.get<PageResponse<ScoreCard>>(
       `${this.baseUrl}/auth/v1/loan-office/scorecards/${customerId}/history`,
-      { params: { page, size } }
+      { params }
     );
   }
 
-  // Loan Officer eligibility APIs
+  // Loan officer eligibility APIs
+
   checkCustomerEligibility(
     customerId: number
   ): Observable<EligibilityResult> {
@@ -111,9 +160,13 @@ export class Cibil {
     page = 0,
     size = 10
   ): Observable<PageResponse<EligibilityResult>> {
+    const params = new HttpParams()
+      .set('page', page)
+      .set('size', size);
+
     return this.http.get<PageResponse<EligibilityResult>>(
       `${this.baseUrl}/auth/v1/loan-office/eligibility/${customerId}/history`,
-      { params: { page, size } }
+      { params }
     );
   }
 

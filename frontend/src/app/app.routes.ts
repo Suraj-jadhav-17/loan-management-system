@@ -1,4 +1,3 @@
-
 import { Routes } from '@angular/router';
 import { Dashboard as CustomerLayout } from './layout/customer/dashboard/dashboard';
 import { EmiPayments } from './features/emi-payments/pages/emi-payments/emi-payments';

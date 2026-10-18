@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 
 @RestController
 @RequestMapping("/razorpay")
+@CrossOrigin("http://localhost:4200/")
 public class RazorpayController {
 
     private final RazorpayService service;

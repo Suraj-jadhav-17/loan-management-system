@@ -1,3 +1,4 @@
+
 package com.loanapp.loan_application.dto.cibil;
 
 import lombok.AllArgsConstructor;
@@ -14,12 +15,8 @@ import java.time.LocalDateTime;
 public class CIBILReportResponseDto {
 
     private Long id;
-
     private Long customerId;
-
     private String panNo;
-
     private Integer cibilScore;
-
     private LocalDateTime checkDate;
 }

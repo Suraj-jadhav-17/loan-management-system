@@ -10,7 +10,7 @@
     "loan-frontend": {
       "projectType": "application",
       "schematics": {
-        "@schematics/angular:component": {
+        "@schematics/angular": {
           "style": "scss"
         }
       },

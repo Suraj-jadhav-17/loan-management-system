@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 @RestController
 @RequestMapping("/v1/sanction-letter")
 @RequiredArgsConstructor
+@CrossOrigin("http://localhost:4200/")
 public class SanctionLetterController {
 
     private final SanctionLetterService sanctionLetterService;

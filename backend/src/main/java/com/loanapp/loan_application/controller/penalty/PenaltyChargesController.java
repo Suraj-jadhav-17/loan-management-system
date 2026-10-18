@@ -8,6 +8,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/penalties")
+@CrossOrigin("http://localhost:4200/")
 public class PenaltyChargesController {
 
     private final PenaltyChargesService service;

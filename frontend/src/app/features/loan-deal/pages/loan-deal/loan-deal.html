@@ -11,13 +11,26 @@
     <div class="eligible-info">
       <span class="label">Maximum Eligible Loan Amount</span>
 
-      @if (isLoadingScoreCard) {
-        <h3>Loading...</h3>
+      @if (isLoadingScoreCard || isLoadingEligibility) {
+        <h3>Loading eligibility details...</h3>
+      } @else if (!scoreCard) {
+        <h3>Not available</h3>
+        <p>{{ scoreCardError || 'Scorecard not generated. Please complete your CIBIL assessment first.' }}</p>
+      } @else if (!eligibility) {
+        <h3>Not available</h3>
+        <p>{{ eligibilityError || 'Eligibility result not found. Please complete your eligibility assessment first.' }}</p>
+      } @else if (eligibility.eligibilityStatus !== 'ELIGIBLE') {
+        <h3>Loan application unavailable</h3>
+        <p>
+          {{ eligibility.rejectionReason || 'You are not currently eligible for a loan.' }}
+          Status: {{ eligibility.eligibilityStatus || 'Unknown' }}
+        </p>
       } @else if (eligibleLoanAmount !== null) {
         <h3>{{ eligibleLoanAmount | currency:'INR':'symbol':'1.0-2' }}</h3>
+        <p>Your maximum eligible loan amount.</p>
       } @else {
         <h3>Not available</h3>
-        <p>{{ scoreCardError || 'Your eligible loan amount could not be loaded.' }}</p>
+        <p>Your eligible loan amount could not be loaded.</p>
       }
     </div>
 
@@ -25,19 +38,18 @@
   </div>
 
   @if (errorMessage) {
-    <div class="alert error-alert">
+    <div class="alert error-alert" role="alert">
       {{ errorMessage }}
     </div>
   }
 
   @if (successMessage) {
-    <div class="alert success-alert">
+    <div class="alert success-alert" role="status">
       {{ successMessage }}
     </div>
   }
 
   <form #loanForm="ngForm" (ngSubmit)="submitLoanDeal()">
-
     <section class="form-section">
       <h3>Loan Details</h3>
 
@@ -69,7 +81,8 @@
             [max]="eligibleLoanAmount "
             placeholder="Enter amount"
             required>
-          @if (eligibleLoanAmount !== null) {
+
+          @if (eligibleLoanAmount !== null && eligibility?.eligibilityStatus === 'ELIGIBLE') {
             <small>
               Maximum allowed:
               {{ eligibleLoanAmount | currency:'INR':'symbol':'1.0-2' }}
@@ -92,8 +105,9 @@
         </div>
 
         <div class="form-group">
-          <label>Annual Interest Rate</label>
+          <label for="interestRate">Annual Interest Rate</label>
           <input
+            id="interestRate"
             type="text"
             [value]="interestRate !== null ? interestRate + '%' : 'Select loan type'"
             readonly>
@@ -113,7 +127,7 @@
               <option [ngValue]="day">{{ day }} of each month</option>
             }
           </select>
-          <small>Select a Eligible Day </small>
+          <small>Choose your preferred EMI payment day.</small>
         </div>
       </div>
     </section>
@@ -170,10 +184,17 @@
     <div class="form-actions">
       <button
         type="submit"
-        [disabled]="isLoadingScoreCard || eligibleLoanAmount === null">
-        Submit Loan Application
+        [disabled]="
+          isSubmitting ||
+          isLoadingScoreCard ||
+          isLoadingEligibility ||
+          !scoreCard ||
+          !eligibility ||
+          eligibility.eligibilityStatus !== 'ELIGIBLE' ||
+          eligibleLoanAmount === null
+        ">
+        {{ isSubmitting ? 'Submitting...' : 'Submit Loan Application' }}
       </button>
     </div>
-
   </form>
 </div>

@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 @RestController
 @RequestMapping("/v1/deal-review")
 @RequiredArgsConstructor
+@CrossOrigin("http://localhost:4200/")
 public class DealReviewController {
 
     private final DealReviewService dealReviewService;

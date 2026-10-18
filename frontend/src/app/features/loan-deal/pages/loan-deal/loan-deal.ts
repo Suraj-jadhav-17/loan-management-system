@@ -2,7 +2,9 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Cibil } from '../../../cibil/services/cibil';
-import { ScoreCard } from '../../../cibil/models/cibil.model';
+import { EligibilityResult, ScoreCard } from '../../../cibil/models/cibil.model';
+import { LoanDealService } from '../../service/loan-deal-service';
+import { LoanDealRequest } from '../../model/loan-deal-request.model';
 
 @Component({
   selector: 'app-loan-deal',
@@ -14,6 +16,7 @@ import { ScoreCard } from '../../../cibil/models/cibil.model';
 export class LoanDeal implements OnInit {
 
   private readonly cibilService = inject(Cibil);
+  private readonly loanDealService = inject(LoanDealService);
 
   readonly loanTypes = [
     { name: 'Home Loan', value: 'HOME_LOAN' },
@@ -31,6 +34,9 @@ export class LoanDeal implements OnInit {
   scoreCardError = '';
   errorMessage = '';
   successMessage = '';
+  eligibility: EligibilityResult | null = null;
+isLoadingEligibility = false;
+eligibilityError = '';
 
   loanDeal = {
     loanType: '',
@@ -43,9 +49,10 @@ export class LoanDeal implements OnInit {
     emiDay: null as number | null
   };
 
-  ngOnInit(): void {
-    this.loadLatestScoreCard();
-  }
+ ngOnInit(): void {
+  this.loadLatestScoreCard();
+  this.loadLatestEligibility();
+}
 
   get interestRate(): number | null {
     switch (this.loanDeal.loanType) {
@@ -64,6 +71,7 @@ export class LoanDeal implements OnInit {
 
     this.cibilService.getLatestScoreCard().subscribe({
       next: (response: ScoreCard) => {
+        console.log('Latest ScoreCard:', response);
         this.scoreCard = response;
         this.eligibleLoanAmount = response.eligibleLoanAmount;
         this.isLoadingScoreCard = false;
@@ -81,6 +89,27 @@ export class LoanDeal implements OnInit {
       }
     });
   }
+
+  loadLatestEligibility(): void {
+  this.isLoadingEligibility = true;
+  this.eligibilityError = '';
+
+  this.cibilService.getLatestEligibility().subscribe({
+    next: (response: EligibilityResult) => {
+      this.eligibility = response;
+      this.isLoadingEligibility = false;
+    },
+    error: (error: { status?: number }) => {
+      this.eligibility = null;
+
+      this.eligibilityError = error.status === 404
+        ? 'Eligibility result not found. Please complete your eligibility assessment first.'
+        : 'Unable to load your eligibility status. Please try again.';
+
+      this.isLoadingEligibility = false;
+    }
+  });
+}
 
   onLoanDetailsChange(): void {
     this.errorMessage = '';
@@ -154,32 +183,72 @@ export class LoanDeal implements OnInit {
       this.errorMessage = 'EMI day must be between 1 and 28.';
       return false;
     }
+    if (this.isLoadingScoreCard || this.isLoadingEligibility) {
+  this.errorMessage = 'Please wait while your scorecard and eligibility are loading.';
+  return false;
+}
+
+if (!this.scoreCard) {
+  this.errorMessage =
+    'Scorecard not generated. Please complete your CIBIL assessment first.';
+  return false;
+}
+
+if (!this.eligibility) {
+  this.errorMessage =
+    this.eligibilityError || 'Eligibility result not found. Please complete your eligibility assessment first.';
+  return false;
+}
+
+if (
+  this.eligibility.eligibilityStatus !== 'ELIGIBLE'
+) {
+  this.errorMessage =
+    this.eligibility.rejectionReason ||
+    `You are not eligible to apply for a loan. Current status: ${this.eligibility.eligibilityStatus ?? 'Unknown'}.`;
+  return false;
+}
 
     this.errorMessage = '';
     return true;
   }
 
-  submitLoanDeal(): void {
-    this.errorMessage = '';
-    this.successMessage = '';
+ 
+submitLoanDeal(): void {
+  this.errorMessage = '';
+  this.successMessage = '';
 
-    if (this.isSubmitting || !this.validateForm()) {
-      return;
-    }
-
-    const request = {
-      loanType: this.loanDeal.loanType,
-      amount: this.loanDeal.amount,
-      tenureMonths: this.loanDeal.tenureMonths,
-      bankName: this.loanDeal.bankName.trim(),
-      bankAccountNumber: this.loanDeal.bankAccountNumber.trim(),
-      ifscCode: this.loanDeal.ifscCode.trim().toUpperCase(),
-      emiDay: this.loanDeal.emiDay
-    };
-
-    console.log('Validated Loan Deal request:', request);
-
-    this.successMessage =
-      'Form validation successful. Backend submission is not connected yet.';
+  if (this.isSubmitting || !this.validateForm()) {
+    return;
   }
+
+  const request: LoanDealRequest = {
+    customerId: 2,
+    loanType: this.loanDeal.loanType as 'HOME_LOAN' | 'CAR_LOAN',
+    amount: this.loanDeal.amount!,
+    tenureMonths: this.loanDeal.tenureMonths!,
+    emiAmount: 0,
+    bankName: this.loanDeal.bankName.trim(),
+    bankAccountNumber: this.loanDeal.bankAccountNumber.trim(),
+    ifscCode: this.loanDeal.ifscCode.trim().toUpperCase(),
+    emiDay: this.loanDeal.emiDay!
+  };
+
+  this.isSubmitting = true;
+
+  this.loanDealService.createLoanDeal(request).subscribe({
+    next: (response) => {
+      this.successMessage = response.message || 'Loan deal created successfully.';
+      this.isSubmitting = false;
+      console.log('Created Loan Deal:', response.data);
+    },
+    error: (error) => {
+      this.errorMessage =
+        error.error?.message || 'Unable to create loan deal. Please try again.';
+      this.isSubmitting = false;
+      console.error('Loan Deal API error:', error);
+    }
+  });
+}
+
 }

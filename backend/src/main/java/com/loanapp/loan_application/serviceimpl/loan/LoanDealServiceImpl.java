@@ -4,6 +4,7 @@ import com.loanapp.loan_application.dto.loan.LoanDealRequestDto;
 import com.loanapp.loan_application.dto.loan.LoanDealResponseDto;
 
 import com.loanapp.loan_application.entity.cibil.EligibilityResult;
+import com.loanapp.loan_application.entity.cibil.EligibilityStatus;
 import com.loanapp.loan_application.entity.cibil.ScoreCard;
 import com.loanapp.loan_application.entity.loan.LoanDeal;
 import com.loanapp.loan_application.entity.loan.LoanType;
@@ -50,6 +51,9 @@ public class LoanDealServiceImpl  implements LoanDealService {
         Customer customer = customerRepo.findById(request.getCustomerId()).orElseThrow(()->new ResourceNotFoundException("Customer Not Found"));
         ScoreCard card = cardRepo.findTopByCustomerCustomerIdOrderByScoreCardIdDesc(customer.getCustomerId()).orElseThrow(()->new ResourceNotFoundException("Card Not Found"));
         EligibilityResult result =  eligibilityResultRepo.findTopByCustomerCustomerIdOrderByIdDesc(customer.getCustomerId()).orElseThrow(()->new ResourceNotFoundException("Eligibility Result Not Found"));
+        if (result.getEligibilityStatus().equals(EligibilityStatus.INELIGIBLE)||result.getEligibilityStatus().equals(EligibilityStatus.UNDER_REVIEW)) {
+            throw  new InvalidInputException("Invalid input: You are not eligible");
+        }
         if (request.getAmount().compareTo(card.getEligibleLoanAmount()) > 0){
            throw new InvalidInputException("Invalid input: Requested amount exceeds the eligible loan amount");
         }

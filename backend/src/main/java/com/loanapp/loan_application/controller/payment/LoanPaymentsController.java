@@ -8,6 +8,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/payments")
+@CrossOrigin("http://localhost:4200/")
 public class LoanPaymentsController {
 
     private final LoanPaymentsService service;

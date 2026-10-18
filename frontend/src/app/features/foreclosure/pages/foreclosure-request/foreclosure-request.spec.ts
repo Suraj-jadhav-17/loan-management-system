@@ -1,16 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ForeclosureRequest } from './foreclosure-request';
+import { ForeclosureRequestPage } from './foreclosure-request';
 
 describe('ForeclosureRequest', () => {
-  let component: ForeclosureRequest;
-  let fixture: ComponentFixture<ForeclosureRequest>;
+  let component: ForeclosureRequestPage;
+  let fixture: ComponentFixture<ForeclosureRequestPage>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ForeclosureRequest],
+      imports: [ForeclosureRequestPage],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ForeclosureRequest);
+    fixture = TestBed.createComponent(ForeclosureRequestPage);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

@@ -13,6 +13,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/auth/v1/loan-office/support/tickets")
+@CrossOrigin("http://localhost:4200/")
 public class LoanOfficerSupportTicketController {
     private final LoanOfficerSupportTicketService service;
     public LoanOfficerSupportTicketController(LoanOfficerSupportTicketService service) { this.service = service; }

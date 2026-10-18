@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @RestController
 @RequestMapping("/v1/loan-account")
 @RequiredArgsConstructor
+@CrossOrigin("http://localhost:4200/")
 public class LoanAccountController {
 
     private final LoanAccountService loanAccountService;
