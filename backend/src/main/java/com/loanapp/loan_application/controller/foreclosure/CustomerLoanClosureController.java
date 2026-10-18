@@ -17,7 +17,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/auth/v1/customer/loan-closure")
 @RequiredArgsConstructor
-@CrossOrigin("http://localhost:4200/")
 public class CustomerLoanClosureController {
 
     private final LoanClosureService loanClosureService;

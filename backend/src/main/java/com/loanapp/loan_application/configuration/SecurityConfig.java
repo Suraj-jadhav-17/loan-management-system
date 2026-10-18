@@ -44,7 +44,7 @@ public class SecurityConfig {
                                 "/auth/v1/verified-otp",
                                 "/auth/v1/login",
                                 "/oauth/**",
-                                "/auth/v1/customer/**"
+                                "/**"
                         ).permitAll()
 
 //                        .requestMatchers("/auth/v1/customer/**")

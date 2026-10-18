@@ -1,3 +1,4 @@
+
 <aside class="loan-sidebar">
 
   <div class="sidebar-brand">
@@ -7,7 +8,7 @@
 
   <nav class="sidebar-menu">
 
-    <!-- Customer -->
+
     <button class="menu-link menu-toggle"
             type="button"
             (click)="toggleMenu('customer')">
@@ -22,25 +23,35 @@
     <div class="submenu"
          [class.show]="openMenu === 'customer'">
 
-      <a routerLink="/customer/cibil/scorecard"
+          <a routerLink="/loan-officer/score-card"
          routerLinkActive="selected">
-        <i class="bi bi-person"></i>
-        <span>Profile / CIBIL Scorecard</span>
+        Profile
       </a>
 
-      <a routerLink="/customer/cibil/history"
+      <a routerLink="/loan-officer/customers"
          routerLinkActive="selected">
-        CIBIL History
+        <i class="bi bi-speedometer2"> </i><span>Dashboard</span>
       </a>
 
-      <a routerLink="/customer/cibil/eligibility"
+      <a routerLink="/loan-officer/kyc"
+         routerLinkActive="selected">
+        KYC Verification
+      </a>
+
+      <a routerLink="/loan-officer/eligibility"
+         routerLinkActive="selected">
+        CIBIL Score
+      </a>
+
+      <a routerLink="/loan-officer/score-card"
          routerLinkActive="selected">
         Eligibility Result
       </a>
+      
 
     </div>
 
-    <!-- Loan Services -->
+    
     <button class="menu-link menu-toggle"
             type="button"
             (click)="toggleMenu('loan')">
@@ -55,34 +66,14 @@
     <div class="submenu"
          [class.show]="openMenu === 'loan'">
 
-      <!-- Existing teammate routes retained -->
-      <a routerLink="/loan-officer/loan-deals">
-        Apply Loan
-      </a>
-
-      <a routerLink="/loan-officer/deal-review">
-        Track Status
-      </a>
-
-      <!-- Customer foreclosure route -->
-      <a routerLink="/customer/foreclosure/request"
-         routerLinkActive="selected">
-        Foreclosure Request
-      </a>
-
-      <a routerLink="/customer/loan-closure"
-         routerLinkActive="selected">
-        Loan Closure
-      </a>
-
-      <a routerLink="/customer/loan-closure/history"
-         routerLinkActive="selected">
-        Loan Closure History
-      </a>
+      <a routerLink="loan-deal">Apply Loan</a>
+      <a routerLink="/loan-officer/deal-review">Track Status</a>
+      <a routerLink="/loan-officer/sanction-letters">Foreclosure Request</a>
+    
 
     </div>
 
-    <!-- Payments -->
+    <!-- Requests and Collections -->
     <button class="menu-link menu-toggle"
             type="button"
             (click)="toggleMenu('payment')">
@@ -97,33 +88,20 @@
     <div class="submenu"
          [class.show]="openMenu === 'payment'">
 
-      <!-- Existing teammate routes retained -->
-      <a routerLink="/customer/dashboard/emi-scheduler">
-        EMI Schedules
-      </a>
-
-      <a routerLink="/loan-officer/payments">
-        Loan Payments
-      </a>
-
-      <a routerLink="/customer/foreclosure/request"
-         routerLinkActive="selected">
-        Foreclosure Request
-      </a>
+      <a routerLink="/user/emi-schedule">EMI Schedules</a>
+      <a routerLink="/loan-officer/payments">Loan Payments</a>
+      <a routerLink="/loan-officer/foreclosure">Foreclosure Requests</a>
 
     </div>
 
-    <!-- Support Ticket -->
     <a routerLink="/loan-officer/support" class="menu-link">
       <i class="bi bi-ticket-perforated"></i>
       <span>Support Ticket</span>
     </a>
 
-    <!-- Logout: existing link retained, logout logic not changed -->
     <a routerLink="/loan-officer/support" class="menu-link">
       <i class="bi bi-box-arrow-right"></i>
       <span>Logout</span>
     </a>
-
   </nav>
 </aside>

@@ -17,7 +17,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/auth/v1/loan-office/foreclosure")
 @RequiredArgsConstructor
-@CrossOrigin("http://localhost:4200/")
 public class LoanOfficerForeClosureController {
 
     private final ForeClosureService foreClosureService;

@@ -1,0 +1,397 @@
+
+<div class="disbursement-page">
+  <div class="page-header">
+    <div>
+      <h2>Sanction Letter & Disbursement</h2>
+      <p>Manage approved loan deals, view sanction letters, and complete disbursements.</p>
+    </div>
+
+    <button
+      type="button"
+      class="refresh-btn"
+      (click)="loadDisbursements()"
+      [disabled]="isLoading">
+      {{ isLoading ? 'Loading...' : 'Refresh' }}
+    </button>
+  </div>
+
+  <div class="filter-card">
+    <div class="filter-grid">
+      <div class="form-group">
+        <label for="searchText">Search</label>
+        <input
+          id="searchText"
+          type="text"
+          [(ngModel)]="searchText"
+          placeholder="Customer, ID, loan type...">
+      </div>
+
+      <div class="form-group">
+        <label for="startDate">Created From</label>
+        <input
+          id="startDate"
+          type="date"
+          [(ngModel)]="startDate">
+      </div>
+
+      <div class="form-group">
+        <label for="endDate">Created To</label>
+        <input
+          id="endDate"
+          type="date"
+          [(ngModel)]="endDate">
+      </div>
+    </div>
+
+    <div class="filter-actions">
+      <button
+        type="button"
+        class="clear-btn"
+        (click)="clearFilters()">
+        Clear Filters
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-error" role="alert">
+    <span>{{ errorMessage }}</span>
+    <button type="button" (click)="loadDisbursements()">Retry</button>
+  </div>
+
+  <div *ngIf="successMessage" class="alert alert-success" role="status">
+    {{ successMessage }}
+  </div>
+
+  <div class="table-card">
+    <div class="table-toolbar">
+      <div>
+        <label for="pageSize">Show</label>
+        <select
+          id="pageSize"
+          [ngModel]="pageSize"
+          (ngModelChange)="changePageSize($event)">
+          <option *ngFor="let size of pageSizes" [value]="size">
+            {{ size }}
+          </option>
+        </select>
+        <span>entries</span>
+      </div>
+
+      <span class="total-count">
+        Total records: {{ totalElements }}
+      </span>
+    </div>
+
+    <div *ngIf="isLoading" class="loading-state">
+      Loading disbursement records...
+    </div>
+
+    <div *ngIf="!isLoading" class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Customer ID</th>
+            <th>Customer Name</th>
+            <th>Loan Type</th>
+            <th>Loan Amount</th>
+            <th>Tenure</th>
+            <th>Interest Rate</th>
+            <th>EMI Amount</th>
+            <th>Created Date</th>
+            <th>Sanction Letter</th>
+            <th>Disbursement</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let item of filteredDisbursements">
+            <td>
+              {{ item.loanDeal?.customer?.customerId ?? '—' }}
+            </td>
+
+            <td>
+              {{
+                (
+                  (item.loanDeal?.customer?.firstName || '') + ' ' +
+                  (item.loanDeal?.customer?.lastName || '')
+                ).trim() || 'Customer'
+              }}
+            </td>
+
+            <td>{{ item.loanDeal?.loanType || '—' }}</td>
+
+            <td>
+              {{
+                (item.disburseAmount ?? item.loanDeal?.amount)
+                  | currency:'INR':'symbol':'1.0-2'
+              }}
+            </td>
+
+            <td>
+              {{
+                item.loanDeal?.tenureMonths != null
+                  ? item.loanDeal.tenureMonths + ' months'
+                  : '—'
+              }}
+            </td>
+
+            <td>
+              {{
+                item.loanDeal?.interestRate != null
+                  ? item.loanDeal.interestRate + '%'
+                  : '—'
+              }}
+            </td>
+
+            <td>
+              {{
+                item.loanDeal?.emiAmount
+                  | currency:'INR':'symbol':'1.0-2'
+              }}
+            </td>
+
+            <td>
+              {{
+                item.loanDeal?.createdAt
+                  ? (item.loanDeal.createdAt | date:'dd MMM yyyy')
+                  : '—'
+              }}
+            </td>
+
+            <td>
+              <div class="action-buttons">
+                <button
+                  type="button"
+                  class="view-btn"
+                  (click)="viewSanctionLetter(item)">
+                  View
+                </button>
+
+                <button
+                  type="button"
+                  class="download-btn"
+                  (click)="downloadSanctionLetter(item)">
+                  Download
+                </button>
+              </div>
+            </td>
+
+            <td>
+              <button
+                type="button"
+                class="disburse-btn"
+                (click)="openDisbursement(item)"
+                [disabled]="
+                  item.status === 'DISBURSED' ||
+                  item.status === 'COMPLETED'
+                ">
+                {{
+                  item.status === 'DISBURSED' ||
+                  item.status === 'COMPLETED'
+                    ? 'Completed'
+                    : 'Disburse'
+                }}
+              </button>
+            </td>
+
+            <td>
+              <span
+                class="status-badge"
+                [ngClass]="{
+                  'status-success':
+                    item.status === 'DISBURSED' ||
+                    item.status === 'COMPLETED',
+                  'status-pending': item.status === 'PENDING',
+                  'status-failed': item.status === 'FAILED'
+                }">
+                {{ item.status || 'UNKNOWN' }}
+              </span>
+            </td>
+          </tr>
+
+          <tr *ngIf="filteredDisbursements.length === 0">
+            <td colspan="11" class="empty-state">
+              {{
+                disbursements.length === 0
+                  ? 'No disbursement records found.'
+                  : 'No records match your filters.'
+              }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      <span>
+        Showing {{ firstEntry }} to {{ lastEntry }}
+        of {{ totalElements }} records
+      </span>
+
+      <div class="pagination-buttons">
+        <button
+          type="button"
+          (click)="previousPage()"
+          [disabled]="page === 0 || isLoading">
+          Previous
+        </button>
+
+        <span>
+          Page {{ totalPages === 0 ? 0 : page + 1 }}
+          of {{ totalPages }}
+        </span>
+
+        <button
+          type="button"
+          (click)="nextPage()"
+          [disabled]="page + 1 >= totalPages || isLoading">
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div
+    *ngIf="selectedDisbursement"
+    class="modal-backdrop"
+    (click)="closeDisbursement()">
+
+    <section
+      class="disbursement-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="disbursement-title"
+      (click)="$event.stopPropagation()">
+
+      <div class="modal-header">
+        <div>
+          <h3 id="disbursement-title">Complete Disbursement</h3>
+          <p>Verify the loan details and enter the disbursement information.</p>
+        </div>
+
+        <button
+          type="button"
+          class="close-btn"
+          aria-label="Close"
+          (click)="closeDisbursement()"
+          [disabled]="isSubmitting">
+          &times;
+        </button>
+      </div>
+
+      <div class="loan-summary">
+        <div class="summary-item">
+          <span>Customer ID</span>
+          <strong>
+            {{
+              selectedDisbursement.loanDeal?.customer?.customerId ?? '—'
+            }}
+          </strong>
+        </div>
+
+        <div class="summary-item">
+          <span>Customer Name</span>
+          <strong>
+            {{
+              (
+                (selectedDisbursement.loanDeal?.customer?.firstName || '') +
+                ' ' +
+                (selectedDisbursement.loanDeal?.customer?.lastName || '')
+              ).trim() || 'Customer'
+            }}
+          </strong>
+        </div>
+
+        <div class="summary-item">
+          <span>Loan Type</span>
+          <strong>{{ selectedDisbursement.loanDeal?.loanType || '—' }}</strong>
+        </div>
+
+        <div class="summary-item">
+          <span>Loan Amount</span>
+          <strong>
+            {{
+              (selectedDisbursement.disburseAmount ??
+                selectedDisbursement.loanDeal?.amount)
+                | currency:'INR':'symbol':'1.0-2'
+            }}
+          </strong>
+        </div>
+
+        <div class="summary-item">
+          <span>Tenure</span>
+          <strong>
+            {{
+              selectedDisbursement.loanDeal?.tenureMonths != null
+                ? selectedDisbursement.loanDeal.tenureMonths + ' months'
+                : '—'
+            }}
+          </strong>
+        </div>
+
+        <div class="summary-item">
+          <span>EMI Amount</span>
+          <strong>
+            {{
+              selectedDisbursement.loanDeal?.emiAmount
+                | currency:'INR':'symbol':'1.0-2'
+            }}
+          </strong>
+        </div>
+      </div>
+
+      <form
+        class="disbursement-form"
+        (ngSubmit)="completeDisbursement()">
+
+        <div class="form-group">
+          <label for="bankPartner">Bank Partner *</label>
+          <input
+            id="bankPartner"
+            type="text"
+            name="bankPartner"
+            [(ngModel)]="bankPartner"
+            placeholder="Enter bank partner name"
+            required>
+        </div>
+
+        <div class="form-group">
+          <label for="disbursementDate">Disbursement Date and Time *</label>
+          <input
+            id="disbursementDate"
+            type="datetime-local"
+            name="disbursementDate"
+            [(ngModel)]="disbursementDate"
+            required>
+        </div>
+
+        <div *ngIf="errorMessage" class="modal-error" role="alert">
+          {{ errorMessage }}
+        </div>
+
+        <div class="modal-actions">
+          <button
+            type="button"
+            class="cancel-btn"
+            (click)="closeDisbursement()"
+            [disabled]="isSubmitting">
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            class="submit-btn"
+            [disabled]="isSubmitting">
+            {{
+              isSubmitting
+                ? 'Processing...'
+                : 'Confirm Disbursement'
+            }}
+          </button>
+        </div>
+      </form>
+    </section>
+  </div>
+</div>
+

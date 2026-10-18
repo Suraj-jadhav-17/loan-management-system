@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/auth/v1/customer/eligibility")
 @RequiredArgsConstructor
-@CrossOrigin("http://localhost:4200/")
 public class CustomerEligibilityController {
 
     private final EligibilityResultService eligibilityResultService;
